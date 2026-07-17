@@ -1,0 +1,17 @@
+# Dependabot configuration — version updates only.
+# See: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Only `github-actions` is enabled: this repo ships no top-level language
+# manifest. The only Python is stdlib-only helper scripts inside individual
+# skill directories (no requirements.txt / pyproject.toml), which Dependabot
+# cannot track — so `pip` is intentionally omitted.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      actions-minor-and-patch:
+        update-types: [minor, patch]
