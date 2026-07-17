@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>&lt;Project&gt; — Master Gap &amp; Risk Register</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── THEME SYSTEM ── */
+  :root {
+    --bg-page: #0f1117;
+    --bg-card: #0f172a;
+    --bg-card-alt: #1e293b;
+    --border: #1e293b;
+    --border-hover: #334155;
+    --text-primary: #f8fafc;
+    --text-body: #e2e8f0;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --text-faint: #475569;
+    --text-footer: #334155;
+    --bg-hover: #0f172a;
+    --bg-header: #1e293b;
+    --tile-critical-bg: #2d0a0a;  --tile-critical-border: #ef4444;
+    --tile-high-bg: #1c1200;      --tile-high-border: #f59e0b;
+    --tile-medium-bg: #061a10;    --tile-medium-border: #34d399;
+    --tile-open-bg: #0a0f1a;      --tile-open-border: #6366f1;
+    --tile-resolved-bg: #0a0f1a;  --tile-resolved-border: #334155;
+    --sev-critical-bg: #ef444420; --sev-critical-border: #ef444450;
+    --sev-high-bg: #f59e0b20;     --sev-high-border: #f59e0b50;
+    --sev-medium-bg: #34d39920;   --sev-medium-border: #34d39950;
+    --sev-low-bg: #64748b20;      --sev-low-border: #64748b50;
+    --sev-open-bg: #6366f120;     --sev-open-border: #6366f150;
+    --sev-resolved-bg: #33415520; --sev-resolved-border: #33415550;
+    --owner-sap-bg: #6366f120;
+    --owner-biz-bg: #0ea5e920;
+    --owner-vendor-bg: #22c55e20;
+    --owner-it-bg: #f59e0b20;
+    --owner-shared-bg: #ec489920;
+    --owner-legal-bg: #a855f720;
+    --filter-bg: #0f172a;
+    --filter-border: #1e293b;
+    --filter-active-bg: #1e293b;
+    --filter-active-text: #f1f5f9;
+    --filter-active-border: #475569;
+    --toggle-bg: #1e293b;
+    --toggle-border: #334155;
+    --toggle-active-bg: #334155;
+    --toggle-text: #94a3b8;
+    --toggle-active-text: #f1f5f9;
+  }
+
+  [data-theme="light"] {
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-card-alt: #f1f5f9;
+    --border: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-body: #1e293b;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --text-faint: #94a3b8;
+    --text-footer: #94a3b8;
+    --bg-hover: #f1f5f9;
+    --bg-header: #f1f5f9;
+    --tile-critical-bg: #fef2f2; --tile-critical-border: #ef4444;
+    --tile-high-bg: #fffbeb;     --tile-high-border: #f59e0b;
+    --tile-medium-bg: #f0fdf4;   --tile-medium-border: #34d399;
+    --tile-open-bg: #eef2ff;     --tile-open-border: #6366f1;
+    --tile-resolved-bg: #f8fafc; --tile-resolved-border: #cbd5e1;
+    --sev-critical-bg: #fef2f2;  --sev-critical-border: #fecaca;
+    --sev-high-bg: #fffbeb;      --sev-high-border: #fde68a;
+    --sev-medium-bg: #f0fdf4;    --sev-medium-border: #bbf7d0;
+    --sev-low-bg: #f8fafc;       --sev-low-border: #e2e8f0;
+    --sev-open-bg: #eef2ff;      --sev-open-border: #c7d2fe;
+    --sev-resolved-bg: #f8fafc;  --sev-resolved-border: #e2e8f0;
+    --owner-sap-bg: #eef2ff;
+    --owner-biz-bg: #eff6ff;
+    --owner-vendor-bg: #f0fdf4;
+    --owner-it-bg: #fffbeb;
+    --owner-shared-bg: #fdf2f8;
+    --owner-legal-bg: #faf5ff;
+    --filter-bg: #ffffff;
+    --filter-border: #e2e8f0;
+    --filter-active-bg: #e2e8f0;
+    --filter-active-text: #0f172a;
+    --filter-active-border: #94a3b8;
+    --toggle-bg: #f1f5f9;
+    --toggle-border: #e2e8f0;
+    --toggle-active-bg: #e2e8f0;
+    --toggle-text: #64748b;
+    --toggle-active-text: #0f172a;
+  }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    position: fixed; top: 16px; right: 16px; z-index: 1000;
+    display: flex; gap: 0;
+    background: var(--toggle-bg);
+    border: 1px solid var(--toggle-border);
+    border-radius: 8px;
+    padding: 3px;
+    font-size: 12px; font-family: 'Segoe UI', sans-serif;
+  }
+  .theme-toggle button {
+    padding: 5px 10px;
+    border: none; border-radius: 6px;
+    background: transparent;
+    color: var(--toggle-text);
+    cursor: pointer;
+    font-size: 11px; font-weight: 600;
+    transition: all .15s;
+  }
+  .theme-toggle button.active { background: var(--toggle-active-bg); color: var(--toggle-active-text); }
+  .theme-toggle button:hover:not(.active) { color: var(--text-body); }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg-page); color: var(--text-body);
+    min-height: 100vh; padding: 32px 24px;
+  }
+
+  h1 { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 28px; }
+
+  /* ── SCORECARD ── */
+  .scorecard { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; }
+  .score-tile { flex: 1; min-width: 120px; border-radius: 10px; padding: 14px 16px; }
+  .score-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  .score-count { font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+  .score-ids { font-size: 10px; line-height: 1.8; opacity: .55; }
+
+  .tile-critical { background: var(--tile-critical-bg); border: 2px solid var(--tile-critical-border); }
+  .tile-critical .score-label, .tile-critical .score-count { color: #f87171; }
+
+  .tile-high { background: var(--tile-high-bg); border: 2px solid var(--tile-high-border); }
+  .tile-high .score-label, .tile-high .score-count { color: #fbbf24; }
+
+  .tile-medium { background: var(--tile-medium-bg); border: 2px solid var(--tile-medium-border); }
+  .tile-medium .score-label, .tile-medium .score-count { color: #34d399; }
+
+  .tile-open { background: var(--tile-open-bg); border: 2px solid var(--tile-open-border); }
+  .tile-open .score-label, .tile-open .score-count { color: #a5b4fc; }
+
+  .tile-resolved { background: var(--tile-resolved-bg); border: 2px solid var(--tile-resolved-border); }
+  .tile-resolved .score-label, .tile-resolved .score-count { color: var(--text-dim); }
+
+  /* ── REPORT LINKS ── */
+  .report-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .report-links a {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all .15s;
+  }
+  .report-links a:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-card-alt);
+  }
+
+  /* ── FILTER BAR ── */
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
+  .filter-label { font-size: 11px; color: var(--text-faint); margin-right: 4px; }
+  .filter-btn {
+    font-size: 11px; font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 99px;
+    border: 1px solid var(--filter-border);
+    background: var(--filter-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .filter-btn:hover { border-color: var(--border-hover); color: var(--text-body); }
+  .filter-btn.active {
+    background: var(--filter-active-bg);
+    color: var(--filter-active-text);
+    border-color: var(--filter-active-border);
+  }
+
+  /* ── CATEGORY HEADERS ── */
+  .category-header {
+    display: flex; align-items: center; gap: 12px;
+    margin: 32px 0 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .category-number {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .category-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .category-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 8px; }
+  th {
+    text-align: left; padding: 8px 12px;
+    background: var(--bg-header);
+    color: var(--text-muted);
+    font-weight: 600; text-transform: uppercase;
+    font-size: 10px; letter-spacing: .05em;
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  tr:hover td { background: var(--bg-hover); }
+  tr.resolved td { opacity: .55; }
+
+  /* ── SEVERITY BADGES ── */
+  .sev {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+  .sev-critical { background: var(--sev-critical-bg); color: #f87171; border: 1px solid var(--sev-critical-border); }
+  .sev-high     { background: var(--sev-high-bg); color: #fbbf24; border: 1px solid var(--sev-high-border); }
+  .sev-medium   { background: var(--sev-medium-bg); color: #34d399; border: 1px solid var(--sev-medium-border); }
+  .sev-low      { background: var(--sev-low-bg); color: var(--text-muted); border: 1px solid var(--sev-low-border); }
+  .sev-open     { background: var(--sev-open-bg); color: #a5b4fc; border: 1px solid var(--sev-open-border); }
+  .sev-resolved { background: var(--sev-resolved-bg); color: var(--text-dim); border: 1px solid var(--sev-resolved-border); }
+
+  /* ── OWNER PILLS ── */
+  .owner {
+    display: inline-block;
+    font-size: 10px; font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .owner-bsc-sap  { background: var(--owner-sap-bg); color: #a5b4fc; }
+  .owner-bsc-biz  { background: var(--owner-biz-bg); color: #38bdf8; }
+  .owner-vendor   { background: var(--owner-vendor-bg); color: #86efac; }
+  .owner-bsc-it   { background: var(--owner-it-bg); color: #fbbf24; }
+  .owner-shared   { background: var(--owner-shared-bg); color: #f9a8d4; }
+  .owner-legal    { background: var(--owner-legal-bg); color: #d8b4fe; }
+
+  /* ── WORKSTREAM PILLS ── */
+  .ws {
+    display: inline-block;
+    font-size: 10px; font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .ws-ws1  { background: #22c55e15; color: #86efac; }
+  .ws-ws2  { background: #f59e0b15; color: #fde68a; }
+  .ws-ws3  { background: #c084fc15; color: #c084fc; }
+  .ws-ws4  { background: #fb923c15; color: #fb923c; }
+  .ws-ws5  { background: #0ea5e915; color: #7dd3fc; }
+  .ws-ws6  { background: #6366f115; color: #c4b5fd; }
+  .ws-ws7  { background: #22c55e15; color: #86efac; }
+  .ws-arch { background: #ec489915; color: #fda4af; }
+  .ws-cross{ background: #33415530; color: var(--text-muted); }
+  .ws-comm { background: #14b8a615; color: #5eead4; }
+  .ws-reg  { background: #a855f715; color: #d8b4fe; }
+
+  .gap-id { font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+  .gap-title { font-weight: 600; color: var(--text-body); }
+  .gap-detail { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+  .row-hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="theme-toggle">
+  <button onclick="setTheme('system')" id="theme-system">System</button>
+  <button onclick="setTheme('light')" id="theme-light">Light</button>
+  <button onclick="setTheme('dark')" id="theme-dark">Dark</button>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 1 — HEADER (update date on every refresh)
+───────────────────────────────────────────────────────── -->
+<h1>&lt;Project&gt; — Master Gap &amp; Risk Register</h1>
+<p class="subtitle">&lt;Project&gt; · BSC APAC Japan Wave 1 · All workstreams · Last updated &lt;Date&gt; · Integrated with full cross-file gap analysis</p>
+
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 2 — SCORECARD
+     Fill in the count and the compressed ID list per tile.
+     Total across the five tiles must equal the sum of <tr>
+     rows across all category tables below.
+───────────────────────────────────────────────────────── -->
+<div class="scorecard">
+  <div class="score-tile tile-critical">
+    <div class="score-label">Critical</div>
+    <div class="score-count">&lt;NN&gt;</div>
+    <div class="score-ids">&lt;ID list, compressed (e.g. R-01–R-04 · G-01–G-03)&gt;</div>
+  </div>
+  <div class="score-tile tile-high">
+    <div class="score-label">High</div>
+    <div class="score-count">&lt;NN&gt;</div>
+    <div class="score-ids">&lt;ID list&gt;</div>
+  </div>
+  <div class="score-tile tile-medium">
+    <div class="score-label">Medium</div>
+    <div class="score-count">&lt;NN&gt;</div>
+    <div class="score-ids">&lt;ID list&gt;</div>
+  </div>
+  <div class="score-tile tile-open">
+    <div class="score-label">Open Decision</div>
+    <div class="score-count">&lt;NN&gt;</div>
+    <div class="score-ids">&lt;D-NN ids&gt;</div>
+  </div>
+  <div class="score-tile tile-resolved">
+    <div class="score-label">Resolved / Low</div>
+    <div class="score-count">&lt;NN&gt;</div>
+    <div class="score-ids">&lt;ID list&gt;</div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 2b — REPORT LINKS
+     One <a> per individual gap-analysis HTML file in the same
+     folder (exclude gap-register.html itself). Link text is the
+     human-readable topic name. Order should match the category
+     ordering below where practical.
+───────────────────────────────────────────────────────── -->
+<div class="report-links">
+  <a href="quote-creation-gap-analysis.html">Quote Creation</a>
+  <a href="approval-workflow-gap-analysis.html">Approval Workflow</a>
+  <a href="requirements-coverage-gap-analysis.html">Requirements Coverage</a>
+  <a href="sap-integration-gap-analysis.html">SAP Integration</a>
+  <a href="settlement-gap-analysis.html">Settlement</a>
+  <a href="accounting-gap-analysis.html">Accounting</a>
+  <a href="rebate-accounting-gap-analysis.html">Rebate Accounting</a>
+</div>
+
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 3 — FILTER BAR
+     Do not rename buttons casually — filterRows() matches by literal string.
+───────────────────────────────────────────────────────── -->
+<div class="filter-bar">
+  <span class="filter-label">Filter by:</span>
+  <button class="filter-btn active" onclick="filterRows('all')">All</button>
+  <button class="filter-btn" onclick="filterRows('critical')">Critical</button>
+  <button class="filter-btn" onclick="filterRows('high')">High</button>
+  <button class="filter-btn" onclick="filterRows('medium')">Medium</button>
+  <button class="filter-btn" onclick="filterRows('open')">Open Decision</button>
+  <button class="filter-btn" onclick="filterRows('resolved')">Resolved / Low</button>
+  <button class="filter-btn" onclick="filterRows('ws6')">WS6 Accounting</button>
+  <button class="filter-btn" onclick="filterRows('ws5')">WS5 Pricing</button>
+  <button class="filter-btn" onclick="filterRows('ws1')">WS1/WS2 Workflow</button>
+  <button class="filter-btn" onclick="filterRows('arch')">Architecture</button>
+  <button class="filter-btn" onclick="filterRows('cross')">Contradictions</button>
+  <button class="filter-btn" onclick="filterRows('reg')">Regulatory</button>
+  <button class="filter-btn" onclick="filterRows('comm')">Commercial</button>
+</div>
+
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 4 — CATEGORIES
+     Seven canonical categories. Don't invent new ones unless the
+     existing seven genuinely don't fit. Each <tr> needs data-sev
+     and data-ws attributes to drive the filter JS.
+───────────────────────────────────────────────────────── -->
+
+<!-- ═══ CATEGORY 1 — SAP INTEGRATION PAYLOAD DESIGN BLOCKERS ═══ -->
+<div class="category-header" data-category="cat1">
+  <div class="category-number" style="background:#6366f120;color:#a5b4fc;">1</div>
+  <div>
+    <div class="category-title">SAP Integration — Payload Design Blockers</div>
+    <div class="category-desc">Vendor cannot build the API calls without BSC SAP team answering these first</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why Critical</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+
+    <!-- TEMPLATE: example row — replicate per gap, set data-sev and data-ws to match the badge / pill.
+         New SAP integration payload blockers use the SAP- prefix; legacy R-01..R-04 from earlier reports
+         are preserved (never renumbered) per references/conventions.md §2. -->
+    <tr data-sev="critical" data-ws="ws6">
+      <td class="gap-id">SAP-01</td>
+      <td>
+        <span class="gap-title">&lt;Short title&gt;</span>
+        <div class="gap-detail">&lt;Full description with FR / RFP / NFR / BPMN citations.&gt;</div>
+      </td>
+      <td>&lt;Why-it-matters sentence.&gt;</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+
+  </tbody>
+</table>
+
+
+<!-- ═══ CATEGORY 2 — WS6 REBATE ACCOUNTING ═══ -->
+<div class="category-header" data-category="cat2">
+  <div class="category-number" style="background:#6366f120;color:#c4b5fd;">2</div>
+  <div>
+    <div class="category-title">WS6 Rebate Accounting — Unresolved Integration Boundaries</div>
+    <div class="category-desc">SAP internal postings are a black box — but the handoff point and payload design are not fully defined</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why Critical</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <!-- TEMPLATE: rows -->
+  </tbody>
+</table>
+
+
+<!-- ═══ CATEGORY 3 — WORKFLOW CONFIGURATION RISK ═══ -->
+<div class="category-header" data-category="cat3">
+  <div class="category-number" style="background:#22c55e20;color:#86efac;">3</div>
+  <div>
+    <div class="category-title">Workflow — Configuration Risk &amp; BPMN Modelling Defects</div>
+    <div class="category-desc">Platform configuration risk at go-live plus structural errors found in WS1–WS7 BPMN files</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <!-- TEMPLATE: rows -->
+  </tbody>
+</table>
+
+
+<!-- ═══ CATEGORY 4 — ARCHITECTURE ═══ -->
+<div class="category-header" data-category="cat4">
+  <div class="category-number" style="background:#ec489920;color:#fda4af;">4</div>
+  <div>
+    <div class="category-title">Architecture — Confirmed Assumptions, Contradictions &amp; Integration Gaps</div>
+    <div class="category-desc">Confirmed architectural facts carrying dispute risk, plus contradictions in NFRs and missing integration specifications</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Assumption / Gap</th><th>Risk if Disputed or Unresolved</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <!-- TEMPLATE: rows -->
+  </tbody>
+</table>
+
+
+<!-- ═══ CATEGORY 5 — REQUIREMENTS COVERAGE ═══ -->
+<div class="category-header" data-category="cat5">
+  <div class="category-number" style="background:#0ea5e920;color:#7dd3fc;">5</div>
+  <div>
+    <div class="category-title">Requirements Coverage — Contradictions, Missing FRs &amp; Ambiguities</div>
+    <div class="category-desc">FRs that are contradicted, absent, or insufficiently defined to build against — scope dispute risk at fixed price</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <!-- TEMPLATE: rows -->
+  </tbody>
+</table>
+
+
+<!-- ═══ CATEGORY 6 — COMMERCIAL ═══ -->
+<div class="category-header" data-category="cat6">
+  <div class="category-number" style="background:#f59e0b20;color:#fbbf24;">6</div>
+  <div>
+    <div class="category-title">Commercial — Price Master / PCA / SAP</div>
+    <div class="category-desc">Pricing workstream commercial gaps and Price Master / PCA boundary issues</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <!-- TEMPLATE: rows (use data-ws="comm") -->
+  </tbody>
+</table>
+
+
+<!-- ═══ CATEGORY 7 — REGULATORY & COMPLIANCE ═══ -->
+<div class="category-header" data-category="cat7">
+  <div class="category-number" style="background:#a855f720;color:#d8b4fe;">7</div>
+  <div>
+    <div class="category-title">Regulatory &amp; Compliance</div>
+    <div class="category-desc">APPI · J-SOX · NHI · PMDA · FSA · Commercial Code retention · Electronic Signature Act</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <!-- TEMPLATE: rows (use data-ws="reg") -->
+  </tbody>
+</table>
+
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 5 — FOOTER
+───────────────────────────────────────────────────────── -->
+<div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border);font-size:11px;color:var(--text-footer);text-align:center;">
+  &lt;Project&gt; Master Gap &amp; Risk Register · All workstreams · &lt;Date&gt; · Integrated with full cross-file gap analysis<br/>
+  For detailed WS6 accounting analysis see <strong>accounting_gap_analysis.html</strong> · For full findings narrative see <strong>full_gap_analysis.html</strong>
+</div>
+
+
+<!-- ─────────────────────────────────────────────────────────
+     THEME + FILTER SCRIPTS — do not modify
+───────────────────────────────────────────────────────── -->
+<script>
+  function setTheme(mode) {
+    localStorage.setItem('gap-analysis-theme', mode);
+    applyTheme(mode);
+    document.querySelectorAll('.theme-toggle button').forEach(b => b.classList.remove('active'));
+    document.getElementById('theme-' + mode).classList.add('active');
+  }
+  function applyTheme(mode) {
+    if (mode === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', mode);
+    }
+  }
+  (function() {
+    const saved = localStorage.getItem('gap-analysis-theme') || 'system';
+    applyTheme(saved);
+    document.getElementById('theme-' + saved).classList.add('active');
+  })();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if ((localStorage.getItem('gap-analysis-theme') || 'system') === 'system') applyTheme('system');
+  });
+
+  function filterRows(filter) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      if (filter === 'all') { row.classList.remove('row-hidden'); return; }
+      const sev = row.dataset.sev || '';
+      const ws  = row.dataset.ws  || '';
+
+      let show = false;
+      if (filter === 'critical' && sev === 'critical') show = true;
+      if (filter === 'high'     && sev === 'high')     show = true;
+      if (filter === 'medium'   && sev === 'medium')   show = true;
+      if (filter === 'open'     && sev === 'open')     show = true;
+      if (filter === 'resolved' && (sev === 'resolved' || sev === 'low')) show = true;
+      if (filter === 'ws6'  && ws === 'ws6')  show = true;
+      if (filter === 'ws5'  && ws === 'ws5')  show = true;
+      if (filter === 'ws1'  && (ws === 'ws1' || ws === 'ws2')) show = true;
+      if (filter === 'arch' && ws === 'arch') show = true;
+      if (filter === 'cross' && ws === 'cross') show = true;
+      if (filter === 'reg'  && ws === 'reg')  show = true;
+      if (filter === 'comm' && ws === 'comm') show = true;
+
+      row.classList.toggle('row-hidden', !show);
+    });
+
+    document.querySelectorAll('.category-header').forEach(header => {
+      const table = header.nextElementSibling;
+      if (!table) return;
+      const visibleRows = table.querySelectorAll('tbody tr:not(.row-hidden)');
+      header.style.display = visibleRows.length === 0 ? 'none' : 'flex';
+      table.style.display  = visibleRows.length === 0 ? 'none' : 'table';
+    });
+  }
+</script>
+
+</body>
+</html>

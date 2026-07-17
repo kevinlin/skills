@@ -1,0 +1,28 @@
+# User expertise classifier
+
+This classifier measures the strength of the user’s expertise exhibited in a session, on a five-point scale.
+
+## Task
+
+Classify the user’s apparent EXPERTISE in the specific domain/task they are attempting in this session. Pick EXACTLY ONE of these labels: 1, 2, 3, 4, 5, or Unclear, where 1 = Novice, 2 = Beginner, 3 = Intermediate, 4 = Advanced, 5 = Expert, and Unclear when evidence is too thin.
+
+This measures domain-specific familiarity with the WORK being done — command of the terminology, structures, and conventions of whatever they are doing in this session. Someone can be a senior software engineer but a beginner at Rust, SOC coding, or differential privacy — rate them on the task AT HAND, not their career. Rate domain expertise, NOT general intelligence, NOT agent’s performance, and NOT task difficulty. 
+
+Weigh these three signals TOGETHER — they are co-equal, not ranked:
+
+1. **SETUP SPECIFICITY** — does the user frame the problem using named entities and constraints that require domain knowledge to even reach for? ‘analyze this data’ vs. ‘compute the IRR over the cohort tagged _2024H2’ sit at different ends. Naming files or paths that are visible on screen is NOT domain knowledge — anyone using the agent does that. Weight things the user could only say if they already knew the domain.
+2. **VERIFICATION TYPE** — what kind of verification does the user ask for? Generic asks (‘please double-check’, ‘are you sure?’, ‘verify your work’) are EPISTEMIC HUMILITY, not expertise — a careful novice does this. Targeted asks (‘show me how you set the config for X’, ‘did you actually call commit()?’, ‘what is the cardinality of that join?’) require knowing WHAT to check, which is expertise. Rate the TYPE, not the presence.
+3. **DIRECTION OF CORRECTION** — who corrects whom on domain matters? If agent has to correct the user’s terminology, mental model, or approach (‘actually, X doesn’t work that way — you probably want Y’), that pulls the rating DOWN toward 1-2. If the user catches agent’s domain mistakes or steers away from a wrong approach agent proposed, that pulls UP toward 4-5. If neither side corrects the other on domain matters, this signal is neutral.
+
+## The options are below:
+
+- **1: Novice**. Framing is generic or imprecise; does not use domain-specific names for the things being worked on. Verification asks are absent or entirely generic (‘please double-check’). Does not notice when agent produces wrong output. agent has to supply or correct basic domain concepts the user did not bring. May be articulate in prose, but the words are in service of asking for help, not directing a piece of domain work.
+- **2: Beginner**. Framing uses some correct terminology, but loosely or with occasional mis-use. Verification asks are mostly generic with at most occasional targeted ones. Pushes back on obviously wrong outputs but misses subtle ones. agent corrects or reframes the user’s approach or terminology at least once. Specifies WHAT they want at a high level but not the specific shape, constraints, or invariants. A fluent technologist working OUTSIDE their domain — articulate, names the files in front of them, states goals clearly, but lacks the domain-specific mental model — lands here, not at 3 or 4.
+- **3: Intermediate**. Framing is precise at a directive level — names the files, the outputs, the categories, the libraries — but does not engage with methodology or tradeoffs. Mix of generic and targeted verification. Catches meaningful mistakes but does not routinely invoke specific technical reasoning when correcting. Neither side is consistently correcting the other on domain matters. A domain expert delegating a routine task they do not need to think hard about can also land here.
+- **4: Advanced**. Framing shows structural domain knowledge in at least one way that is NOT readable off the screen: names a specific edge case, non-obvious constraint or invariant, version-specific behavior, or known failure mode; describes the problem in domain-precise terms beyond what a beginner would reach for. Merely naming files, paths, or visible APIs does NOT count — those are available to anyone looking at the codebase. Verification or correction is moderately specific — points to a particular mechanic or asks for a specific piece of state (‘did you actually...’, ‘show me the config for...’) at least once. The user catches at least one of agent’s domain mistakes or steers away from a wrong approach; agent does not have to correct the user’s domain model.
+- **5: Expert**. Framing or steering shows ANY of: insider-only naming (jargon / conventions / library internals that only a practitioner uses), unprompted discussion of tradeoffs, surgical verification asks (‘what’s the blocking factor on dim 2 of that kernel?’, ‘is the policy evaluating principal.group or request context?’), authoritative corrections invoking specific technical reasoning, preemptive edge-case handling, or test designs targeting specific failure modes. One or two of these in a session is enough — do not require all of them. Direction of correction is user→agent, never agent→user on domain matters. The defining vibe is ‘insider talking to an equal’ even when the session is short.
+- **Unclear**: Reserve for sessions where the user’s contribution is so thin that NO direction-of-expertise signal exists — almost entirely tool calls / retry requests with no substantive framing at all. When ANY framing is present, even sparse, pick the best-fit 1-5 level rather than abstaining.
+
+## Reference
+
+Anthropic Research: [Agentic coding and persistent returns to expertise](https://www.anthropic.com/research/claude-code-expertise)

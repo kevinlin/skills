@@ -1,0 +1,53 @@
+{
+  "skill_name": "agent-insights",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "fixture-pipeline",
+      "prompt": "The directory agent-insights/tests/fixtures mimics a user home directory containing AI coding agent session logs (Claude Code, Claude Cowork, GitHub Copilot for VS Code / CLI / JetBrains, Cursor, Codex, Kiro, OpenCode, Antigravity). Analyze the agent sessions from the last 30 days found there and produce a usage insights report: a self-contained HTML report file plus a short 'At a Glance' markdown summary. A per-tool breakdown is required.",
+      "expected_output": "Self-contained HTML report + summary.md. All 10 fixture tools detected (12 sessions: 1 claude-code, 1 claude-cowork, 2 copilot-vscode, 1 copilot-cli, 2 copilot-jetbrains, 1 cursor, 1 codex, 1 kiro, 1 opencode, 1 antigravity), per-tool breakdown table with models used, At a Glance with what's-working/hindering/quick-wins, no fabricated stats.",
+      "files": [],
+      "assertions": [
+        "An HTML report file exists in the outputs directory",
+        "The HTML report is self-contained: no external http(s) script/stylesheet references",
+        "The report's per-tool breakdown lists all 10 fixture tools: claude-code, claude-cowork, copilot-vscode, copilot-cli, copilot-jetbrains, cursor, codex, kiro, opencode, antigravity",
+        "The Per-Tool Breakdown section visualizes all 4 metrics as charts: sessions, user messages, hours, and tool calls (not just a sessions bar chart)",
+        "The report surfaces the models used per session/tool (e.g. claude-opus-4-5, claude-opus-4-8, gpt-5.5, composer-2.5-fast appear in a models chart or table column)",
+        "The report states the analysis model (the main agent model that generated the report), distinct from the per-session models of the scanned logs (e.g. an 'Analysis model (main agent): <model>' line, not 'unknown')",
+        "The report and/or summary reflects the correct fixture session count (12 sessions total; not a fabricated number)",
+        "summary.md contains an At a Glance summary covering what's working, what's hindering, and quick wins",
+        "The report contains a friction or improvement-oriented section grounded in the transcripts (not generic boilerplate)",
+        "The Stats section includes a User Expertise chart breaking sessions down by expertise level (e.g. 1_novice..5_expert)"
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "real-data-7d",
+      "prompt": "Generate a usage insights report analyzing my locally stored AI coding agent sessions (Claude Code, GitHub Copilot, Cursor, Codex, etc.) from the last 7 days. I want a self-contained HTML report plus an 'At a Glance' summary in chat.",
+      "expected_output": "Report built from real local session logs of multiple tools, with sessions/messages/hours stats, At a Glance summary, and report path. Should find real Claude Code (and likely Cursor/OpenCode) sessions, not claim no data exists.",
+      "files": [],
+      "assertions": [
+        "An HTML report file exists in the outputs directory",
+        "Real local sessions were found and analyzed (report shows >= 1 session from >= 1 actual tool; does not claim no data exists)",
+        "summary.md contains a stats line with session count and hours",
+        "summary.md contains an At a Glance summary",
+        "The report is self-contained HTML with no external http(s) resource references",
+        "The Per-Tool Breakdown section visualizes all 4 metrics as charts: sessions, user messages, hours, and tool calls"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "natural-trigger-14d",
+      "prompt": "How am I using my AI coding tools lately? Look at my agent sessions from the last two weeks and give me insights: what's working, what's causing friction, and how usage differs across the tools.",
+      "expected_output": "14-day window analysis answering all three asks: what's working, friction points, and cross-tool usage differences, backed by real session data, plus an HTML report.",
+      "files": [],
+      "assertions": [
+        "An HTML report file exists in the outputs directory",
+        "The output addresses what's working (a concrete strengths/working-well section grounded in real sessions)",
+        "The output addresses friction (specific friction points, not generic advice)",
+        "The output addresses cross-tool differences (compares usage across at least two tools, or explicitly states only one tool was found)",
+        "summary.md contains an At a Glance summary"
+      ]
+    }
+  ]
+}

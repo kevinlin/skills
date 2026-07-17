@@ -1,0 +1,25 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+.history/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+
+# Claude Code
+.claude/
+
+# AGENTS.md
+AGENTS.md
+
+# Packaged skills
+*.zip
+
+# Playwright CLI
+.playwright-cli/

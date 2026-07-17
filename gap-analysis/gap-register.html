@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>&lt;Project&gt; — Master Gap &amp; Risk Register</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── THEME SYSTEM ── */
+  :root {
+    --bg-page: #0f1117;
+    --bg-card: #0f172a;
+    --bg-card-alt: #1e293b;
+    --border: #1e293b;
+    --border-hover: #334155;
+    --text-primary: #f8fafc;
+    --text-body: #e2e8f0;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --text-faint: #475569;
+    --text-footer: #334155;
+    --bg-hover: #0f172a;
+    --bg-header: #1e293b;
+    --arrow-line: #334155;
+    /* Card backgrounds */
+    --card-inscope-bg: #0c2340;
+    --card-inscope-border: #0ea5e9;
+    --card-sap-bg: #1a1040;
+    --card-sap-border: #6366f1;
+    --card-gap-bg: #2d0a0a;
+    --card-gap-border: #ef4444;
+    --card-implied-bg: #1c1200;
+    --card-implied-border: #f59e0b;
+    --card-external-bg: #0a1a10;
+    --card-external-border: #22c55e;
+    --card-actor-bg: #0a1a10;
+    --card-actor-border: #22c55e;
+    --card-deferred-bg: #0a1a10;
+    --card-deferred-border: #22c55e;
+    /* Tile backgrounds (for gap_register scorecard) */
+    --tile-critical-bg: #2d0a0a;
+    --tile-critical-border: #ef4444;
+    --tile-high-bg: #1c1200;
+    --tile-high-border: #f59e0b;
+    --tile-medium-bg: #061a10;
+    --tile-medium-border: #34d399;
+    --tile-open-bg: #0a0f1a;
+    --tile-open-border: #6366f1;
+    --tile-resolved-bg: #0a0f1a;
+    --tile-resolved-border: #334155;
+    /* Severity badge backgrounds */
+    --sev-critical-bg: #ef444420;
+    --sev-critical-border: #ef444450;
+    --sev-high-bg: #f59e0b20;
+    --sev-high-border: #f59e0b50;
+    --sev-medium-bg: #34d39920;
+    --sev-medium-border: #34d39950;
+    --sev-low-bg: #64748b20;
+    --sev-low-border: #64748b50;
+    --sev-open-bg: #6366f120;
+    --sev-open-border: #6366f150;
+    --sev-resolved-bg: #33415520;
+    --sev-resolved-border: #33415550;
+    /* Owner pill backgrounds */
+    --owner-sap-bg: #6366f120;
+    --owner-biz-bg: #0ea5e920;
+    --owner-vendor-bg: #22c55e20;
+    --owner-it-bg: #f59e0b20;
+    --owner-shared-bg: #ec489920;
+    --owner-legal-bg: #a855f720;
+    /* Filter bar */
+    --filter-bg: #0f172a;
+    --filter-border: #1e293b;
+    --filter-active-bg: #1e293b;
+    --filter-active-text: #f1f5f9;
+    --filter-active-border: #475569;
+    /* Theme toggle */
+    --toggle-bg: #1e293b;
+    --toggle-border: #334155;
+    --toggle-active-bg: #334155;
+    --toggle-text: #94a3b8;
+    --toggle-active-text: #f1f5f9;
+  }
+
+  [data-theme="light"] {
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-card-alt: #f1f5f9;
+    --border: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-body: #1e293b;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --text-faint: #94a3b8;
+    --text-footer: #94a3b8;
+    --bg-hover: #f1f5f9;
+    --bg-header: #f1f5f9;
+    --arrow-line: #cbd5e1;
+    /* Card backgrounds */
+    --card-inscope-bg: #eff6ff;
+    --card-inscope-border: #0ea5e9;
+    --card-sap-bg: #eef2ff;
+    --card-sap-border: #6366f1;
+    --card-gap-bg: #fef2f2;
+    --card-gap-border: #ef4444;
+    --card-implied-bg: #fffbeb;
+    --card-implied-border: #f59e0b;
+    --card-external-bg: #f0fdf4;
+    --card-external-border: #22c55e;
+    --card-actor-bg: #f0fdf4;
+    --card-actor-border: #22c55e;
+    --card-deferred-bg: #f0fdf4;
+    --card-deferred-border: #22c55e;
+    /* Tile backgrounds */
+    --tile-critical-bg: #fef2f2;
+    --tile-critical-border: #ef4444;
+    --tile-high-bg: #fffbeb;
+    --tile-high-border: #f59e0b;
+    --tile-medium-bg: #f0fdf4;
+    --tile-medium-border: #34d399;
+    --tile-open-bg: #eef2ff;
+    --tile-open-border: #6366f1;
+    --tile-resolved-bg: #f8fafc;
+    --tile-resolved-border: #cbd5e1;
+    /* Severity badge backgrounds */
+    --sev-critical-bg: #fef2f2;
+    --sev-critical-border: #fecaca;
+    --sev-high-bg: #fffbeb;
+    --sev-high-border: #fde68a;
+    --sev-medium-bg: #f0fdf4;
+    --sev-medium-border: #bbf7d0;
+    --sev-low-bg: #f8fafc;
+    --sev-low-border: #e2e8f0;
+    --sev-open-bg: #eef2ff;
+    --sev-open-border: #c7d2fe;
+    --sev-resolved-bg: #f8fafc;
+    --sev-resolved-border: #e2e8f0;
+    /* Owner pill backgrounds */
+    --owner-sap-bg: #eef2ff;
+    --owner-biz-bg: #eff6ff;
+    --owner-vendor-bg: #f0fdf4;
+    --owner-it-bg: #fffbeb;
+    --owner-shared-bg: #fdf2f8;
+    --owner-legal-bg: #faf5ff;
+    /* Filter bar */
+    --filter-bg: #ffffff;
+    --filter-border: #e2e8f0;
+    --filter-active-bg: #e2e8f0;
+    --filter-active-text: #0f172a;
+    --filter-active-border: #94a3b8;
+    /* Theme toggle */
+    --toggle-bg: #f1f5f9;
+    --toggle-border: #e2e8f0;
+    --toggle-active-bg: #e2e8f0;
+    --toggle-text: #64748b;
+    --toggle-active-text: #0f172a;
+  }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+    display: flex;
+    gap: 0;
+    background: var(--toggle-bg);
+    border: 1px solid var(--toggle-border);
+    border-radius: 8px;
+    padding: 3px;
+    font-size: 12px;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .theme-toggle button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--toggle-text);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all .15s;
+  }
+  .theme-toggle button.active {
+    background: var(--toggle-active-bg);
+    color: var(--toggle-active-text);
+  }
+  .theme-toggle button:hover:not(.active) {
+    color: var(--text-body);
+  }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg-page);
+    color: var(--text-body);
+    min-height: 100vh;
+    padding: 32px 24px;
+  }
+
+  h1 { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 28px; }
+
+  /* ── SCORECARD ── */
+  .scorecard {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .score-tile {
+    flex: 1;
+    min-width: 120px;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .score-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  .score-count { font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+  .score-ids { font-size: 10px; line-height: 1.8; opacity: .55; }
+
+  .tile-critical { background: var(--tile-critical-bg); border: 2px solid var(--tile-critical-border); }
+  .tile-critical .score-label { color: #f87171; }
+  .tile-critical .score-count { color: #f87171; }
+
+  .tile-high { background: var(--tile-high-bg); border: 2px solid var(--tile-high-border); }
+  .tile-high .score-label { color: #fbbf24; }
+  .tile-high .score-count { color: #fbbf24; }
+
+  .tile-medium { background: var(--tile-medium-bg); border: 2px solid var(--tile-medium-border); }
+  .tile-medium .score-label { color: #34d399; }
+  .tile-medium .score-count { color: #34d399; }
+
+  .tile-open { background: var(--tile-open-bg); border: 2px solid var(--tile-open-border); }
+  .tile-open .score-label { color: #a5b4fc; }
+  .tile-open .score-count { color: #a5b4fc; }
+
+  .tile-resolved { background: var(--tile-resolved-bg); border: 2px solid var(--tile-resolved-border); }
+  .tile-resolved .score-label { color: var(--text-dim); }
+  .tile-resolved .score-count { color: var(--text-dim); }
+
+  /* ── REPORT LINKS ── */
+  .report-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .report-links a {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all .15s;
+  }
+  .report-links a:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-card-alt);
+  }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+  .filter-label { font-size: 11px; color: var(--text-faint); margin-right: 4px; }
+  .filter-btn {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 99px;
+    border: 1px solid var(--filter-border);
+    background: var(--filter-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .filter-btn:hover { border-color: var(--border-hover); color: var(--text-body); }
+  .filter-btn.active { background: var(--filter-active-bg); color: var(--filter-active-text); border-color: var(--filter-active-border); }
+
+  /* ── CATEGORY HEADERS ── */
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 32px 0 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .category-number {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .category-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .category-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 8px; }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--bg-header);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: .05em;
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  tr:hover td { background: var(--bg-hover); }
+  tr.resolved td { opacity: .55; }
+
+  /* ── SEVERITY BADGES ── */
+  .sev {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+  .sev-critical { background: var(--sev-critical-bg); color: #f87171; border: 1px solid var(--sev-critical-border); }
+  .sev-high     { background: var(--sev-high-bg); color: #fbbf24; border: 1px solid var(--sev-high-border); }
+  .sev-medium   { background: var(--sev-medium-bg); color: #34d399; border: 1px solid var(--sev-medium-border); }
+  .sev-low      { background: var(--sev-low-bg); color: var(--text-muted); border: 1px solid var(--sev-low-border); }
+  .sev-open     { background: var(--sev-open-bg); color: #a5b4fc; border: 1px solid var(--sev-open-border); }
+  .sev-resolved { background: var(--sev-resolved-bg); color: var(--text-dim); border: 1px solid var(--sev-resolved-border); }
+
+  /* ── OWNER PILLS ── */
+  .owner {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .owner-bsc-sap  { background: var(--owner-sap-bg); color: #a5b4fc; }
+  .owner-bsc-biz  { background: var(--owner-biz-bg); color: #38bdf8; }
+  .owner-vendor   { background: var(--owner-vendor-bg); color: #86efac; }
+  .owner-bsc-it   { background: var(--owner-it-bg); color: #fbbf24; }
+  .owner-shared   { background: var(--owner-shared-bg); color: #f9a8d4; }
+  .owner-legal    { background: var(--owner-legal-bg); color: #d8b4fe; }
+
+  /* ── WS PILL ── */
+  .ws {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .ws-ws5  { background: #0ea5e915; color: #7dd3fc; }
+  .ws-ws6  { background: #6366f115; color: #c4b5fd; }
+  .ws-ws1  { background: #22c55e15; color: #86efac; }
+  .ws-ws2  { background: #f59e0b15; color: #fde68a; }
+  .ws-ws4  { background: #ec489915; color: #fda4af; }
+  .ws-arch { background: #ec489915; color: #fda4af; }
+  .ws-cross{ background: #33415530; color: var(--text-muted); }
+  .ws-comm { background: #14b8a615; color: #5eead4; }
+  .ws-reg  { background: #a855f715; color: #d8b4fe; }
+
+  /* Sub-category header row within table */
+  .subcat-row td {
+    background: var(--bg-card-alt);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .subcat-row:hover td { background: var(--bg-card-alt); }
+
+  .gap-id { font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+  .gap-title { font-weight: 600; color: var(--text-body); }
+  .gap-detail { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+  .row-hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="theme-toggle">
+  <button onclick="setTheme('system')" id="theme-system">System</button>
+  <button onclick="setTheme('light')" id="theme-light">Light</button>
+  <button onclick="setTheme('dark')" id="theme-dark">Dark</button>
+</div>
+
+<h1>&lt;Project&gt; — Master Gap &amp; Risk Register</h1>
+<p class="subtitle">&lt;Project&gt; · BSC APAC Japan Wave 1 · All workstreams · Last updated 30 Apr 2026 · Integrated with full cross-file gap analysis</p>
+
+<!-- ═══ SCORECARD ═══ -->
+<div class="scorecard">
+  <div class="score-tile tile-critical">
+    <div class="score-label">Critical</div>
+    <div class="score-count">26</div>
+    <div class="score-ids">R-01–R-04 · G-01–G-03 · G-11<br>CTR-01 · CTR-05–07 · CTR-09<br>MFR-03 · AMB-02 · AMB-12<br>COM-01–03 · REG-01–03<br>G-A1–G-A4</div>
+  </div>
+  <div class="score-tile tile-high">
+    <div class="score-label">High</div>
+    <div class="score-count">51</div>
+    <div class="score-ids">G-05–07 · G-12–15 · G-17–19 · W-01–03 · A-01<br>CTR-02–04 · CTR-08 · AMB-01 · AMB-06<br>AMB-08 · AMB-10 · AMB-14 · GAP-04<br>MFR-01–02 · MFR-07–09 · BPM-01–04<br>BPM-07 · INT-02–04 · INT-06<br>COM-04–05 · REG-04–08<br>G-A5–G-A9 · G-A12–G-A13 · G-A16</div>
+  </div>
+  <div class="score-tile tile-medium">
+    <div class="score-label">Medium</div>
+    <div class="score-count">32</div>
+    <div class="score-ids">G-08–10 · G-16 · A-02–04 · B-01–03<br>AMB-03–04 · AMB-07 · AMB-09<br>AMB-11 · AMB-13 · BPM-05–06<br>BPM-08–09 · MFR-05–06 · MFR-10–14<br>INT-05 · REG-09–10<br>G-A10–G-A11 · G-A14 · G-A17</div>
+  </div>
+  <div class="score-tile tile-open">
+    <div class="score-label">Open Decision</div>
+    <div class="score-count">6</div>
+    <div class="score-ids">D-01 · D-02 · D-03<br>D-04 · D-05 · D-06</div>
+  </div>
+  <div class="score-tile tile-resolved">
+    <div class="score-label">Resolved / Low</div>
+    <div class="score-count">5</div>
+    <div class="score-ids">G-04 · BPM-10 · BPM-11 · REG-11 · G-A15</div>
+  </div>
+</div>
+
+<!-- ── REPORT LINKS ── -->
+<div class="report-links">
+  <a href="quote-creation-gap-analysis.html">Quote Creation</a>
+  <a href="approval-workflow-gap-analysis.html">Approval Workflow</a>
+  <a href="requirements-coverage-gap-analysis.html">Requirements Coverage</a>
+  <a href="sap-integration-gap-analysis.html">SAP Integration</a>
+  <a href="settlement-gap-analysis.html">Settlement</a>
+  <a href="accounting-gap-analysis.html">Accounting</a>
+  <a href="rebate-accounting-gap-analysis.html">Rebate Accounting</a>
+</div>
+
+<!-- ── FILTER BAR ── -->
+<div class="filter-bar">
+  <span class="filter-label">Filter by:</span>
+  <button class="filter-btn active" onclick="filterRows('all')">All</button>
+  <button class="filter-btn" onclick="filterRows('critical')">Critical</button>
+  <button class="filter-btn" onclick="filterRows('high')">High</button>
+  <button class="filter-btn" onclick="filterRows('medium')">Medium</button>
+  <button class="filter-btn" onclick="filterRows('open')">Open Decision</button>
+  <button class="filter-btn" onclick="filterRows('resolved')">Resolved / Low</button>
+  <button class="filter-btn" onclick="filterRows('ws6')">WS6 Accounting</button>
+  <button class="filter-btn" onclick="filterRows('ws5')">WS5 Pricing</button>
+  <button class="filter-btn" onclick="filterRows('ws1')">WS1/WS2 Workflow</button>
+  <button class="filter-btn" onclick="filterRows('ws4')">WS4 Approval</button>
+  <button class="filter-btn" onclick="filterRows('arch')">Architecture</button>
+  <button class="filter-btn" onclick="filterRows('cross')">Contradictions</button>
+  <button class="filter-btn" onclick="filterRows('reg')">Regulatory</button>
+  <button class="filter-btn" onclick="filterRows('comm')">Commercial</button>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CATEGORY 1 — SAP INTEGRATION PAYLOAD DESIGN BLOCKERS
+════════════════════════════════════════════════════════ -->
+<div class="category-header" data-category="cat1">
+  <div class="category-number" style="background:#6366f120;color:#a5b4fc;">1</div>
+  <div>
+    <div class="category-title">SAP Integration — Payload Design Blockers</div>
+    <div class="category-desc">Vendor cannot build the API calls without BSC SAP team answering these first</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why Critical</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <tr data-sev="critical" data-ws="ws6">
+      <td class="gap-id">R-01</td>
+      <td><span class="gap-title">Sales org / dist channel / division / order type not specified for VA01 calls</span><div class="gap-detail">Required fields in every VA01 payload for both the accrual posting (FR_M19) and credit note (FR_M25). Without them the API call cannot be constructed at all.</div></td>
+      <td>Vendor cannot size or design WS6 integration without these values. Blocks all VA01 development.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="ws5">
+      <td class="gap-id">R-02</td>
+      <td><span class="gap-title">Bundle pricing condition type unnamed</span><div class="gap-detail">Section 3.1 puts bundle sync in scope but no condition type is named. Vendor cannot write the VK11 payload for bundle pricing without this.</div></td>
+      <td>Blocks VK11 bundle integration development entirely.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="ws5">
+      <td class="gap-id">R-03</td>
+      <td><span class="gap-title">VK11 validity from/to date rules not specified for AOP rate changes</span><div class="gap-detail">&lt;Project&gt; must send validity dates in every VK11 call. If wrong or unspecified, in-flight dealer orders get repriced silently with no error returned by SAP.</div></td>
+      <td>Silent mispricing risk at every AOP changeover. No detection mechanism.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="ws5">
+      <td class="gap-id">R-04</td>
+      <td><span class="gap-title">FR_G19 special price — create new condition record or override existing?</span><div class="gap-detail">Determines the API verb (POST vs PATCH) and the access sequence configuration in SAP. These are completely different implementations.</div></td>
+      <td>Vendor cannot implement FR_G19 without BSC confirming the intended SAP behaviour.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws5">
+      <td class="gap-id">AMB-06</td>
+      <td><span class="gap-title">SAP condition type: ZJHD (NFR-I03) vs ZJHP (FR_Q14) — conflicting specs</span><div class="gap-detail">FR_Q14 references SAP condition type ZJHP; FR_Q23 references ZJHD. NFR-I03 lists only ZJHD as in-scope. It is unclear whether ZJHP is a distinct type, a typo for ZJHD, or an obsolete condition type.</div></td>
+      <td>SAP pricing records written with the wrong condition type will silently produce incorrect prices in MyOrders and billing. Critical data integrity risk requiring a single authoritative answer.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws5">
+      <td class="gap-id">GAP-04</td>
+      <td><span class="gap-title">SAP near-real-time price sync SLA (&lt;5 min) — FeatureSpec P0, no NFR exists</span><div class="gap-detail">FeatureSpec §SAP-Integration lists near-real-time SAP price sync with a &lt;5-minute SLA as a P0 requirement. No FR or NFR captures this. Achieving &lt;5 min requires either a JARVIS push trigger or high-frequency polling — neither is specified. Conflicts with the T+1 ADL batch architecture.</div></td>
+      <td>If BSC expects sub-5-minute price propagation, the current ADL nightly batch architecture cannot support it. Requires a real-time integration design that is not currently scoped.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-shared">BSC / Vendor</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws5">
+      <td class="gap-id">AMB-07</td>
+      <td><span class="gap-title">SAP condition type ZMAP in FR_G15 — real type or documentation placeholder?</span><div class="gap-detail">ZMAP is mentioned as an example in FR_G15. It is unclear whether this is a live BSC SAP condition type, a placeholder, or a deprecated type. Designing integrations against a placeholder condition type produces unusable artefacts.</div></td>
+      <td>Integration artefacts built against ZMAP may be invalid. BSC SAP team must confirm the authoritative condition type list.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CATEGORY 2 — WS6 REBATE ACCOUNTING GAPS
+════════════════════════════════════════════════════════ -->
+<div class="category-header" data-category="cat2">
+  <div class="category-number" style="background:#6366f120;color:#c4b5fd;">2</div>
+  <div>
+    <div class="category-title">WS6 Rebate Accounting — Unresolved Integration Boundaries</div>
+    <div class="category-desc">SAP internal postings are a black box — but the handoff point and payload design are not fully defined</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why Critical</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <tr data-sev="critical" data-ws="ws6">
+      <td class="gap-id">CTR-09</td>
+      <td><span class="gap-title">Accrual trigger — manual user action (FR_M15) vs automated schedule (FeatureSpec) — direct contradiction</span><div class="gap-detail">FR_M15 in requirements FINAL.md states accrual is triggered by "pressing a button." FeatureSpec §Accrual states "automated accrual calculation on a defined schedule — not manual." These are diametrically opposed.</div></td>
+      <td>Determines the entire accrual engine architecture, scheduling infrastructure, audit trail requirements, and user training scope. Cannot be designed or built until BSC resolves this at source.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="ws6">
+      <td class="gap-id">G-02</td>
+      <td><span class="gap-title">VA01 vs FB50 contradiction in FR_M19</span><div class="gap-detail">FR_M19 says "journal entry (equivalent to VA01)." VA01 is a sales document; FB50 is a direct FI journal entry. These are mutually exclusive — completely different API calls, different payload structures, different account logic.</div></td>
+      <td>Determines the entire technical integration architecture. All other WS6 design decisions depend on this answer.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="ws6">
+      <td class="gap-id">G-01</td>
+      <td><span class="gap-title">Accrual debit side GL account unnamed</span><div class="gap-detail">FR_M18_SAP names only the credit side (AR control account 110010). The debit side — a P&amp;L expense or cost account — is named nowhere in the requirements.</div></td>
+      <td>SAP cannot be configured to post the accrual without both sides of the entry.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="ws6">
+      <td class="gap-id">G-03</td>
+      <td><span class="gap-title">Accrual reversal mechanism absent — ledger doubling risk</span><div class="gap-detail">No requirement mentions accrual reversal, netting, or clearing between monthly accrual postings (FR_M19) and the period-end credit note (FR_M25). If both post independently to the same account, the balance doubles.</div></td>
+      <td>Ledger integrity risk. BSC Finance must confirm whether settlement triggers reversal of monthly accruals.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="ws6">
+      <td class="gap-id">G-11</td>
+      <td><span class="gap-title">Credit note target sub-ledger unnamed — FR_M25 completely silent</span><div class="gap-detail">FR_M18_SAP covers accrual only. FR_M25 names no customer code. Case A (dummy rebate customer): clears 110010 but dealer receives nothing in their AR. Case B (real dealer customer): dealer AR credited but 110010 never clears.</div></td>
+      <td>Vendor cannot construct a valid VA01 payload without a target customer code. The rebate cycle cannot close financially without this resolved.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">G-05</td>
+      <td><span class="gap-title">1-step vs 2-step credit note process unclear</span><div class="gap-detail">Standard SAP credit note processing is VA01 (credit memo request) → VF01 (billing document). Only VA01 is mentioned. If 2-step, the VF01 billing step is missing from the process model and must be assigned to either the vendor or BSC SAP team.</div></td>
+      <td>If 2-step and unaccounted for, the credit note never posts to AR until VF01 runs — a missing step in the BPMN.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">G-06</td>
+      <td><span class="gap-title">Dealer payment method not described</span><div class="gap-detail">FR_M26 outputs a confirmation report to the dealer. No requirement describes how the dealer receives financial value — cash, applied against next invoice, or AR offset.</div></td>
+      <td>Without this, BSC Finance cannot confirm the rebate cycle is complete from a ledger perspective.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">G-07</td>
+      <td><span class="gap-title">SAP document type code for credit note not specified</span><div class="gap-detail">VA01 can create KA (credit memo request), RE (returns), ZCR (custom), etc. Each triggers different account determination logic. No document type code is named in the requirements.</div></td>
+      <td>Mandatory field in the VA01 API call. BSC SAP team must confirm which type is configured for rebate credit notes.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">G-12</td>
+      <td><span class="gap-title">Pooled dummy customer obscures individual dealer accrual liability</span><div class="gap-detail">All monthly accruals for all dealers pool to the same dummy customer / reconciliation account 110010. SAP sub-ledger cannot show how much of the balance belongs to each dealer. Finance relies entirely on &lt;Project&gt;'s rebate tracker for dealer-level visibility.</div></td>
+      <td>If &lt;Project&gt; and SAP diverge, there is no named mechanism to detect or resolve the discrepancy. Missing internal control.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">G-13</td>
+      <td><span class="gap-title">Order reversal mid-accrual period — no handling defined</span><div class="gap-detail">If a sales order is reversed in SAP after the accrual has been calculated against it, &lt;Project&gt;'s accrual balance overstates the liability. No requirement defines how &lt;Project&gt; detects or corrects this via the T+1 ADL feed.</div></td>
+      <td>Accrual balance will be overstated for any reversed orders until the next settlement cycle. No correction mechanism exists.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">G-14</td>
+      <td><span class="gap-title">Cross-period returns — no requirement for accrual adjustment</span><div class="gap-detail">A return from a prior settlement period creates a negative accrual that spans closed accounting periods. Requirements do not address how &lt;Project&gt; handles the accrual and settlement adjustments for out-of-period returns.</div></td>
+      <td>Cross-period returns will create unresolved balances in closed periods. Finance must define the accounting treatment.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">G-15</td>
+      <td><span class="gap-title">Post-settlement returns — credit note already issued, dealer has been paid</span><div class="gap-detail">If a dealer returns goods after the rebate settlement credit note has been issued and applied, the rebate has been overpaid. No requirement defines the recovery mechanism: chargeback, deduction from next period, or write-off.</div></td>
+      <td>Post-settlement returns with no recovery mechanism result in unrecoverable overpayments. BSC Finance must define the policy.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">G-17</td>
+      <td><span class="gap-title">Goods return + rebate credit note — compounding double-loss with no detection mechanism</span><div class="gap-detail">When a dealer returns goods, BSC issues a returns credit note (DR Revenue / CR Dealer AR) reversing the sale. Independently, &lt;Project&gt; fires a rebate credit note (DR 110010 / CR Dealer AR) at settlement against an accrual base that was never corrected for the return. The dealer receives double benefit — goods returned and rebate paid on those goods — with no system-level link between the two credit notes. The correcting journal on return (DR 110010 / CR Rebate Expense) does not exist anywhere in the current process model.</div></td>
+      <td>BSC incurs a double commercial loss on every return where a rebate credit note has been issued or is pending for the same period. Neither SAP nor &lt;Project&gt; raises an exception. Exposure scales with return frequency and average rebate rate.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">G-18</td>
+      <td><span class="gap-title">FR_M01 returns exclusion — SAP order type and order reason combinations not registered</span><div class="gap-detail">FR_M01 requires returns to be excluded from the Sales A accrual base. The specific SAP order type and order reason code combinations that identify return documents in BSC Japan are never defined in the requirements. Without these values, &lt;Project&gt;'s ADL ingestion logic cannot filter out returns at import — all return transactions will be included in the accrual base as positive contributions.</div></td>
+      <td>The entire premise of FR_M01 — a clean Sales A data set free of returns — cannot be realised. Run rate, target achievement, accrual, and settlement figures will all be overstated. BSC SAP team must provide the complete list of order type + order reason combinations before the accrual engine can be trusted.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">G-19</td>
+      <td><span class="gap-title">Allowance / hospital rebate accounting entirely unanalysed — SAP posting mechanics unknown</span><div class="gap-detail">Two distinct rebate programme architectures exist: dealer rebates (FR_M series, sell-in, monthly accrual → VA01 credit note) and Allowance rebates (FR_Q series, sell-out / hospital / primary market, allowance budget → post-discount ADL master sync). The entire accounting gap analysis covers dealer rebates only. Whether Allowance settlements trigger a SAP accrual posting, a VA01 credit note, or no SAP posting at all is completely open.</div></td>
+      <td>If Allowance settlements carry any SAP financial impact, all gap questions G-01 through G-18 apply to a second, entirely unmodelled posting flow. Proceeding without confirming this is an untested assumption that could double WS6 integration scope.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">AMB-08</td>
+      <td><span class="gap-title">FR_M26 settlement acceptance by inaction — trigger, mechanism, and legal enforceability undefined</span><div class="gap-detail">FR_M26 states that customer silence during a "configured period" constitutes acceptance. The period start trigger is undefined. The "contact" mechanism (email? in-app? portal?) is undefined. Legal enforceability under Japanese commercial law of silence-as-acceptance is not addressed.</div></td>
+      <td>Settlement process cannot be designed. Legal risk in Japan where explicit acceptance may be required for financial instruments.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws6">
+      <td class="gap-id">G-08</td>
+      <td><span class="gap-title">SAP field for &lt;Project&gt; contract number not named</span><div class="gap-detail">FR_G06 identifies the contract number as the end-to-end key but does not name the SAP field (PO number BSTNK, reference XBLNR, or custom). Without this, the contract number cannot be passed in the API payload.</div></td>
+      <td>Breaks the traceability chain from &lt;Project&gt; contract to SAP posting. Prevents cross-system reconciliation.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws6">
+      <td class="gap-id">G-09</td>
+      <td><span class="gap-title">Accrual vs settlement variance posting not described</span><div class="gap-detail">Monthly accruals are run-rate estimates. Actual settlement will differ. No requirement addresses how the variance is posted or reversed when actuals are confirmed.</div></td>
+      <td>If actual rebate &gt; cumulative accruals, an additional posting is needed. If actual &lt; accruals, a reversal is needed. Neither case is modelled.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws6">
+      <td class="gap-id">G-10</td>
+      <td><span class="gap-title">No finance reconciliation step between SAP and &lt;Project&gt;</span><div class="gap-detail">FP&amp;A is named as an approver (FR_W02) but there is no requirement for finance to reconcile posted SAP accruals to &lt;Project&gt; figures. A key internal control is missing from scope.</div></td>
+      <td>No check that the SAP ledger matches the &lt;Project&gt; rebate tracker.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws6">
+      <td class="gap-id">G-16</td>
+      <td><span class="gap-title">Month-end cut-off — transactions submitted but not approved before period close</span><div class="gap-detail">No requirement defines how &lt;Project&gt; handles accrual proposals that are submitted but not yet approved when the accounting period closes. Should they be included in the closing accrual, held to the next period, or escalated?</div></td>
+      <td>Unapproved accruals at period-end create an undefined ledger state. Finance cannot lock the period until this is resolved by policy.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws6">
+      <td class="gap-id">MFR-11</td>
+      <td><span class="gap-title">Accrual reversal workflow — FeatureSpec P1, no FR exists</span><div class="gap-detail">FeatureSpec §Accrual lists user-initiated accrual reversal as a P1 feature. No FR exists. SAP accrual reversals (credit memos, FI reversals) have specific transaction requirements. This is required for error correction and period-close adjustments.</div></td>
+      <td>Without a defined reversal workflow, error correction requires manual SAP intervention outside &lt;Project&gt; — audit trail gap and governance risk.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws6">
+      <td class="gap-id">MFR-12</td>
+      <td><span class="gap-title">Settlement dispute tracking — FeatureSpec P1, no FR exists</span><div class="gap-detail">FeatureSpec §Settlement lists dispute tracking as P1. No FR exists. Customer challenges to settlement amounts require a state machine, ownership assignment, resolution workflow, and audit trail. Absence means disputes are handled offline.</div></td>
+      <td>Settlement disputes handled offline defeat the purpose of a managed settlement process. No audit trail. Finance exposure undefined.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+    </tr>
+    <tr data-sev="resolved" data-ws="ws6" class="resolved">
+      <td class="gap-id">G-04</td>
+      <td><span class="gap-title">Standalone credit note — confirmed correct by design</span><div class="gap-detail">Rebate credit notes do not need to reference a specific billing document. Rebates are retrospective obligations spanning many invoices. A standalone VA01 is standard SAP practice. The O2C cycle being complete when settlement posts is expected and by design.</div></td>
+      <td>Not a blocking gap. Removed as a design concern — superseded by G-11.</td>
+      <td><span class="sev sev-resolved">Resolved</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CATEGORY 3 — WORKFLOW CONFIGURATION RISK
+════════════════════════════════════════════════════════ -->
+<div class="category-header" data-category="cat3">
+  <div class="category-number" style="background:#22c55e20;color:#86efac;">3</div>
+  <div>
+    <div class="category-title">Workflow — Configuration Risk, BPMN Modelling Defects &amp; WS4 Approval Gaps</div>
+    <div class="category-desc">3a · BPMN structural errors across WS1–WS7 &nbsp;|&nbsp; 3b · WS4 approval-workflow deep-dive gaps · Sorted by severity · Status tracked here</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why It Matters</th><th>Severity</th><th>Status</th><th>Workstream</th><th>Owner</th><th>Source</th></tr>
+  </thead>
+  <tbody>
+
+    <!-- ── 3a : BPMN STRUCTURAL (WS1–WS7) ── -->
+    <tr class="subcat-row"><td colspan="8">3a &nbsp;·&nbsp; BPMN Structural Analysis — WS1–WS7 &nbsp;·&nbsp; <a href="../workflow_gap_analysis.html" style="color:#64748b;">workflow_gap_analysis.html</a></td></tr>
+
+    <!-- HIGH -->
+    <tr data-sev="high" data-ws="ws1">
+      <td class="gap-id">W-01</td>
+      <td><span class="gap-title">Single user per role at go-live — absence risk reappears as configuration problem</span><div class="gap-detail">FR_W06 allows multiple users per role but does not require it. If BSC assigns only one person per role at go-live, the platform design cannot prevent a single-point-of-failure from reappearing.</div></td>
+      <td>Not a platform gap — a go-live governance risk. BSC must commit to minimum two users per approval role before go-live.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Business</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws1">
+      <td class="gap-id">W-02</td>
+      <td><span class="gap-title">FP&amp;A-designated approver above $500K is singular with no named backup</span><div class="gap-detail">FR_W02 names this tier as "FP&amp;A-designated approver" — a single role with no fallback described. Highest-value settlements have the weakest approval coverage.</div></td>
+      <td>If this person is unavailable, all settlements above $500K are blocked with no escalation path in requirements.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws1">
+      <td class="gap-id">W-03</td>
+      <td><span class="gap-title">BSC360 unanimous BD approval with no fallback rule</span><div class="gap-detail">BSC360 requires all BDs to approve regardless of group size. FR_W07 any-one-can-approve does not apply here. A single absent BD with no backup user assigned blocks all BSC360 contracts with no override mechanism.</div></td>
+      <td>BSC360 contracts are highest-complexity. A governance exception with no fallback is a material delivery risk at month-end.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Business</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws1">
+      <td class="gap-id">BPM-01</td>
+      <td><span class="gap-title">SLA reminder tasks are dead-ends in WS4-01, WS4-02, WS4-03 — no outgoing flow</span><div class="gap-detail">Task_W4_SLA_Remind, Task_W402_SLA_Remind, and Task_W403_SLA_Remind all have no outgoing sequence flow. Systematic error across all three approval workflow BPMN files. Processes will terminate at an SLA reminder event with no defined continuation.</div></td>
+      <td>SLA reminder events will terminate the process instance. Approval workflows will silently fail when an SLA is triggered. Must be fixed before implementation begins.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws5">
+      <td class="gap-id">BPM-02</td>
+      <td><span class="gap-title">WS3 (Price Configuration Setup) has zero gateways, validation, approval, or audit logging</span><div class="gap-detail">WS3 is modelled as a purely linear sequence of data entry tasks. No quality controls, no approval, no audit logging. Price configuration directly drives SAP VK11 writes — the absence of controls is a significant governance and audit gap.</div></td>
+      <td>Unauthorised or incorrect price configurations can be committed to SAP with no review or audit trail. Governance and internal control gap.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws2">
+      <td class="gap-id">BPM-03</td>
+      <td><span class="gap-title">WS2 budget rejection path incorrectly merges into SAP order type configuration task</span><div class="gap-detail">The budget rejection path merges with Task_W2_ConfigSAPOrderTypes output via converging gateway sid-B932228E. A rejected budget proceeding to SAP order type configuration is logically incorrect.</div></td>
+      <td>Rejected budgets may incorrectly trigger SAP configuration steps. Process logic error that will produce incorrect system behaviour.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws2">WS2</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws6">
+      <td class="gap-id">BPM-07</td>
+      <td><span class="gap-title">FR_M20–FR_M23 (settlement and rebate payment posting) — no BPMN tasks modelled</span><div class="gap-detail">FR_M20–M23 cover settlement and rebate payment posting. No BPMN task models these steps in any file. WS6-02 (Settlement) should contain explicit tasks for credit note generation, payment posting, and settlement confirmation.</div></td>
+      <td>Settlement workflow is unmodelled. Build cannot begin on the settlement module without a process model to implement against.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="high" data-ws="cross">
+      <td class="gap-id">BPM-04</td>
+      <td><span class="gap-title">No data objects or data stores in any BPMN file across WS1–WS7</span><div class="gap-detail">No BPMN file contains formal data objects or data store references. All data flows (SAP reads/writes, ADL ingestion, condition record updates) are implicit. BPMN cannot be used for data architecture review or integration design sign-off.</div></td>
+      <td>Integration design must be derived from narrative, not process models. Increases risk of integration gaps being missed during development.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+
+    <!-- MEDIUM -->
+    <tr data-sev="medium" data-ws="ws1">
+      <td class="gap-id">MFR-06</td>
+      <td><span class="gap-title">Approval delegation management — FeatureSpec requires time-bounded delegation; FR_W06 does not</span><div class="gap-detail">FeatureSpec requires time-bounded, audited delegation. FR_W06 covers only multi-user role assignment, not time-bounded delegation with automatic expiry and audit trail. See also G-A8 (WS4 deep-dive).</div></td>
+      <td>Without delegation, users must manually reassign roles on departure — error-prone and not auditable. Period-end approvals may be blocked.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="medium" data-ws="cross">
+      <td class="gap-id">BPM-05</td>
+      <td><span class="gap-title">Multiple BPMN tasks typed as generic &lt;task&gt; — performer assignment undefined</span><div class="gap-detail">Multiple tasks across WS1, WS3, and WS4 are typed as generic &lt;task&gt; instead of &lt;userTask&gt; or &lt;serviceTask&gt;. Performer assignment is undefined. RBAC design and automated task routing cannot be derived from the BPMN as written.</div></td>
+      <td>Role assignment for untyped tasks will be resolved ad-hoc during build, creating inconsistency and regression risk during UAT.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws1">
+      <td class="gap-id">BPM-06</td>
+      <td><span class="gap-title">FR_G03 user deprovisioning — no corresponding task in any BPMN file</span><div class="gap-detail">FR_G03 (user offboarding and access revocation) has no corresponding task in any BPMN file. Access must be revoked across &lt;Project&gt;, SAP role assignments, and JARVIS permissions. Absence from all process models is an IAM governance gap.</div></td>
+      <td>Departed users may retain system access until manually discovered. Security and audit risk; relevant to APPI and J-SOX controls.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws2">
+      <td class="gap-id">BPM-08</td>
+      <td><span class="gap-title">FR_B11 (budget lock) and FR_B12 (budget download) — no BPMN tasks modelled</span><div class="gap-detail">FR_B11 (budget lock at period-end) and FR_B12 (budget download/export) have no corresponding tasks in WS2. Budget lock is a finance control — its absence from the process model means it cannot be traced to a system behaviour or test case.</div></td>
+      <td>Budget lock is untraceable to a test case. Period-end financial controls will be untested until discovered during UAT.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws2">WS2</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+    <tr data-sev="medium" data-ws="cross">
+      <td class="gap-id">BPM-09</td>
+      <td><span class="gap-title">E2E BPMN truncated at line 737 — sub-processes SP_P7 to SP_P10 unverified</span><div class="gap-detail">The E2E business process BPMN file was truncated at line 737. Sub-processes SP_P7, SP_P8, SP_P9, and SP_P10 (Phases 7–10, covering settlement, reporting, and monitoring) could not be verified for completeness or correctness.</div></td>
+      <td>Settlement and reporting phases may contain further structural defects not yet identified. File should be re-read from offset 738.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3a</td>
+    </tr>
+
+    <!-- ── 3b : WS4 APPROVAL DEEP-DIVE ── -->
+    <tr class="subcat-row"><td colspan="8">3b &nbsp;·&nbsp; WS4-01 Approval Workflow Deep-Dive &nbsp;·&nbsp; <a href="approval-workflow-gap-analysis.html" style="color:#64748b;">approval-workflow-gap-analysis.html</a></td></tr>
+
+    <!-- CRITICAL -->
+    <tr data-sev="critical" data-ws="ws4">
+      <td class="gap-id">G-A1</td>
+      <td><span class="gap-title">Quartile-performance approval bands (FR_W01) not modelled</span><div class="gap-detail">WS4-01 routes only on Finance Policy 10.1 Part A USD amounts (FR_W02). The Green/Yellow/Orange/Red performance-band scheme (FR_W01) — including the BUD role and the Country-Floor-Price → Pricing Council band — is absent from the BPMN. BUD role is not even present as a lane.</div></td>
+      <td>Either FR_W01 and FR_W02 are alternative views of the same routing (pick one for build), or they are layered overlays (both must be modelled). The current BPMN takes neither position.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span> <span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Business</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="critical" data-ws="ws4">
+      <td class="gap-id">G-A2</td>
+      <td><span class="gap-title">Floor-Price-breach overlay missing — Pricing Council not auto-injected</span><div class="gap-detail">FR_W04, FR_Q17, and FR_Q38 require Pricing Council to be added to the workflow whenever Net-Net Price falls below Floor Price, and a mandatory reason captured pre-submission. WS4-01 has no gateway that detects this condition or injects Pricing Council.</div></td>
+      <td>Floor-Price compliance is a non-negotiable pricing-governance control (SOP 2.4 / 3.1.5.5). Without the overlay, deals can be approved on amount tier alone while breaching Floor Price — which voids the governance objective of the platform.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="critical" data-ws="ws4">
+      <td class="gap-id">G-A3</td>
+      <td><span class="gap-title">BSC360 programme overlay deferred to E2E without sub-process reference</span><div class="gap-detail">FR_W03 requires Pricing Council mandatory + parallel BD approvals for BSC360. WS4-01's WS4_End_Approved event is annotated "route to GW_P4_BSC360" — but no sibling sub-process (e.g. WS4-02) is referenced. Current artefact does not let a reader determine where BSC360 routing is handled.</div></td>
+      <td>If BSC360 routing is supposed to happen inside the standard workflow, the overlay is a critical miss. The current diagram is ambiguous on whether this is intentional deferral or an oversight.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="critical" data-ws="ws4">
+      <td class="gap-id">G-A4</td>
+      <td><span class="gap-title">Worst-case payment input source unspecified</span><div class="gap-detail">Task_W4_AutoRoute reads "worst-case maximum payment amount" but the source is not modelled. FR_Q33 simulates worst-case Allowance balance — is that the same value? Computed at submit time, or pre-stored? Without a defined source, the same deal can resolve to different tiers depending on which simulation snapshot is used.</div></td>
+      <td>Audit-trail provenance breaks down — Finance cannot reproduce the routing decision after the fact. Tier routing may be non-deterministic.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+
+    <!-- HIGH -->
+    <tr data-sev="high" data-ws="ws4">
+      <td class="gap-id">G-A5</td>
+      <td><span class="gap-title">USD approval thresholds vs JPY deal currency — FX conversion rule undefined</span><div class="gap-detail">FR_W02 thresholds are stated in USD ($25K / $50K / $150K / $500K). Japan MVP deals are in JPY. FX rate source, snapshot timing (deal date vs submit date vs decision date), and whether thresholds are re-stated in JPY are unspecified.</div></td>
+      <td>An FX swing can flip a deal between Tier 3 and Tier 4 (Director vs VP+FP&amp;A) on the same JPY amount. Finance Policy 10.1 must define a stable FX-conversion rule before tier routing is implemented.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws4">
+      <td class="gap-id">G-A6</td>
+      <td><span class="gap-title">Sequential vs parallel FP&amp;A co-approval — Finance Policy 10.1 ambiguous</span><div class="gap-detail">Finance Policy 10.1 wording is "ASM+FP&amp;A", "RSM+FP&amp;A" etc. WS4-01 implements this as sequential (tier first → FP&amp;A second). Parallel approval would compress cycle time but introduces race conditions on rejection and may violate Finance Policy intent.</div></td>
+      <td>Sequential adds latency on every deal. The choice should be confirmed with Pricing Office and FP&amp;A explicitly, not inferred from BPMN implementation.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws4">
+      <td class="gap-id">G-A7</td>
+      <td><span class="gap-title">"Additional approvers based on total amount" tail clause not modelled</span><div class="gap-detail">FR_W02 ends with "Additional approvers based on total amount." WS4-01 models a single Tier-N + FP&amp;A pair only — no additional layered approvers (Region President, BUD, etc.) for very large deals. BUD also appears in FR_W01 but has no lane in the BPMN.</div></td>
+      <td>Without listing the additional approvers and the amounts that trigger them, the BPMN cannot claim to enforce Finance Policy 10.1 fully.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws4">
+      <td class="gap-id">G-A8</td>
+      <td><span class="gap-title">Delegation / out-of-office handling not modelled in WS4-01</span><div class="gap-detail">FR_W06 says "delegated approvers can be assigned" for long-term leave or transfers. WS4-01 dispatches to "any user in role" but does not show how delegations override the role list, when they take effect, or how they expire. See also MFR-06 (structural level).</div></td>
+      <td>Without a model, the system either over-routes (everyone in the role) or breaks (delegate not found). Edge case: delegate is also a delegate of another role.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span> <span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b · See MFR-06</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws4">
+      <td class="gap-id">G-A9</td>
+      <td><span class="gap-title">GPO simulation-sheet attachment not enforced as a workflow gateway</span><div class="gap-detail">FR_Q35 requires an externally-prepared simulation sheet to be attached as a mandatory pre-condition for GPO-programme submission. WS4-01 has no pre-flight gateway that blocks submission when the attachment is missing.</div></td>
+      <td>If the attachment check is only in the WS3 quote-creation UI, a quote modified after creation could reach approval without a current attachment. A workflow-side gateway is needed for governance closure.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws4">
+      <td class="gap-id">G-A12</td>
+      <td><span class="gap-title">One-click email-action security model not specified</span><div class="gap-detail">FR_W10 enables approve/reject directly from email. Token signing, link expiry, replay protection, SSO step-up, and audit-trail differentiation between email-vs-app-vs-web sources are not specified anywhere.</div></td>
+      <td>Without these controls, the email channel is the weakest link in approval governance — a forwarded email could be actioned by the wrong person. NFR-S04 audit requirements demand a tamper-evident chain.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span> <span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws4">
+      <td class="gap-id">G-A13</td>
+      <td><span class="gap-title">PCA generation step missing from WS4-01 BPMN</span><div class="gap-detail">FR_P32, FR_P33, FR_P23 require a PCA (Price Change Authorization) artefact whenever a price-master change is approved. WS4-01 treats every approval as a deal approval — no PCA-generation branch exists for price-master-change approvals.</div></td>
+      <td>Without a PCA-generation task on price-master-change approvals, the audit-trail artefact mandated by SOP 5.4 is never produced. The traceability matrix back to SOPs cannot be closed.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="high" data-ws="ws4">
+      <td class="gap-id">G-A16</td>
+      <td><span class="gap-title">Audit-trail schema, retention, and SOP-traceability link unspecified</span><div class="gap-detail">FR_Q40 says approver identity, decision, reason, and timestamp are recorded in DB. No schema, no retention period, no link to the SOP traceability matrix (RFP §6), no differentiation of source channel (app / email / web).</div></td>
+      <td>Required by NFR-S04 (audit trail) and SOP traceability. Without a schema, audit-export to internal audit and external regulators is undefined. Source-channel matters for the FR_W10 email security model (G-A12).</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span> <span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+
+    <!-- MEDIUM -->
+    <tr data-sev="medium" data-ws="ws4">
+      <td class="gap-id">G-A10</td>
+      <td><span class="gap-title">SLA escalation policy unspecified — reminders loop indefinitely</span><div class="gap-detail">BPMN sends repeated reminder emails indefinitely (configurable interval). No escalation up the management chain after sustained inaction, no auto-rejection, no reassignment to a different approver. FR_W11 only mentions reminders, not escalation. See also BPM-01 (SLA dead-end defect).</div></td>
+      <td>Without a policy, deals can sit forever. Confirm whether BSC has an SLA escalation expectation (e.g. "after 3 reminders, route to next-tier-up").</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Business</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b · See BPM-01</td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws4">
+      <td class="gap-id">G-A11</td>
+      <td><span class="gap-title">Pending-approvals inbox (FR_W12) absent from BPMN</span><div class="gap-detail">FR_W12 requires a list of all pending approval cases per approver, with batch-navigation. Not represented in the BPMN as a parallel UI flow or a workflow-list event. Without it, the inbox vs the workflow can drift (e.g. inbox shows stale states).</div></td>
+      <td>Out-of-band UI feature, but the BPMN should mark the work-item-listing endpoint that the inbox queries. Drift between inbox state and workflow state creates approver confusion.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws4">
+      <td class="gap-id">G-A14</td>
+      <td><span class="gap-title">Allowance reservation release on abandon not shown</span><div class="gap-detail">WS4-01's WS4_End_Abandoned path closes the deal but does not show release of the Allowance budget reservation held against the rejected quote. FR_Q19 covers expiry of issued quotes — but the abandon-after-rejection path is silent on budget release.</div></td>
+      <td>Abandoned deals can lock budget indefinitely. Even if release is implemented in WS3, the BPMN should show the message-flow or signal that triggers the release.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws4">
+      <td class="gap-id">G-A17</td>
+      <td><span class="gap-title">Customer-acceptance precondition not modelled as a guard in WS4-01</span><div class="gap-detail">FR_Q22 says the SR triggers the final approval workflow after customer acceptance is received. WS4-01's WS4_Start does not model the customer-acceptance state as a precondition gate. State presumably enforced upstream in WS3/WS5 (FR_G12, FR_G13) — but the BPMN should reference that as an entry condition.</div></td>
+      <td>Without the gate, an SR could trigger approval before customer acceptance, breaking SOP 4.2 sequence.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+
+    <!-- LOW -->
+    <tr data-sev="resolved" data-ws="ws4" class="resolved">
+      <td class="gap-id">G-A15</td>
+      <td><span class="gap-title">SR pull-back / withdraw before decision — not explicit in RFP</span><div class="gap-detail">No path for SR to withdraw a still-pending approval after spotting an error. SR must wait for rejection. Common requirement but not explicit in the RFP — confirm whether withdraw-and-correct is in scope or whether the workaround is "approver rejects on SR's behalf."</div></td>
+      <td>Forces approvers to action manifestly-wrong submissions. Low urgency — confirm scope at next design session.</td>
+      <td><span class="sev sev-low">Low</span></td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws4">WS4</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Business</span></td>
+      <td style="font-size:10px;color:var(--text-dim);">3b</td>
+    </tr>
+
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CATEGORY 4 — ARCHITECTURE ASSUMPTIONS
+════════════════════════════════════════════════════════ -->
+<div class="category-header" data-category="cat4">
+  <div class="category-number" style="background:#ec489920;color:#fda4af;">4</div>
+  <div>
+    <div class="category-title">Architecture — Confirmed Assumptions, Contradictions &amp; Integration Gaps</div>
+    <div class="category-desc">Confirmed architectural facts carrying dispute risk, plus contradictions in NFRs and missing integration specifications</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr><th>ID</th><th>Assumption / Gap</th><th>Risk if Disputed or Unresolved</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <tr data-sev="critical" data-ws="cross">
+      <td class="gap-id">CTR-06</td>
+      <td><span class="gap-title">Concurrent user load — RFP states 1,200; NFR-P02 states 200 APAC / 100 Japan — 6× discrepancy</span><div class="gap-detail">RFP §5 states 1,200 concurrent users (APAC-wide). NFR-P02 states 200 APAC / 100 Japan. Infrastructure sizing, load balancing, and AWS instance type selection are directly determined by this figure. A 1,200-user requirement is approximately 6× the infrastructure cost of a 200-user requirement.</div></td>
+      <td>Bidding against the wrong figure results in either a significantly underpriced infrastructure (if 1,200 is correct) or an overpriced bid (if 200 is correct). Must be resolved before architecture is designed.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="cross">
+      <td class="gap-id">CTR-07</td>
+      <td><span class="gap-title">Availability SLA — RFP: &gt;99% / &gt;99.9% at period-end vs NFR-A01: ≥99.5% — directly contradictory</span><div class="gap-detail">RFP §5 states &gt;99% standard and &gt;99.9% during period-end. NFR-A01 states ≥99.5%. A &gt;99.9% period-end commitment requires active-active or hot-standby architecture, automated failover, and zero-downtime deployment — materially different from a 99.5% baseline.</div></td>
+      <td>Designing for 99.5% and delivering against a 99.9% SLA will result in SLA breach penalties from day one. Architecture must be sized against the correct target.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="cross">
+      <td class="gap-id">MFR-03</td>
+      <td><span class="gap-title">SAP sales volume processing SLA — 2.47M sales lines/year, no NFR captures this throughput</span><div class="gap-detail">RFP §5 references 2.47M sales lines per year. No NFR defines a processing SLA for this volume. The accrual calculation engine must process this within a defined window (likely overnight batch). Without an NFR, the batch architecture cannot be sized or acceptance-tested.</div></td>
+      <td>Batch architecture undersized for actual volume will cause period-end SLA failures. Cannot design without this requirement.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="arch">
+      <td class="gap-id">A-01</td>
+      <td><span class="gap-title">JARVIS is a BSC-owned dependency — all SAP calls route through it</span><div class="gap-detail">Every SAP integration (VK11, VA01 accrual, VA01 credit note) routes through JARVIS. BSC digital team owns JARVIS development. &lt;Project&gt; vendor owns only the platform side of the call.</div></td>
+      <td>If JARVIS slips, every SAP integration in WS5 and WS6 is blocked regardless of &lt;Project&gt; readiness. No mitigation exists if BSC does not resource JARVIS in parallel.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-arch">Cross</span></td>
+      <td><span class="owner owner-bsc-it">BSC IT / Digital</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="arch">
+      <td class="gap-id">MFR-01</td>
+      <td><span class="gap-title">SAP Condition Record Reconciliation Engine — FeatureSpec P0, no FR exists</span><div class="gap-detail">FeatureSpec marks this as P0. Described as a reconciliation check between &lt;Project&gt;'s internal state and SAP VK11 condition records, detecting divergence and alerting. No FR exists. Without it, silent data drift between &lt;Project&gt; and SAP is undetected.</div></td>
+      <td>SAP and &lt;Project&gt; will drift without detection. Pricing errors will be discovered only when customers complain or during manual reconciliation — potentially long after the divergence began.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-arch">Cross</span></td>
+      <td><span class="owner owner-shared">BSC / Vendor</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="arch">
+      <td class="gap-id">INT-02</td>
+      <td><span class="gap-title">Pitcher integration — appears in Appendix A architecture, no FR or interface spec exists</span><div class="gap-detail">Pitcher (BSC's field sales enablement platform) is visible in the Appendix A architecture diagram. No integration FR, interface spec, or data flow definition exists. If Pitcher displays pricing or contract data sourced from &lt;Project&gt;, this is an undisclosed integration scope item.</div></td>
+      <td>If Pitcher is a live data consumer, the integration is entirely unscoped. Field sales may receive stale pricing if no interface is built.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-arch">Cross</span></td>
+      <td><span class="owner owner-bsc-it">BSC IT / Digital</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="arch">
+      <td class="gap-id">INT-03</td>
+      <td><span class="gap-title">Oracle Japan — appears in Appendix A, zero integration FRs, role completely undefined</span><div class="gap-detail">Oracle Japan appears in Appendix A as a source system. Its role (financial data source? master data? legacy system?) is undefined. No integration FR exists. If Oracle Japan is a live financial data source feeding &lt;Project&gt;, the integration is entirely unscoped.</div></td>
+      <td>An unscoped Oracle Japan integration could represent significant effort. Disposition must be confirmed before bid submission.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-arch">Cross</span></td>
+      <td><span class="owner owner-bsc-it">BSC IT</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="arch">
+      <td class="gap-id">INT-04</td>
+      <td><span class="gap-title">RCE App (Rebate Calculation Engine) — disposition undefined: replace, integrate, or run in parallel?</span><div class="gap-detail">The RCE App appears in Appendix A and is presumed to be the existing rebate engine. Its disposition is undefined. If &lt;Project&gt; replaces RCE, data migration and cutover planning are required. If they run in parallel, a synchronisation interface is required. No FR addresses either case.</div></td>
+      <td>Either replacement or parallel operation adds significant unscoped effort. The bid cannot include a data migration or sync strategy without knowing the disposition.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-arch">Cross</span></td>
+      <td><span class="owner owner-bsc-it">BSC IT / Digital</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="arch">
+      <td class="gap-id">INT-06</td>
+      <td><span class="gap-title">JARVIS VA01 scope for accrual and credit note — likely new scope, not confirmed with BSC Digital</span><div class="gap-detail">JARVIS VK11 scope is confirmed by inference from MyOrders. JARVIS VA01 support for accrual credit note creation and settlement document posting is likely new scope — not confirmed with BSC Digital. This is a dependency on a BSC-owned middleware team.</div></td>
+      <td>If BSC Digital has not planned JARVIS VA01 support, WS6 integration is blocked even after &lt;Project&gt; is ready. Must be confirmed during bid clarification.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-arch">Cross</span></td>
+      <td><span class="owner owner-bsc-it">BSC IT / Digital</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="arch">
+      <td class="gap-id">A-02</td>
+      <td><span class="gap-title">&lt;Project&gt; never pulls directly from SAP — all inbound data via ADL nightly batch</span><div class="gap-detail">All inbound sales data flows SAP → ADL → &lt;Project&gt;. The only direct SAP-to-&lt;Project&gt; data is the order number returned as an API response after a VA01 call.</div></td>
+      <td>If BSC expects real-time intra-day SAP data in &lt;Project&gt;, the architecture cannot support it without a redesign of the data ingestion layer.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-arch">Cross</span></td>
+      <td><span class="owner owner-shared">BSC / Vendor</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="arch">
+      <td class="gap-id">A-03</td>
+      <td><span class="gap-title">Floor price does not sync to SAP</span><div class="gap-detail">Floor price is calculated outside the system at MVP (FR_P07) and is an internal governance control only. Explicitly excluded from SAP sync scope in Section 3.2.</div></td>
+      <td>Any downstream system expecting floor price in SAP condition records will not find it. Not annotated in the BPMN — risk of misalignment during UAT.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-shared">BSC / Vendor</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="arch">
+      <td class="gap-id">A-04</td>
+      <td><span class="gap-title">Contract is &lt;Project&gt;-owned end to end — no VA41 in SAP</span><div class="gap-detail">The contract document lives in &lt;Project&gt; only. SAP never receives a contract document. "Contracts" in Section 3.3 refers to credit memo creation via VA01, not a VA41 scheduling agreement.</div></td>
+      <td>If BSC Finance expects a contract document in SAP for audit or compliance purposes, it does not exist there. Gap in audit trail that BSC must accept explicitly.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-arch">Cross</span></td>
+      <td><span class="owner owner-shared">BSC / Vendor</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="arch">
+      <td class="gap-id">INT-05</td>
+      <td><span class="gap-title">Snowflake integration — FeatureSpec P0 data export target; requirements reference only ADL/S3</span><div class="gap-detail">FeatureSpec §Data names Snowflake as a P0 analytics data export target. Requirements FINAL.md references only ADL and S3. If BSC's analytics platform runs on Snowflake, an export pipeline (schema, frequency, auth, incremental vs full-load) must be designed.</div></td>
+      <td>Analytics consumption layer is unscoped if Snowflake is the target. BSC must confirm which data export target governs.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-arch">Cross</span></td>
+      <td><span class="owner owner-bsc-it">BSC IT</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="arch">
+      <td class="gap-id">MFR-13</td>
+      <td><span class="gap-title">GEMINI / Magellan analytics readiness — referenced in NFR-SC02, neither system defined anywhere</span><div class="gap-detail">NFR-SC02 states "Magellan readiness" as a non-functional requirement. Neither GEMINI nor Magellan is defined anywhere in the requirements. If these are BSC internal analytics platforms, the data schema, export format, and API contract required to be "ready" are unknown.</div></td>
+      <td>NFR-SC02 cannot be tested. Acceptance criteria for "Magellan readiness" are undefined — scope dispute risk at UAT.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-arch">Cross</span></td>
+      <td><span class="owner owner-bsc-it">BSC IT</span></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CATEGORY 5 — REQUIREMENTS COVERAGE GAPS
+════════════════════════════════════════════════════════ -->
+<div class="category-header" data-category="cat5">
+  <div class="category-number" style="background:#0ea5e920;color:#7dd3fc;">5</div>
+  <div>
+    <div class="category-title">Requirements Coverage — Contradictions, Missing FRs &amp; Ambiguities</div>
+    <div class="category-desc">FRs that are contradicted, absent, or insufficiently defined to build against — scope dispute risk at fixed price</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <tr data-sev="critical" data-ws="cross">
+      <td class="gap-id">CTR-05</td>
+      <td><span class="gap-title">UI language — three conflicting specifications across RFP, requirements, and FeatureSpec</span><div class="gap-detail">Three documents specify different language requirements: (a) Japanese + Mandarin + English; (b) English + Japanese + Korean + Thai; (c) Japanese + English only. Option (a) or (b) versus (c) represents 2–3 additional full i18n implementations.</div></td>
+      <td>The difference between option (c) and option (b) is approximately 3 additional language implementations. A single authoritative answer must be provided before any UI development begins.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="cross">
+      <td class="gap-id">AMB-02</td>
+      <td><span class="gap-title">&lt;Project&gt; / Tableau boundary undefined — 11+ FRs reference "&lt;Project&gt;/Tableau" while Tableau is out of RFP scope</span><div class="gap-detail">FR_P02–P04, FR_B07, FR_M06–M12 and others reference "&lt;Project&gt;/Tableau" as delivery. Tableau is explicitly listed as out of RFP scope in §3.2. It is unclear whether &lt;Project&gt; must deliver these visualisations natively, or whether they are Tableau-only and therefore already out of scope.</div></td>
+      <td>If &lt;Project&gt; must replicate all Tableau functionality natively, this is significant undisclosed UI scope across multiple modules. If Tableau is the delivery vehicle and it is out of scope, these FRs have no delivery path.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="cross">
+      <td class="gap-id">AMB-12</td>
+      <td><span class="gap-title">~12 FRs tagged system = "DAT" — DAT is a separate RFP with no confirmed delivery timeline</span><div class="gap-detail">FR_B01, FR_P16–P20, FR_P26–P31, FR_G10, and others are tagged system = "DAT". DAT is a separate RFP and procurement. If in &lt;Project&gt; scope, these are undisclosed scope. If out of scope, &lt;Project&gt; depends on a separately procured system that may not be live at go-live.</div></td>
+      <td>Critical delivery dependency. If DAT is delayed, &lt;Project&gt; go-live may be blocked on ~12 FRs. BSC must confirm DAT's procurement status and go-live timeline as part of bid response.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="cross">
+      <td class="gap-id">CTR-02</td>
+      <td><span class="gap-title">E-signature — RFP: in-scope CLM capability vs requirements: optional post-MVP</span><div class="gap-detail">RFP §3.1 describes CLM capability inclusive of e-signature as a core deliverable. Requirements FINAL.md defers e-signature to post-MVP. If BSC intends e-signature at go-live, a CLM integration (DocuSign, Adobe Sign, or BSC incumbent) is additional undisclosed scope.</div></td>
+      <td>E-signature at go-live vs post-MVP is a significant scope difference. CLM integration adds integration design, testing, and licensing cost.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="cross">
+      <td class="gap-id">CTR-03</td>
+      <td><span class="gap-title">Mobile — RFP: full mobile experience vs requirements: approval workflows only for MVP</span><div class="gap-detail">RFP §4 states "modern web and mobile experience." Requirements FINAL.md limits mobile to approval workflows only for MVP. Full mobile requires responsive design and possibly native app delivery across all modules — materially different scope and test surface.</div></td>
+      <td>Full mobile vs approval-only mobile is a large scope difference in UI development and testing effort. Must be resolved before design begins.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="cross">
+      <td class="gap-id">CTR-04</td>
+      <td><span class="gap-title">External user access — RFP: "where applicable" vs requirements: out of scope</span><div class="gap-detail">RFP mentions external user access for distributors and partners. Requirements FINAL.md states external users are out of scope. If any distributor or partner access is required at go-live, identity management, data isolation, and portal UX are undisclosed scope.</div></td>
+      <td>External user portal is a significant additional workstream if in scope. Must be confirmed before architecture design.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="cross">
+      <td class="gap-id">CTR-08</td>
+      <td><span class="gap-title">Fixed asset disposal — FR_C11–C16 out of MVP scope vs NFR-I03 lists it as in-scope SAP interface</span><div class="gap-detail">FR_C11–C16 (fixed asset disposal workflow) are explicitly out of MVP scope. NFR-I03 (integration requirements) lists fixed asset disposal SAP interfaces as in-scope deliverables. These positions are mutually exclusive.</div></td>
+      <td>If the integration is in scope, the workflow driving it is also in scope. If the workflow is out of scope, the integration is moot. Cannot deliver one without the other.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws5">
+      <td class="gap-id">MFR-02</td>
+      <td><span class="gap-title">Contract renewal alerts — FeatureSpec P0 must-have; requirements defer to post-MVP (FR_M27)</span><div class="gap-detail">FeatureSpec §Contract lists renewal alerts as P0. Requirements FINAL.md marks FR_M27 as post-MVP. Requires explicit BSC decision — if P0 at go-live, add alert engine, notification service, and user preference configuration to scope.</div></td>
+      <td>If P0 at go-live, undisclosed scope. If post-MVP, FeatureSpec is incorrect and must be updated before bid submission to avoid a scope dispute.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="cross">
+      <td class="gap-id">MFR-09</td>
+      <td><span class="gap-title">Data migration — no FRs for historical contract, pricing, or accrual data cutover</span><div class="gap-detail">No FRs exist for historical data migration. Cutover of historical contract data, pricing history, accrual history, and rebate settlement records from legacy systems (RCE, Oracle Japan, SAP) to &lt;Project&gt; has zero requirements coverage. Data migration is typically 15–20% of ERP-adjacent implementation effort.</div></td>
+      <td>Data migration is a material effort item with zero specification. A fixed-price bid without a data migration scope definition is a significant commercial risk.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-shared">BSC / Vendor</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws5">
+      <td class="gap-id">AMB-01</td>
+      <td><span class="gap-title">Floor price import mechanism undefined — FR_P06/P07 says calculated externally, no ingest FR exists</span><div class="gap-detail">Floor Price is described as calculated outside &lt;Project&gt;. No import mechanism, validation FR, or error-handling requirement exists. How does an externally-calculated floor price enter the system? What prevents a floor price below cost from being applied?</div></td>
+      <td>Floor price enforcement cannot be designed or tested. Commercial risk if floor prices are applied incorrectly to live deals.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws5">
+      <td class="gap-id">AMB-10</td>
+      <td><span class="gap-title">FR_P35, FR_Q23, FR_Q24 require alignment with "Phoenix scope" — Phoenix not defined anywhere</span><div class="gap-detail">Three FRs require alignment with a system called Phoenix. No Phoenix API specification, data model, or interface contract is referenced anywhere in the RFP or requirements. If Phoenix is a live BSC system, its interface must be defined before these FRs can be designed.</div></td>
+      <td>Three FRs are unbuildable until the Phoenix interface is shared. Integration design cannot proceed.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-it">BSC IT</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="ws5">
+      <td class="gap-id">AMB-14</td>
+      <td><span class="gap-title">FR_P38 — four simulation types in one sentence; highest-complexity feature with zero design detail</span><div class="gap-detail">FR_P38 lists baseline, what-if, competitive, and compliance simulations in a single sentence. Each type likely requires a distinct data model, calculation engine, UI, and test suite. There is no further specification anywhere.</div></td>
+      <td>Likely 2–4× underestimated in any effort estimate based on the current FR. A detailed design workshop with BSC is required before estimating this feature.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-shared">BSC / Vendor</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws6">
+      <td class="gap-id">B-01</td>
+      <td><span class="gap-title">FR_G17 — SAP document numbers returned after VA01 calls — no WS6 task modelled yet</span><div class="gap-detail">FR_G17 confirms SAP returns document numbers to &lt;Project&gt; after each VA01 posting. These are audit trail receipts — not sales order numbers. No BPMN task or data store has been defined for storing and surfacing these.</div></td>
+      <td>If this slips into WS6 BPMN late, it disrupts the settlement flow design and adds unplanned development scope.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws6">
+      <td class="gap-id">B-02</td>
+      <td><span class="gap-title">WS6 accounting gaps G-01 to G-16 entirely unmodelled in BPMN</span><div class="gap-detail">WS6 BPMN cannot be started until BSC SAP team answers the payload and posting questions. This is a sequencing risk — if BSC SAP team answers are delayed, WS6 modelling cannot begin and the go-live timeline is at risk. Gaps G-13 to G-16 (order reversals, cross-period returns, post-settlement returns, month-end cut-off) add further unmodelled complexity.</div></td>
+      <td>Sequencing dependency: WS6 BPMN is blocked behind BSC SAP team Q&amp;A. Delay compounds through design → build → test.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-shared">BSC SAP / Vendor</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws5">
+      <td class="gap-id">B-03</td>
+      <td><span class="gap-title">Bundle sync with MyOrders — OQ-BNDL-01 open question</span><div class="gap-detail">MyOrders currently has its own bundle configuration. Section 3.1 puts bundle sync in scope for &lt;Project&gt; but it is unclear whether &lt;Project&gt;'s bundle configuration must stay in sync with MyOrders, and if so, who owns the direction and mechanism.</div></td>
+      <td>If sync is required, this adds a &lt;Project&gt; ↔ MyOrders integration not currently scoped or sized.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-it">BSC IT / MyOrders</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws5">
+      <td class="gap-id">MFR-05</td>
+      <td><span class="gap-title">Scenario side-by-side comparison — FeatureSpec P0; FR_P38 does not explicitly require it</span><div class="gap-detail">FeatureSpec marks simultaneous multi-scenario side-by-side display as P0. FR_P38 lists simulation types but does not require simultaneous multi-scenario display. These are distinct UI and data model requirements.</div></td>
+      <td>If BSC expects side-by-side comparison at go-live based on the FeatureSpec, and the vendor scopes only single-scenario view, this will be a UAT failure.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-shared">BSC / Vendor</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="cross">
+      <td class="gap-id">MFR-14</td>
+      <td><span class="gap-title">Hyperion / AOP budget data ingestion — no FR defines how AOP data enters &lt;Project&gt;</span><div class="gap-detail">Multiple FRs reference the Annual Operating Plan (AOP) as a data input. No FR defines how AOP data enters &lt;Project&gt;. If sourced from Hyperion, an automated ingestion interface is required. Manual upload is not specified.</div></td>
+      <td>AOP-dependent budget calculations cannot be performed until AOP data enters the system. If ingestion is manual, BSC has an operational dependency at every planning cycle.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws2">
+      <td class="gap-id">AMB-03</td>
+      <td><span class="gap-title">FR_B03 and FR_B06 are identically worded — two-stage approval intent or authoring duplicate?</span><div class="gap-detail">FR_B03 and FR_B06 are identically worded in requirements FINAL.md. It is unclear whether this is a two-stage approval intent (same action described from two actor perspectives) or a copy-paste authoring error resulting in a duplicate.</div></td>
+      <td>If a two-stage approval is intended, the workflow state machine has an extra node. If a duplicate, one FR is phantom scope. Affects effort estimation.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws2">WS2</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws2">
+      <td class="gap-id">AMB-04</td>
+      <td><span class="gap-title">FR_B10 and FR_B13 are identically worded — same issue as AMB-03 for budget revision proposals</span><div class="gap-detail">FR_B10 and FR_B13 are identically worded for budget revision proposals. Same authoring ambiguity as AMB-03 — two-stage approval intent or copy-paste error.</div></td>
+      <td>Same risk as AMB-03. Affects approval workflow design for budget revisions.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws2">WS2</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws5">
+      <td class="gap-id">AMB-09</td>
+      <td><span class="gap-title">FR_P24 loyalty status required in &lt;Project&gt; but determination is out of scope — no input interface</span><div class="gap-detail">Loyalty status determination is stated as out of scope. However FR_P24 requires &lt;Project&gt; to register and use loyalty status in pricing calculations. No input interface for loyalty status is defined.</div></td>
+      <td>Loyalty-based pricing cannot be implemented without a defined data feed. Pricing output will be incorrect for loyalty-eligible customers.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws6">
+      <td class="gap-id">AMB-11</td>
+      <td><span class="gap-title">FR_Q30 5th business day rule depends on ADL calendar — no handling if ADL is unavailable</span><div class="gap-detail">The 5th business day rule for settlement depends on the ADL calendar for business day determination. No handling is defined for ADL unavailability on business-day boundaries. If ADL is down during a period-end calculation, the settlement date cannot be determined.</div></td>
+      <td>Settlement date calculation fails silently during ADL outages. Financial calendar integrity risk at period-end.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-shared">BSC / Vendor</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="ws5">
+      <td class="gap-id">AMB-13</td>
+      <td><span class="gap-title">FR_Q36 one-off price types — configuration shell requirement with no data model, fields, or rules</span><div class="gap-detail">FR_Q36 is a configuration shell requirement for one-off pricing with no data model, field definitions, validation rules, or business rules specified. It cannot be estimated or designed as written.</div></td>
+      <td>Feature is unestimable. Risk of significant underestimation if one-off pricing has complex rules discovered during detailed design.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="resolved" data-ws="cross" class="resolved">
+      <td class="gap-id">BPM-10</td>
+      <td><span class="gap-title">WS7 (Reporting) BPMN partially read — truncated at line 686</span><div class="gap-detail">WS7 was partially read. All process logic was captured but the diagram section was not verified. No structural defects were identified in the readable portion. Completeness of the reporting workflow cannot be confirmed pending a full re-read.</div></td>
+      <td>Low risk. No defects found in readable portion. Flag for completeness.</td>
+      <td><span class="sev sev-low">Low</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+    </tr>
+    <tr data-sev="resolved" data-ws="cross" class="resolved">
+      <td class="gap-id">BPM-11</td>
+      <td><span class="gap-title">WS4-01 BPMN partially read — truncated at line 635</span><div class="gap-detail">WS4-01 was partially read. Core logic was captured. No structural defects identified beyond BPM-01 (SLA dead-end). Full coverage of escalation paths cannot be confirmed pending a full re-read.</div></td>
+      <td>Low risk. BPM-01 already captures the critical defect found. Flag for completeness.</td>
+      <td><span class="sev sev-low">Low</span></td>
+      <td><span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CATEGORY 6 — OPEN BUSINESS DECISIONS + COMMERCIAL
+════════════════════════════════════════════════════════ -->
+<div class="category-header" data-category="cat6">
+  <div class="category-number" style="background:#6366f120;color:#a5b4fc;">6</div>
+  <div>
+    <div class="category-title">Process — Open Business Decisions &amp; Commercial / RFP-Level Gaps</div>
+    <div class="category-desc">BSC must decide these items before go-live; commercial gaps block a responsible fixed-price bid</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr><th>ID</th><th>Decision / Gap Required</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <tr data-sev="critical" data-ws="comm">
+      <td class="gap-id">COM-01</td>
+      <td><span class="gap-title">RFP Appendix B (Security Questionnaire) and Appendix C (BSC MSA) not provided</span><div class="gap-detail">Both are described as material evaluation criteria and non-negotiable contractual baseline. Neither document was included in the RFP pack. Bid response cannot address security requirements or commercial terms without these documents.</div></td>
+      <td>Cannot complete bid response. Security questionnaire and MSA are required before bid submission. Escalate immediately.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-comm">Commercial</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Procurement</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="comm">
+      <td class="gap-id">COM-02</td>
+      <td><span class="gap-title">Fixed-price bid on materially incomplete requirements — 37 scope items unresolved or contradicted</span><div class="gap-detail">BSC has confirmed SSR/SOP documents do not exist. This analysis identifies 9 contradictions, 14 missing FRs, and 14 ambiguous FRs. Submitting a fixed-price bid against this specification creates structurally asymmetric risk for the vendor.</div></td>
+      <td>Commercial model must be reconsidered. Recommend T&amp;M or capped T&amp;M, or include a formal design phase with re-baselining before fixed-price commitment.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-comm">Commercial</span></td>
+      <td><span class="owner owner-shared">Zühlke / BSC</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="comm">
+      <td class="gap-id">COM-03</td>
+      <td><span class="gap-title">30 Q&amp;A items unanswered; answers due 14 May, response due 22 May — only 8 days to integrate</span><div class="gap-detail">All 30 formal clarification questions remain unanswered as of 30 Apr 2026. Answers due 14 May 2026. Response due 22 May 2026. 8 calendar days (≈5 business days) to integrate 30 answers into the bid. Several answers will materially affect scope, architecture, and pricing.</div></td>
+      <td>8 business days is insufficient for meaningful integration. A formal extension request of 10 business days should be raised with BSC immediately.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-comm">Commercial</span></td>
+      <td><span class="owner owner-shared">Zühlke / BSC</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="cross">
+      <td class="gap-id">CTR-01</td>
+      <td><span class="gap-title">Go-live date — three different targets: Q1 2027 (RFP), Q3 2027 (requirements), Q2 2027 end (verbal)</span><div class="gap-detail">RFP §2.1 states Q1 2027. Requirements doc states Q3 2027. Pre-bid transcript records "technical early / business-ready end Q2 2027." All three are active sources. Infrastructure scale-up, testing cycles, and hypercare commitments all depend on a single agreed date.</div></td>
+      <td>A 6-month uncertainty in go-live date makes resource planning and timeline commitments meaningless. BSC must designate a single binding source of truth.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="comm">
+      <td class="gap-id">COM-04</td>
+      <td><span class="gap-title">PCA Workstream — named standalone deliverable in RFP with own BRD/FRS/TDD; zero specification</span><div class="gap-detail">The RFP names PCA (Pricing Compliance Analytics) as a standalone workstream deliverable with its own BRD, FRS, and TDD. PCA has zero functional specification anywhere in the RFP pack — no FRs, no user stories, no wireframes, no data model.</div></td>
+      <td>A deliverable in the contract structure with no specification cannot be estimated or committed to in a fixed-price response. PCA must be fully specified or explicitly excluded before bid submission.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-comm">Commercial</span></td>
+      <td><span class="owner owner-bsc-biz">BSC</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="cross">
+      <td class="gap-id">COM-05</td>
+      <td><span class="gap-title">FR_W02 approval thresholds in USD vs NFR-L02 system operates in JPY — no conversion rule defined</span><div class="gap-detail">FR_W02 defines approval thresholds in USD ($25K / $50K / $150K / $500K). NFR-L02 requires the system to operate in JPY. No FR defines exchange rate source, update frequency, tolerance band, or rounding convention for threshold conversion. A 5% USD/JPY move can shift a deal across an approval tier.</div></td>
+      <td>Approval routing will produce inconsistent results as exchange rates move. Finance controls may be inadvertently bypassed or over-applied.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-cross">Cross</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="open" data-ws="ws1">
+      <td class="gap-id">D-01</td>
+      <td><span class="gap-title">BSC360 fallback rule when a BD is unavailable</span><div class="gap-detail">Unanimous approval cannot be met if a BD has no backup assigned. No exception path, override, or time-bound escalation exists in the requirements.</div></td>
+      <td>BSC360 contracts will be blocked at month-end close with no resolution mechanism until BSC defines one.</td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Business</span></td>
+    </tr>
+    <tr data-sev="open" data-ws="ws2">
+      <td class="gap-id">D-02</td>
+      <td><span class="gap-title">Accrual proposal rejection cycle limit</span><div class="gap-detail">No maximum retry count or hard deadline for the accrual approval loop under FR_M14. A proposal could be rejected and revised indefinitely without reaching month-end close.</div></td>
+      <td>Without a cycle limit, month-end close cannot be guaranteed. Finance cannot lock the period.</td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws2">WS2</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="open" data-ws="ws2">
+      <td class="gap-id">D-03</td>
+      <td><span class="gap-title">Price approval rejection loop — no maximum or escalation</span><div class="gap-detail">Same issue as D-02 applied to the WS2 price approval flow. No stated maximum number of rejection cycles or escalation trigger after repeated rejections.</div></td>
+      <td>Price approvals could loop indefinitely, blocking AOP finalisation.</td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws2">WS2</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Business</span></td>
+    </tr>
+    <tr data-sev="open" data-ws="ws6">
+      <td class="gap-id">D-04</td>
+      <td><span class="gap-title">Contract expiry mid-accrual — what happens to open accruals?</span><div class="gap-detail">No requirement addresses what &lt;Project&gt; does with open monthly accruals when a contract expires mid-period. Should the accrual be posted, reversed, or held pending settlement?</div></td>
+      <td>Without this decision, a mid-period contract expiry leaves an unresolved accrual balance in SAP.</td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="open" data-ws="ws1">
+      <td class="gap-id">D-05</td>
+      <td><span class="gap-title">BD rep turnover mid-contract — in-flight approval obligations</span><div class="gap-detail">WS1 covers user account setup and role assignment but does not address transfer of in-flight approval obligations when a BD rep leaves mid-contract. Pending approvals are orphaned.</div></td>
+      <td>Contracts requiring the departed BD's approval are blocked until manually reassigned — no automated transfer rule exists.</td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws1">WS1</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Business</span></td>
+    </tr>
+    <tr data-sev="open" data-ws="ws5">
+      <td class="gap-id">D-06</td>
+      <td><span class="gap-title">CLM scope boundary — &lt;Project&gt; commercial contracts vs MyOrders purchase orders</span><div class="gap-detail">OQ-CLM-01: &lt;Project&gt; manages commercial pricing contracts; MyOrders manages purchase orders submitted to SAP. This boundary must be formally confirmed with BSC stakeholders — earlier Q&amp;A sessions concluded contracts were out of scope, contradicting the RFP.</div></td>
+      <td>Unconfirmed scope boundary carries risk of rework if BSC's understanding of CLM scope differs from the vendor's.</td>
+      <td><span class="sev sev-open">Open</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-bsc-biz">BSC / BPO Japan</span></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CATEGORY 7 — REGULATORY & COMPLIANCE GAPS
+════════════════════════════════════════════════════════ -->
+<div class="category-header" data-category="cat7">
+  <div class="category-number" style="background:#a855f720;color:#d8b4fe;">7</div>
+  <div>
+    <div class="category-title">Regulatory &amp; Compliance — Japan and APAC</div>
+    <div class="category-desc">Regulations applicable to a Japan medical device pricing system that are absent from or insufficiently addressed in the RFP. Legal counsel review recommended for Critical items.</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr><th>ID</th><th>Regulation / Area</th><th>Gap Description</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <tr data-sev="critical" data-ws="reg">
+      <td class="gap-id">REG-01</td>
+      <td><span class="gap-title">Japan APPI (2022 amended)</span><div class="gap-detail">Japan's Act on the Protection of Personal Information (amended 2022) is not referenced anywhere in the RFP or requirements. APPI requirements absent: cross-border transfer consent (Art. 24), retention limits, deletion rights, 3-day breach notification to PPC, DPO designation. Corporate fine up to ¥100M.</div></td>
+      <td>&lt;Project&gt; processes personal data (customer representative names — FR_G11). APPI compliance is not optional for Japan personal data. Must confirm with BSC Legal whether APPI compliance is BSC-owned or &lt;Project&gt;-scope.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-legal">BSC Legal</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="reg">
+      <td class="gap-id">REG-02</td>
+      <td><span class="gap-title">PDPA (Singapore) — mandated in RFP §6 but no FR implements it</span><div class="gap-detail">PDPA is mandated in RFP §6 but no FR implements it. Breach notification within 3 business days, DPO requirement, and DPIA for high-risk processing are all absent from requirements FINAL.md. RFP mandates it but provides no implementation requirements.</div></td>
+      <td>PDPA compliance is a contractual requirement per the RFP. Implementation gap makes it an open design question — scope dispute risk at UAT if vendor delivers without it.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-legal">BSC Legal</span></td>
+    </tr>
+    <tr data-sev="critical" data-ws="reg">
+      <td class="gap-id">REG-03</td>
+      <td><span class="gap-title">J-SOX — NYSE-listed company; Japan pricing and accrual system likely in scope</span><div class="gap-detail">Japan's Financial Instruments and Exchange Act (J-SOX) requires documented internal controls over financial reporting for NYSE-listed companies' Japan subsidiaries. BSC Corp is NYSE-listed. A system that drives SAP pricing postings and accrual entries is likely in J-SOX scope. No J-SOX controls design, segregation of duties mapping, or audit evidence requirements appear anywhere in the RFP.</div></td>
+      <td>J-SOX non-compliance for an NYSE-listed company carries SEC reporting obligations. Absence from requirements does not mean absence from obligation. BSC Legal must confirm J-SOX scope before design begins.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-legal">BSC Legal</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="reg">
+      <td class="gap-id">REG-04</td>
+      <td><span class="gap-title">Japanese fiscal year (April–March) vs BSC calendar year (January–December) — no FR addresses conflict</span><div class="gap-detail">Japan operates a fiscal year from April to March. BSC corporate operates January to December. No FR or NFR addresses this discrepancy. AOP data, accrual periods, rebate settlement cycles, and reporting calendars may conflict between BSC corporate and Japan local requirements.</div></td>
+      <td>Could be a significant functional design issue affecting all period-end processes, AOP loading, and financial reporting. Must be resolved before WS6 and WS2 design begins.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="reg">
+      <td class="gap-id">REG-05</td>
+      <td><span class="gap-title">AWS data residency — no FR specifies AWS region; APPI may require Tokyo region</span><div class="gap-detail">No FR specifies AWS region. APPI may require Japan personal data to be stored in the AWS Tokyo region (ap-northeast-1). If the solution is designed for a non-Japan region, retroactive migration to comply with residency requirements would be disruptive and costly.</div></td>
+      <td>Region selection must be confirmed before architecture design. Retroactive change after infrastructure build is costly and disruptive.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-legal">BSC Legal / IT</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="reg">
+      <td class="gap-id">REG-06</td>
+      <td><span class="gap-title">Finance Policy 10.1 — referenced in multiple FRs as authority for approval thresholds; never shared</span><div class="gap-detail">Finance Policy 10.1 is referenced in multiple FRs as the authority for approval thresholds and financial controls. The policy document has never been shared with Zühlke. Approval workflow design (WS4), accrual posting thresholds (FR_W02), and settlement authority limits all depend on this policy.</div></td>
+      <td>Approval workflow design cannot be finalised without it. Requesting Finance Policy 10.1 should be a formal Q&amp;A item.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-bsc-biz">BSC Finance</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="reg">
+      <td class="gap-id">REG-07</td>
+      <td><span class="gap-title">NHI (Japan National Health Insurance) pricing rules — discounting restrictions not addressed</span><div class="gap-detail">Japan's NHI pricing rules restrict discounting behaviour for medical devices listed on the NHI price list. &lt;Project&gt; automates discount application and rebate calculation. No FR addresses NHI compliance. If BSC's Japan products are NHI-listed, automated discounting below NHI floor prices could be a regulatory violation.</div></td>
+      <td>Automated discounting in violation of NHI rules could expose BSC to regulatory sanctions and product de-listing risk. BSC Regulatory Affairs must confirm NHI applicability.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-legal">BSC Regulatory Affairs</span></td>
+    </tr>
+    <tr data-sev="high" data-ws="reg">
+      <td class="gap-id">REG-08</td>
+      <td><span class="gap-title">FSA record-keeping — financial records supporting Japan regulatory filings; no retention NFR exists</span><div class="gap-detail">Japan's Financial Services Agency requires retention of financial records supporting regulatory filings. &lt;Project&gt;'s accrual and settlement data may feed BSC Japan financial statements. No data retention FR exists. Data archiving strategy deliverable has no retention period FRs to implement against.</div></td>
+      <td>No retention requirements means data may be purged before regulatory obligation is satisfied. Requires BSC Legal to confirm retention periods before data lifecycle design.</td>
+      <td><span class="sev sev-high">High</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-legal">BSC Legal</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="reg">
+      <td class="gap-id">REG-09</td>
+      <td><span class="gap-title">PMDA / PMD Act — medical device pricing traceability may be subject to regulatory submission requirements</span><div class="gap-detail">Japan's Pharmaceuticals and Medical Devices Act (enforced by PMDA) may require pricing traceability for certain medical device categories. If BSC Japan's contracts or discounting arrangements form part of pricing data submitted to PMDA, &lt;Project&gt;'s audit trail may need to meet PMDA record requirements.</div></td>
+      <td>BSC Regulatory Affairs must assess PMDA applicability. If applicable, audit trail design requirements are materially different.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-legal">BSC Regulatory Affairs</span></td>
+    </tr>
+    <tr data-sev="medium" data-ws="reg">
+      <td class="gap-id">REG-10</td>
+      <td><span class="gap-title">Data retention — Japanese Commercial Code requires 10-year retention; no FR specifies periods</span><div class="gap-detail">Japan's Commercial Code requires retention of commercial books and records for 10 years. &lt;Project&gt;'s contract data, pricing records, and settlement history are commercial records. No FR specifies retention periods or archival mechanisms. A 10-year retention requirement affects storage cost modelling, data lifecycle management, and APPI right-to-erasure conflict resolution.</div></td>
+      <td>10-year retention will significantly affect data storage architecture. Right-to-erasure under APPI vs 10-year retention under Commercial Code is a legal conflict that BSC Legal must resolve with a documented policy.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-legal">BSC Legal</span></td>
+    </tr>
+    <tr data-sev="resolved" data-ws="reg" class="resolved">
+      <td class="gap-id">REG-11</td>
+      <td><span class="gap-title">Japanese Electronic Signature Act — MVP defers e-signature; lower urgency</span><div class="gap-detail">Japan's Act on Electronic Signatures requires specific standards for legally valid electronic contracts. MVP defers e-signature (per requirements FINAL.md). If e-signature is in-scope post-MVP, the solution must comply with Japanese law, not just EU eIDAS or US ESIGN.</div></td>
+      <td>Low urgency given MVP deferral. Should be captured in post-MVP backlog. Flag for Phase 2 design.</td>
+      <td><span class="sev sev-low">Low</span></td>
+      <td><span class="ws ws-reg">Regulatory</span></td>
+      <td><span class="owner owner-legal">BSC Legal</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border);font-size:11px;color:var(--text-footer);text-align:center;">
+  &lt;Project&gt; Master Gap &amp; Risk Register · All workstreams · 30 Apr 2026 · Integrated with full cross-file gap analysis<br/>
+  For detailed WS6 accounting analysis see <strong>accounting_gap_analysis.html</strong> · For WS1–WS7 BPMN structural analysis see <strong>workflow_gap_analysis.html</strong> · For WS4 approval deep-dive see <strong>approval-workflow-gap-analysis.html</strong> · For full findings narrative see <strong>full_gap_analysis.html</strong>
+</div>
+
+<script>
+  function setTheme(mode) {
+    localStorage.setItem('gap-analysis-theme', mode);
+    applyTheme(mode);
+    document.querySelectorAll('.theme-toggle button').forEach(b => b.classList.remove('active'));
+    document.getElementById('theme-' + mode).classList.add('active');
+  }
+  function applyTheme(mode) {
+    if (mode === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', mode);
+    }
+  }
+  (function() {
+    const saved = localStorage.getItem('gap-analysis-theme') || 'system';
+    applyTheme(saved);
+    document.getElementById('theme-' + saved).classList.add('active');
+  })();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if ((localStorage.getItem('gap-analysis-theme') || 'system') === 'system') applyTheme('system');
+  });
+
+  function filterRows(filter) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      if (filter === 'all') {
+        row.classList.remove('row-hidden');
+        return;
+      }
+      const sev = row.dataset.sev || '';
+      const ws  = row.dataset.ws  || '';
+
+      let show = false;
+      if (filter === 'critical' && sev === 'critical') show = true;
+      if (filter === 'high'     && sev === 'high')     show = true;
+      if (filter === 'medium'   && sev === 'medium')   show = true;
+      if (filter === 'open'     && sev === 'open')     show = true;
+      if (filter === 'resolved' && (sev === 'resolved' || sev === 'low')) show = true;
+      if (filter === 'ws6'  && ws === 'ws6')  show = true;
+      if (filter === 'ws5'  && ws === 'ws5')  show = true;
+      if (filter === 'ws1'  && (ws === 'ws1' || ws === 'ws2')) show = true;
+      if (filter === 'ws4'  && ws === 'ws4')  show = true;
+      if (filter === 'arch' && (ws === 'arch')) show = true;
+      if (filter === 'cross' && ws === 'cross') show = true;
+      if (filter === 'reg'  && ws === 'reg')  show = true;
+      if (filter === 'comm' && ws === 'comm') show = true;
+
+      row.classList.toggle('row-hidden', !show);
+    });
+
+    document.querySelectorAll('.category-header').forEach(header => {
+      const table = header.nextElementSibling;
+      if (!table) return;
+      const visibleRows = table.querySelectorAll('tbody tr:not(.row-hidden)');
+      header.style.display = visibleRows.length === 0 ? 'none' : 'flex';
+      table.style.display  = visibleRows.length === 0 ? 'none' : 'table';
+    });
+  }
+</script>
+
+</body>
+</html>

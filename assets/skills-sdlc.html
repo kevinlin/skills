@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Agent skills across the delivery lifecycle</title>
+<style>
+  body { margin: 0; padding: 20px; background: #ffffff; font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div style="width: 1200px; box-sizing: border-box; position: relative; background: #fafbff; padding: 24px 20px; border-radius: 10px; font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;">
+  <style scoped>
+    .arch-title { text-align: center; font-size: 23px; font-weight: 800; color: #1e293b; letter-spacing: 0.2px; }
+    .arch-subtitle { text-align: center; font-size: 12px; color: #64748b; margin-top: 4px; margin-bottom: 18px; }
+    .arch-pipeline { display: flex; gap: 0; align-items: stretch; }
+    .arch-stage { flex: 1; padding: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); display: flex; flex-direction: column; }
+    .arch-stage-title { font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 10px; }
+    .arch-arrow { display: flex; align-items: center; justify-content: center; width: 28px; flex-shrink: 0; font-size: 18px; color: #94a3b8; }
+    .arch-box { border-radius: 6px; padding: 8px; text-align: center; font-size: 11px; font-weight: 600; line-height: 1.35; color: #1e293b; background: #ffffff; border: 1px solid #e2e8f0; margin: 3px 0; }
+    .arch-box small { display: block; font-weight: 500; color: #475569; }
+    .arch-stage.s1 { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #3b82f6; } .arch-stage.s1 .arch-stage-title { color: #1e40af; }
+    .arch-stage.s2 { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #eab308; } .arch-stage.s2 .arch-stage-title { color: #854d0e; }
+    .arch-stage.s3 { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #22c55e; } .arch-stage.s3 .arch-stage-title { color: #15803d; }
+    .arch-stage.s4 { background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); border: 2px solid #ec4899; } .arch-stage.s4 .arch-stage-title { color: #9d174d; }
+    .arch-layer { margin: 12px 0 0 0; padding: 14px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+    .arch-layer-title { font-size: 13px; font-weight: bold; margin-bottom: 10px; text-align: center; }
+    .arch-grid { display: grid; gap: 8px; } .arch-grid-1 { grid-template-columns: 1fr; } .arch-grid-2 { grid-template-columns: repeat(2, 1fr); } .arch-grid-4 { grid-template-columns: repeat(4, 1fr); } .arch-grid-5 { grid-template-columns: repeat(5, 1fr); }
+    .arch-layer.comms { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border: 2px solid #6366f1; } .arch-layer.comms .arch-layer-title { color: #4338ca; }
+    .arch-layer.meta { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px dashed #94a3b8; } .arch-layer.meta .arch-layer-title { color: #64748b; }
+  </style>
+  <div class="arch-title">Agent Skills Across the Delivery Lifecycle</div>
+  <div class="arch-subtitle">9 skills, from requirements gap analysis to reviewed, shipped code</div>
+  <div class="arch-pipeline">
+    <div class="arch-stage s1">
+      <div class="arch-stage-title">Bid, Discover &amp; Design</div>
+      <div class="arch-box">gap-analysis<br><small>requirements gap register</small></div>
+    </div>
+    <div class="arch-arrow">&#8594;</div>
+    <div class="arch-stage s2">
+      <div class="arch-stage-title">Build</div>
+      <div class="arch-box">spec-coding<br><small>requirements &#8594; design &#8594; tasks &#8594; execute</small></div>
+      <div class="arch-box">research-plan-implement<br><small>codebase-aware development</small></div>
+    </div>
+    <div class="arch-arrow">&#8594;</div>
+    <div class="arch-stage s3">
+      <div class="arch-stage-title">Review &amp; Verify</div>
+      <div class="arch-box">code-review-expert<br><small>senior-lens code review</small></div>
+    </div>
+    <div class="arch-arrow">&#8594;</div>
+    <div class="arch-stage s4">
+      <div class="arch-stage-title">Maintain</div>
+      <div class="arch-box">spec-compact<br><small>post-ship spec cleanup</small></div>
+      <div class="arch-box">spec-lint<br><small>spec health check</small></div>
+    </div>
+  </div>
+  <div class="arch-layer comms">
+    <div class="arch-layer-title">Communicate &amp; Deliver &#8212; any phase</div>
+    <div class="arch-grid arch-grid-2">
+      <div class="arch-box">architecture-diagram<br><small>HTML/CSS architecture diagrams</small></div>
+      <div class="arch-box">declawed<br><small>de-slop AI prose</small></div>
+    </div>
+  </div>
+  <div class="arch-layer meta">
+    <div class="arch-layer-title">Measure &#8212; how you work with AI</div>
+    <div class="arch-grid arch-grid-1">
+      <div class="arch-box">agent-insights<br><small>cross-tool usage report (HTML)</small></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

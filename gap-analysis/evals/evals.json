@@ -1,0 +1,69 @@
+{
+  "skill_name": "gap-analysis",
+  "evals": [
+    {
+      "id": 0,
+      "name": "flow-a-fresh-settlement",
+      "prompt": "I need a gap analysis HTML report for the WS6 Settlement workflow. Compare the BPMN file at output/process/BPMN/WS6-02_Settlement.bpmn against the rebate-accounting / settlement requirements in input/1_Documents Received/Detailed_Requirements_FINAL.md (focus on FR_M20–M28 and any FR_M references that the BPMN tasks cite). Cross-reference RFP §3.1 settlement scope at input/1_Documents Received/RFP.md. The glossary is at output/requirement/ubiquitous-language.md. Use the project's existing gap-analysis house style — the file should be self-contained HTML with theme switching (system / light / dark), severity-tagged gap table, and the standard architecture summary at the bottom. Save the report and tell me the path when you're done.",
+      "expected_output": "A self-contained HTML file modelled on the existing reports in output/requirement/gap-analysis/. Must include theme toggle, BPMN-aligned phase rows with cards, gap-register table with severity classes, and architecture summary. New gap IDs since this is a fresh report.",
+      "files": [],
+      "assertions": [
+        {"text": "Output is a self-contained HTML file with <!DOCTYPE html>"},
+        {"text": "Title contains 'Settlement'"},
+        {"text": "Theme toggle present: .theme-toggle div with 3 buttons (system/light/dark)"},
+        {"text": "Theme JS present: setTheme() and applyTheme() functions, plus gap-analysis-theme localStorage key"},
+        {"text": "Light theme CSS variables defined: [data-theme=\"light\"] block"},
+        {"text": "Phase-flow card system used: at least one card-inscope AND at least one card-gap or card-implied"},
+        {"text": "Gap register table has Severity and Workstream column headers"},
+        {"text": "At least 5 gap rows produced (substantive analysis, not a stub)"},
+        {"text": "Severity classes applied: sev-critical, sev-high, or sev-medium tagged on rows"},
+        {"text": "Workstream pill class used (pill-ws*)"},
+        {"text": "Architecture summary has all 3 boxes: box-confirmed, box-implied, box-gap"},
+        {"text": "References at least one FR_M2x identifier (engagement with source material)"},
+        {"text": "Provenance: cites the BPMN file or task IDs in the gap descriptions"}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "flow-a-update-approval",
+      "prompt": "Update the existing approval workflow gap analysis report at output/requirement/gap-analysis/approval-workflow-gap-analysis.html. Add one new finding: the WS4-01 / WS4-02 / WS4-03 BPMN files have no explicit error-handling sub-processes for SAP integration calls routed via JARVIS (referenced in FR_W08). Treat this as a High severity Vendor-owned BPMN modelling gap. The glossary is at output/requirement/ubiquitous-language.md. Preserve all existing gap IDs and the architecture summary boxes; only add the new row in the gap-register table, refresh the date in the subtitle to 2026-04-30, and add a corresponding bullet under \"Missing — Must Be Raised\". Save the updated file and tell me the path when you're done.",
+      "expected_output": "An updated HTML file that preserves all existing gap IDs, adds one new High-severity row with the next available gap ID, updates the date in the subtitle, and adds a matching bullet to the box-gap arch box.",
+      "files": [],
+      "assertions": [
+        {"text": "Output file exists and is valid HTML"},
+        {"text": "Subtitle date updated to 2026-04-30"},
+        {"text": "All original gap IDs preserved (count and identity match the source file)"},
+        {"text": "Exactly one new gap row added with severity class sev-high"},
+        {"text": "New row references FR_W08 and JARVIS/SAP error-handling theme"},
+        {"text": "New gap ID uses an existing prefix (BPM- or G-) and the next available number"},
+        {"text": "box-gap arch box has one new <li> bullet referencing the new gap ID"},
+        {"text": "box-confirmed and box-implied bullet lists are unchanged from the source"},
+        {"text": "Theme toggle and theme JS preserved intact"},
+        {"text": "File size is within ±20% of the source file size (no accidental truncation)"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "flow-b-regenerate-register",
+      "prompt": "Regenerate the master gap register HTML at output/requirement/gap-analysis/gap-register.html by re-reading every individual gap-analysis HTML file in output/requirement/gap-analysis/ (skip gap-register.html itself). The glossary is at output/requirement/ubiquitous-language.md. Re-extract every gap row, regroup them into the seven canonical categories used by the existing register, recompute the scorecard counts and ID lists, and update the last-updated date in the subtitle to 2026-04-30. The data-sev and data-ws attributes on every <tr> must match the filter buttons — verify before saving. Save the regenerated file and tell me the path when you're done.",
+      "expected_output": "A regenerated gap-register.html with scorecard count = total gap rows, all rows carrying data-sev and data-ws attributes that match the filter button strings, seven categories with category headers, theme toggle, and filter JS preserved.",
+      "files": [],
+      "assertions": [
+        {"text": "Output file exists and is valid HTML"},
+        {"text": "H1 contains 'Master Gap' and 'Register'"},
+        {"text": "Subtitle date updated to 2026-04-30"},
+        {"text": "Five scorecard tiles present: tile-critical, tile-high, tile-medium, tile-open, tile-resolved"},
+        {"text": "Filter bar present with 13 filter buttons (all/critical/high/medium/open/resolved/ws6/ws5/ws1/arch/cross/reg/comm)"},
+        {"text": "filterRows() JS function present"},
+        {"text": "setTheme() JS function and gap-analysis-theme localStorage key present"},
+        {"text": "At least 5 category headers (category-header divs)"},
+        {"text": "Every tbody <tr> has both data-sev and data-ws attributes"},
+        {"text": "data-sev values are all in {critical, high, medium, low, open, resolved}"},
+        {"text": "data-ws values are all in {ws1, ws2, ws3, ws4, ws5, ws6, ws7, arch, cross, reg, comm}"},
+        {"text": "Sum of scorecard counts equals total tbody <tr> count (within ±3)"},
+        {"text": "Owner pills used: at least one owner-bsc-sap, owner-bsc-biz or owner-vendor"},
+        {"text": "Severity badges used: <span class=\"sev sev-critical\"> badge form (not bare class on td)"}
+      ]
+    }
+  ]
+}

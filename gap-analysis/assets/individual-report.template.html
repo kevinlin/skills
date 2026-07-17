@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- TEMPLATE: replace <Topic> with the report topic, e.g. "Quote Creation Workflow" -->
+<title>&lt;Project&gt; — &lt;Topic&gt; Gap Analysis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── THEME SYSTEM ── */
+  :root {
+    --bg-page: #0f1117;
+    --bg-card: #0f172a;
+    --bg-card-alt: #1e293b;
+    --border: #1e293b;
+    --border-hover: #334155;
+    --text-primary: #f8fafc;
+    --text-body: #e2e8f0;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --text-faint: #475569;
+    --text-footer: #334155;
+    --bg-hover: #0f172a;
+    --bg-header: #1e293b;
+    --arrow-line: #334155;
+    --card-inscope-bg: #0c2340;
+    --card-inscope-border: #0ea5e9;
+    --card-sap-bg: #1a1040;
+    --card-sap-border: #6366f1;
+    --card-gap-bg: #2d0a0a;
+    --card-gap-border: #ef4444;
+    --card-implied-bg: #1c1200;
+    --card-implied-border: #f59e0b;
+    --card-external-bg: #0a1a10;
+    --card-external-border: #22c55e;
+    --card-actor-bg: #0a1a10;
+    --card-actor-border: #22c55e;
+    --card-deferred-bg: #0a1a10;
+    --card-deferred-border: #22c55e;
+    --toggle-bg: #1e293b;
+    --toggle-border: #334155;
+    --toggle-active-bg: #334155;
+    --toggle-text: #94a3b8;
+    --toggle-active-text: #f1f5f9;
+  }
+
+  [data-theme="light"] {
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-card-alt: #f1f5f9;
+    --border: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-body: #1e293b;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --text-faint: #94a3b8;
+    --text-footer: #94a3b8;
+    --bg-hover: #f1f5f9;
+    --bg-header: #f1f5f9;
+    --arrow-line: #cbd5e1;
+    --card-inscope-bg: #eff6ff;
+    --card-inscope-border: #0ea5e9;
+    --card-sap-bg: #eef2ff;
+    --card-sap-border: #6366f1;
+    --card-gap-bg: #fef2f2;
+    --card-gap-border: #ef4444;
+    --card-implied-bg: #fffbeb;
+    --card-implied-border: #f59e0b;
+    --card-external-bg: #f0fdf4;
+    --card-external-border: #22c55e;
+    --card-actor-bg: #f0fdf4;
+    --card-actor-border: #22c55e;
+    --card-deferred-bg: #f0fdf4;
+    --card-deferred-border: #22c55e;
+    --toggle-bg: #f1f5f9;
+    --toggle-border: #e2e8f0;
+    --toggle-active-bg: #e2e8f0;
+    --toggle-text: #64748b;
+    --toggle-active-text: #0f172a;
+  }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    position: fixed;
+    top: 16px; right: 16px;
+    z-index: 1000;
+    display: flex; gap: 0;
+    background: var(--toggle-bg);
+    border: 1px solid var(--toggle-border);
+    border-radius: 8px;
+    padding: 3px;
+    font-size: 12px;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .theme-toggle button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--toggle-text);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all .15s;
+  }
+  .theme-toggle button.active {
+    background: var(--toggle-active-bg);
+    color: var(--toggle-active-text);
+  }
+  .theme-toggle button:hover:not(.active) { color: var(--text-body); }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg-page);
+    color: var(--text-body);
+    min-height: 100vh;
+    padding: 32px 24px;
+  }
+
+  h1 { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 32px; }
+
+  /* ── LEGEND ── */
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .dot-inscope { background: #0ea5e9; }
+  .dot-external    { background: #6366f1; }
+  .dot-actor       { background: #22c55e; }
+  .dot-implied     { background: #f59e0b; }
+  .dot-gap         { background: #ef4444; border: 2px dashed #f87171; }
+
+  /* ── PHASE FLOW ── */
+  .flow-container { display: flex; flex-direction: column; gap: 0; }
+  .phase-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0;
+    margin-bottom: 4px;
+    align-items: stretch;
+  }
+  .phase-label {
+    display: flex; align-items: center; justify-content: flex-end;
+    padding-right: 16px;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-faint);
+    border-right: 2px solid var(--border);
+    text-align: right;
+  }
+  .phase-label.branch-a { color: #38bdf8; }
+  .phase-label.branch-b { color: #c084fc; }
+  .phase-label.branch-c { color: #fb923c; }
+  .phase-content {
+    padding: 12px 0 12px 20px;
+    display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap;
+  }
+  .phase-arrow { display: grid; grid-template-columns: 160px 1fr; margin: 0; }
+  .phase-arrow-left { border-right: 2px solid var(--border); }
+  .phase-arrow-right { display: flex; align-items: center; padding-left: 20px; height: 28px; }
+  .arrow-line { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-faint); }
+  .arrow-line::before {
+    content: ''; display: block;
+    width: 2px; height: 28px;
+    background: var(--arrow-line);
+    margin-right: 8px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    border-radius: 8px;
+    padding: 12px 14px;
+    min-width: 200px; max-width: 280px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .card-bpmn { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); margin-bottom: 4px; }
+  .card-fr { font-size: 10px; font-weight: 600; margin-bottom: 6px; opacity: 0.7; }
+  .card-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .card-desc { font-size: 11px; line-height: 1.5; color: var(--text-secondary); }
+  .card-badge {
+    display: inline-block;
+    font-size: 9px; font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    margin-top: 6px;
+  }
+
+  .card-inscope { background: var(--card-inscope-bg); border: 1px solid var(--card-inscope-border); }
+  .card-inscope .card-title { color: #38bdf8; }
+  .card-inscope .badge-ok { background: #0ea5e940; color: #38bdf8; }
+
+  .card-sap { background: var(--card-sap-bg); border: 1px solid var(--card-sap-border); }
+  .card-sap .card-title { color: #a5b4fc; }
+
+  .card-external { background: var(--card-sap-bg); border: 1px solid var(--card-sap-border); }
+  .card-external .card-title { color: #a5b4fc; }
+  .card-external .badge-ext { background: #6366f120; color: #a5b4fc; }
+
+  .card-actor { background: var(--card-actor-bg); border: 1px solid var(--card-actor-border); }
+  .card-actor .card-title { color: #86efac; }
+  .card-actor .badge-actor { background: #22c55e20; color: #86efac; }
+
+  .card-gap { background: var(--card-gap-bg); border: 2px dashed var(--card-gap-border); }
+  .card-gap .card-title { color: #fca5a5; }
+  .card-gap .badge-gap { background: #ef444420; color: #f87171; }
+
+  .card-implied { background: var(--card-implied-bg); border: 1px dashed var(--card-implied-border); }
+  .card-implied .card-title { color: #fcd34d; }
+  .card-implied .badge-implied { background: #f59e0b20; color: #fbbf24; }
+
+  .card-deferred { background: var(--card-deferred-bg); border: 1px solid var(--card-deferred-border); }
+  .card-deferred .card-title { color: #86efac; }
+
+  .card-gateway {
+    background: var(--bg-card);
+    border: 1px solid var(--text-faint);
+    border-radius: 4px;
+    padding: 10px 12px;
+    min-width: 140px; max-width: 220px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+  .card-gateway .card-title { color: var(--text-secondary); font-size: 11px; }
+  .card-gateway .card-desc { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+  .flow-arrow {
+    display: flex; align-items: center;
+    color: var(--arrow-line);
+    font-size: 18px;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  /* ── GAP TABLE ── */
+  .gap-table-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 28px; }
+  .gap-table-section h2 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; }
+  .gap-table-section p.section-intro { font-size: 12px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.6; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th {
+    text-align: left; padding: 8px 12px;
+    background: var(--bg-header);
+    color: var(--text-muted);
+    font-weight: 600; text-transform: uppercase;
+    font-size: 10px; letter-spacing: 0.05em;
+  }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:hover td { background: var(--bg-hover); }
+
+  .sev-critical { color: #f87171; font-weight: 700; }
+  .sev-high     { color: #fbbf24; font-weight: 600; }
+  .sev-medium   { color: #34d399; font-weight: 600; }
+  .sev-low      { color: var(--text-muted); font-weight: 600; }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 10px; font-weight: 700;
+    margin-right: 4px; margin-bottom: 2px;
+  }
+  .pill-ws1  { background: #22c55e20; color: #86efac; border: 1px solid #22c55e50; }
+  .pill-ws2  { background: #f59e0b20; color: #fbbf24; border: 1px solid #f59e0b50; }
+  .pill-ws3  { background: #c084fc20; color: #c084fc; border: 1px solid #c084fc50; }
+  .pill-ws4  { background: #fb923c20; color: #fb923c; border: 1px solid #fb923c50; }
+  .pill-ws5  { background: #0ea5e920; color: #38bdf8; border: 1px solid #0ea5e950; }
+  .pill-ws6  { background: #6366f120; color: #a5b4fc; border: 1px solid #6366f150; }
+  .pill-ws7  { background: #22c55e20; color: #86efac; border: 1px solid #22c55e50; }
+  .pill-arch { background: #f8717120; color: #f87171; border: 1px solid #f8717150; }
+
+  /* ── ARCHITECTURE SUMMARY ── */
+  .arch-row { display: flex; gap: 12px; margin-top: 36px; flex-wrap: wrap; }
+  .arch-box {
+    flex: 1; min-width: 220px;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+  }
+  .arch-box h3 {
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+  .arch-box ul {
+    list-style: none;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .arch-box ul li::before { content: '→ '; color: var(--text-faint); }
+  .arch-box.box-confirmed h3 { color: #22c55e; }
+  .arch-box.box-gap h3 { color: #ef4444; }
+  .arch-box.box-implied h3 { color: #f59e0b; }
+</style>
+</head>
+<body>
+
+<div class="theme-toggle">
+  <button onclick="setTheme('system')" id="theme-system">System</button>
+  <button onclick="setTheme('light')" id="theme-light">Light</button>
+  <button onclick="setTheme('dark')" id="theme-dark">Dark</button>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 1 — HEADER
+     Replace <Topic>, <Workstream context>, <source files>, <Date>.
+───────────────────────────────────────────────────────── -->
+<h1>&lt;Project&gt; — &lt;Topic&gt; Gap Analysis</h1>
+<p class="subtitle">
+  &lt;Workstream context&gt; · Source: <code style="color:var(--text-muted);">&lt;source-bpmn-or-doc&gt;</code> vs
+  <code style="color:var(--text-muted);">&lt;requirements-doc&gt;</code> · &lt;Date&gt;
+</p>
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 2 — LEGEND (drop entirely if there is no phase flow)
+───────────────────────────────────────────────────────── -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot dot-inscope"></div> In-scope activity (FR-mapped)</div>
+  <div class="legend-item"><div class="legend-dot dot-external"></div> External system (SFDC / SAP / ADL / JDH)</div>
+  <div class="legend-item"><div class="legend-dot dot-actor"></div> Out-of-system actor (Customer / Dealer)</div>
+  <div class="legend-item"><div class="legend-dot dot-implied"></div> Implied / inconsistent with requirements</div>
+  <div class="legend-item"><div class="legend-dot dot-gap"></div> Gap — missing or under-specified</div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 3 — PHASE FLOW
+     One <div class="phase-row"> per BPMN phase. Cards inside
+     <div class="phase-content"> connected by <div class="flow-arrow">→</div>.
+     Card classes: card-inscope | card-sap | card-external | card-actor
+                 | card-implied | card-gap | card-deferred | card-gateway
+     Badges: badge-ok | badge-ext | badge-actor | badge-implied | badge-gap
+───────────────────────────────────────────────────────── -->
+<div class="flow-container">
+
+  <!-- TEMPLATE: example phase row — replace with real content -->
+  <div class="phase-row">
+    <div class="phase-label">1. &lt;Phase name&gt;</div>
+    <div class="phase-content">
+
+      <div class="card card-actor">
+        <div class="card-bpmn">&lt;BPMN_ID&gt;</div>
+        <div class="card-fr">&lt;FR_ID · FR_ID&gt;</div>
+        <div class="card-title">&lt;Activity title&gt;</div>
+        <div class="card-desc">&lt;1–2 sentence description&gt;</div>
+        <span class="card-badge badge-actor">Documented</span>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="card card-inscope">
+        <div class="card-bpmn">&lt;BPMN_ID&gt;</div>
+        <div class="card-fr">&lt;FR_ID&gt;</div>
+        <div class="card-title">&lt;Activity title&gt;</div>
+        <div class="card-desc">&lt;Description&gt;</div>
+        <span class="card-badge badge-ok">Documented</span>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="card card-implied">
+        <div class="card-bpmn">&lt;BPMN_ID&gt;</div>
+        <div class="card-fr">&lt;FR_ID (claim)&gt;</div>
+        <div class="card-title">&lt;Activity title&gt;</div>
+        <div class="card-desc">&lt;What's inconsistent and with what.&gt; <strong>See G-NN.</strong></div>
+        <span class="card-badge badge-implied">Inconsistent with FR_X</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="phase-arrow">
+    <div class="phase-arrow-left"></div>
+    <div class="phase-arrow-right">
+      <div class="arrow-line">→ &lt;What happens between this phase and the next&gt;</div>
+    </div>
+  </div>
+
+  <!-- TEMPLATE: add more phase rows here. End with the final state. -->
+
+</div><!-- end flow-container -->
+
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 4 — GAP REGISTER TABLE
+     Order rows by severity (Critical → High → Medium → Low),
+     then by gap ID ascending. Use the right pill class per WS.
+───────────────────────────────────────────────────────── -->
+<div class="gap-table-section">
+  <h2>Gap Register — BPMN vs. RFP / Detailed Requirements</h2>
+  <p class="section-intro">
+    Severity classification: <strong>Critical</strong> = blocks bid scoping or implementation;
+    <strong>High</strong> = material requirement mismatch; <strong>Medium</strong> = scope ambiguity that can be clarified pre-build;
+    <strong>Low</strong> = boundary or cross-WS issue. Every gap should be added to <code>open-questions.md</code> for BSC clarification, grouped by the workstream pill shown on the right.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:60px;">#</th>
+        <th>Gap</th>
+        <th>Why It Matters</th>
+        <th style="width:90px;">Severity</th>
+        <th style="width:100px;">Workstream</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- TEMPLATE: example row -->
+      <tr>
+        <td>G-01</td>
+        <td><strong>&lt;Short title&gt;</strong><br>&lt;One-paragraph description with FR / RFP / NFR / BPMN citations in <code>...</code>.&gt;</td>
+        <td>&lt;One-sentence why-it-matters framed for the bid team or BSC.&gt;</td>
+        <td class="sev-critical">Critical</td>
+        <td><span class="pill pill-ws5">WS5</span></td>
+      </tr>
+
+      <!-- TEMPLATE: add more rows here -->
+
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 5 — ARCHITECTURE SUMMARY (3 boxes)
+     Re-derive the three lists from the table above on every refresh.
+───────────────────────────────────────────────────────── -->
+<div class="arch-row">
+
+  <div class="arch-box box-confirmed">
+    <h3>✓ BPMN ↔ Requirements Aligned</h3>
+    <ul>
+      <li>&lt;FR description&gt; (&lt;FR_ID&gt;)</li>
+      <!-- TEMPLATE: more bullets -->
+    </ul>
+  </div>
+
+  <div class="arch-box box-implied">
+    <h3>~ Implied / Inconsistent</h3>
+    <ul>
+      <li>&lt;Item&gt; (G-NN)</li>
+      <!-- TEMPLATE: more bullets, each tagged with gap ID -->
+    </ul>
+  </div>
+
+  <div class="arch-box box-gap">
+    <h3>✗ Missing — Must Be Raised</h3>
+    <ul>
+      <li>&lt;Item&gt; (G-NN)</li>
+      <!-- TEMPLATE: more bullets, each tagged with gap ID -->
+    </ul>
+  </div>
+
+</div>
+
+
+<!-- ─────────────────────────────────────────────────────────
+     SECTION 6 — READING NOTES (optional — drop if audience is bid team only)
+───────────────────────────────────────────────────────── -->
+<!--
+<div class="gap-table-section">
+  <h2>Reading Notes — How This Maps to the BPMN</h2>
+  <p class="section-intro">&lt;Brief intro&gt;</p>
+
+  <div style="display:flex;gap:32px;flex-wrap:wrap;margin-top:8px;">
+    <div style="flex:1;min-width:300px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:16px 18px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">&lt;Heading&gt;</div>
+      <ul style="font-size:11px;color:var(--text-muted);line-height:1.8;list-style:none;">
+        <li>&lt;Note&gt;</li>
+      </ul>
+    </div>
+  </div>
+</div>
+-->
+
+
+<!-- ─────────────────────────────────────────────────────────
+     THEME SCRIPT — do not modify
+───────────────────────────────────────────────────────── -->
+<script>
+  function setTheme(mode) {
+    localStorage.setItem('gap-analysis-theme', mode);
+    applyTheme(mode);
+    document.querySelectorAll('.theme-toggle button').forEach(b => b.classList.remove('active'));
+    document.getElementById('theme-' + mode).classList.add('active');
+  }
+  function applyTheme(mode) {
+    if (mode === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', mode);
+    }
+  }
+  (function() {
+    const saved = localStorage.getItem('gap-analysis-theme') || 'system';
+    applyTheme(saved);
+    document.getElementById('theme-' + saved).classList.add('active');
+  })();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if ((localStorage.getItem('gap-analysis-theme') || 'system') === 'system') applyTheme('system');
+  });
+</script>
+
+</body>
+</html>
