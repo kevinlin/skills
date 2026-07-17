@@ -13,7 +13,7 @@ chat or events.
 Reports of behaviour that does not align with the Code of Conduct
 should be sent to the maintainers at:
 
-> **<kevin.lin@zuhlke.com>**
+> **<kevin.linyun@gmail.com>**
 
 All reports will be reviewed and investigated promptly and fairly.
 The maintainers are obligated to respect the privacy and safety of

@@ -1,0 +1,28 @@
+{
+  "name": "ai-sdlc",
+  "owner": {
+    "name": "Kevin Lin",
+    "email": "kevin.linyun@gmail.com"
+  },
+  "description": "Agent skills for software delivery work, grouped by delivery phase (Bid/Discover/Design, Build, Review/Verify, Maintain, Communicate/Deliver, Measure).",
+  "plugins": [
+    {
+      "name": "ai-sdlc-skills",
+      "source": "./",
+      "description": "9 agent skills: gap-analysis, spec-coding, research-plan-implement, code-review-expert, spec-compact, spec-lint, architecture-diagram, declawed, agent-insights.",
+      "category": "productivity",
+      "keywords": ["skills", "sdlc", "spec-driven-development", "code-review"],
+      "skills": [
+        "./gap-analysis",
+        "./spec-coding",
+        "./research-plan-implement",
+        "./code-review-expert",
+        "./spec-compact",
+        "./spec-lint",
+        "./architecture-diagram",
+        "./declawed",
+        "./agent-insights"
+      ]
+    }
+  ]
+}

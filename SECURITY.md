@@ -12,7 +12,7 @@ private advisory flow:
 
 <https://github.com/kevinlin/skills/security/advisories/new>
 
-If that is not available, email <kevin.lin@zuhlke.com>. Encrypted email
+If that is not available, email <kevin.linyun@gmail.com>. Encrypted email
 is welcome.
 
 When reporting, please include:

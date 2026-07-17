@@ -1,0 +1,19 @@
+{
+  "name": "ai-sdlc-skills",
+  "description": "9 agent skills for software delivery work, from requirements gap analysis to reviewed, shipped code.",
+  "author": {
+    "name": "Kevin Lin",
+    "email": "kevin.linyun@gmail.com"
+  },
+  "homepage": "https://github.com/kevinlin/skills",
+  "repository": "https://github.com/kevinlin/skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "sdlc",
+    "spec-driven-development",
+    "code-review",
+    "architecture",
+    "gap-analysis"
+  ]
+}
