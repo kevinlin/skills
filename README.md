@@ -4,7 +4,27 @@ A collection of 9 agent skills for software delivery work, from requirements gap
 
 ![Agent skills across the delivery lifecycle](assets/skills-sdlc.png)
 
-## Installing a skill
+## Installing
+
+### As a Claude Code plugin (all skills)
+
+All 9 skills ship as one Claude Code plugin. Add the marketplace, then install:
+
+```
+/plugin marketplace add kevinlin/skills
+/plugin install ai-sdlc-skills@ai-sdlc
+```
+
+Or from your shell:
+
+```
+claude plugin marketplace add kevinlin/skills
+claude plugin install ai-sdlc-skills@ai-sdlc
+```
+
+Plugin skills are namespaced by plugin name: invoke them as `/ai-sdlc-skills:spec-coding` or `/ai-sdlc-skills:agent-insights 90`, or just describe the task. Update later with `/plugin marketplace update ai-sdlc`.
+
+### As a single skill
 
 1. Copy the skill folder into your agent's skills directory, for example `~/.claude/skills/`.
 2. For the Claude desktop app, zip the skill folder and drop the zip into the app.

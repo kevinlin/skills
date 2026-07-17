@@ -32,6 +32,17 @@ Two places record every skill's version and must stay in sync:
 
 When you change a skill's behavior, bump both. `versions.json` is how an installed copy checks whether it is current.
 
+## Plugin distribution
+
+The repo doubles as a Claude Code plugin marketplace. Two manifests live in `.claude-plugin/` (see the [plugin-marketplaces guide](https://code.claude.com/docs/en/plugin-marketplaces)):
+
+- `marketplace.json` — catalog `ai-sdlc` with one plugin entry, `ai-sdlc-skills`. It uses `source: "./"` plus an explicit `skills` array listing all 9 skill directories, rather than the default `skills/` scan.
+- `plugin.json` — plugin metadata (author, homepage, license). It carries no `version` on purpose: the plugin is git-hosted and actively developed, so every commit counts as a new version (SHA-driven updates). Adding a pinned `version` means you must bump it on every release or installed copies never update — hence the validator's no-version warning is expected.
+
+Because the entry uses an explicit `skills` list, **adding or removing a skill means editing the `skills` array in `marketplace.json`** — a new top-level skill directory won't ship through the plugin until it's listed there. This is a third sync point on top of the two in the versioning invariant, but only for add/remove, not version bumps.
+
+Validate manifest changes with `claude plugin validate .` from the repo root. The no-version warning is expected; treat anything else as a real error.
+
 ## Scripts
 
 Several skills carry real helper scripts — the repo is not script-free:
