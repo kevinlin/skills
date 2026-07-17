@@ -2,7 +2,7 @@
 
 A collection of 9 agent skills for software delivery work, from requirements gap analysis to reviewed, shipped code. Each skill is a self-contained folder that teaches an AI coding agent how to do one job well: run a spec-driven build, review code like a senior engineer, diagram a system architecture, or tell you how you actually use your AI tools. They work with Claude Code/Cowork, Codex, Cursor Copilot, OpenCode, and any other agent that supports the skills format.
 
-![Agent skills across the delivery lifecycle](assets/skills-sdlc.png)
+![Agent skills across the delivery lifecycle](assets/skills-map.png)
 
 ## Installing
 
