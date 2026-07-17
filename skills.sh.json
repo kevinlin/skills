@@ -1,0 +1,51 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Bid, Discover & Design",
+      "description": "Skills for requirements analysis and solution design.",
+      "skills": [
+        "gap-analysis"
+      ]
+    },
+    {
+      "title": "Build",
+      "description": "Skills for planning and implementing software changes.",
+      "skills": [
+        "spec-coding",
+        "research-plan-implement"
+      ]
+    },
+    {
+      "title": "Review & Verify",
+      "description": "Skills for reviewing code and verifying its quality.",
+      "skills": [
+        "code-review-expert"
+      ]
+    },
+    {
+      "title": "Maintain",
+      "description": "Skills for keeping specifications current and useful.",
+      "skills": [
+        "spec-compact",
+        "spec-lint"
+      ]
+    },
+    {
+      "title": "Communicate & Deliver",
+      "description": "Skills for diagrams and clear written communication.",
+      "skills": [
+        "architecture-diagram",
+        "declawed"
+      ]
+    },
+    {
+      "title": "Measure",
+      "description": "Skills for understanding AI coding agent usage.",
+      "skills": [
+        "agent-insights"
+      ]
+    }
+  ]
+}
