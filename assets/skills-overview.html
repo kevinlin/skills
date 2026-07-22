@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Agent skills map by domain</title>
+<style>
+  body { margin: 0; padding: 20px; background: #ffffff; font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div style="width: 1280px; box-sizing: border-box; position: relative; background: #fafbff; padding: 20px; border-radius: 10px;">
+  <style scoped>
+    .arch-title { text-align: left; font-size: 24px; font-weight: 800; color: #1e293b; margin-bottom: 4px; letter-spacing: 0.2px; }
+    .arch-subtitle { font-size: 13px; color: #64748b; margin-bottom: 8px; }
+    .arch-legend { display: flex; gap: 16px; align-items: center; font-size: 11px; color: #475569; margin-bottom: 16px; }
+    .arch-legend .chip { display: inline-flex; align-items: center; gap: 6px; }
+    .arch-legend .swatch { display: inline-block; width: 34px; height: 18px; border-radius: 5px; background: #ffffff; border: 2px solid #7c3aed; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12); font-weight: 800; color: #7c3aed; text-align: center; line-height: 16px; }
+    .arch-section-title { font-size: 12px; font-weight: 800; color: #94a3b8; letter-spacing: 0.08em; text-transform: uppercase; margin: 4px 0 10px 0; }
+    .arch-pipeline { display: flex; gap: 0; align-items: stretch; margin-bottom: 20px; }
+    .arch-stage { flex: 1; min-width: 0; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); display: flex; flex-direction: column; }
+    .arch-stage-title { font-size: 12.5px; font-weight: 800; margin-bottom: 10px; }
+    .arch-arrow { display: flex; align-items: center; justify-content: center; width: 24px; flex-shrink: 0; font-size: 18px; color: #94a3b8; }
+    .arch-stage.st2 { background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); border: 2px solid #ec4899; } .arch-stage.st2 .arch-stage-title { color: #9d174d; }
+    .arch-stage.st3 { background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); border: 2px solid #a855f7; } .arch-stage.st3 .arch-stage-title { color: #7e22ce; }
+    .arch-stage.st4 { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #22c55e; } .arch-stage.st4 .arch-stage-title { color: #15803d; }
+    .arch-stage.st5 { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border: 2px solid #6366f1; } .arch-stage.st5 .arch-stage-title { color: #4338ca; }
+    .arch-stage.st6 { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #eab308; } .arch-stage.st6 .arch-stage-title { color: #854d0e; }
+    .arch-catalog { column-count: 3; column-gap: 12px; }
+    .arch-layer { break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid; display: inline-block; width: 100%; box-sizing: border-box; margin: 0 0 12px 0; padding: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+    .arch-layer-title { font-size: 13px; font-weight: 800; margin-bottom: 9px; }
+    .arch-grid { display: grid; gap: 7px; }
+    .arch-grid-1 { grid-template-columns: 1fr; }
+    .arch-box { border-radius: 6px; padding: 7px 8px; text-align: left; font-size: 11px; font-weight: 700; line-height: 1.3; color: #1e293b; background: #ffffff; border: 1px solid #e2e8f0; margin: 4px 0; word-break: break-word; }
+    .arch-box small { display: block; font-weight: 500; color: #64748b; margin-top: 2px; }
+    .arch-box.repo { border: 2px solid #7c3aed; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.10); }
+    .arch-box.repo .star { color: #7c3aed; font-weight: 900; }
+    .arch-layer.blue { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #3b82f6; } .arch-layer.blue .arch-layer-title { color: #1e40af; }
+    .arch-layer.teal { background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%); border: 2px solid #14b8a6; } .arch-layer.teal .arch-layer-title { color: #0f766e; }
+    .arch-layer.purple { background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); border: 2px solid #a855f7; } .arch-layer.purple .arch-layer-title { color: #7e22ce; }
+    .arch-layer.orange { background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%); border: 2px solid #f97316; } .arch-layer.orange .arch-layer-title { color: #c2410c; }
+    .arch-layer.sky { background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border: 2px solid #0ea5e9; } .arch-layer.sky .arch-layer-title { color: #0369a1; }
+    .arch-layer.external { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px dashed #94a3b8; } .arch-layer.external .arch-layer-title { color: #64748b; }
+    .arch-layer.meta { background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%); border: 2px dashed #22d3ee; } .arch-layer.meta .arch-layer-title { color: #0e7490; }
+    .arch-superpowers { display: flex; align-items: center; gap: 10px; margin: -8px 0 20px 0; padding: 7px 12px; border-radius: 8px; border: 2px dotted #7c3aed; background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); }
+    .arch-superpowers .sp-label { font-size: 12.5px; font-weight: 800; color: #6d28d9; letter-spacing: 0.02em; white-space: nowrap; }
+    .arch-superpowers .sp-note { font-size: 11px; font-weight: 600; color: #7c3aed; }
+    .arch-superpowers .sp-link { margin-left: auto; font-size: 10.5px; font-weight: 600; color: #94a3b8; white-space: nowrap; }
+  </style>
+  <div class="arch-title">Agent Skills Map</div>
+  <div class="arch-subtitle">36 skills across <code>~/.claude/skills</code> and the <code>ai-sdlc</code> repo &#8212; core flow on top, cross-cutting domains below</div>
+  <div class="arch-legend"><span class="chip"><span class="swatch">&#9733;</span> highlighted = lives in the ai-sdlc/skills repo</span><span class="chip">plain box = installed only under ~/.claude/skills</span></div>
+  <div class="arch-section-title">Delivery Lifecycle</div>
+  <div class="arch-pipeline">
+    <div class="arch-stage st2">
+      <div class="arch-stage-title">Product &amp; Requirement</div>
+      <div class="arch-box">grill-me<small>relentless plan interview</small></div>
+      <div class="arch-box">grill-with-docs<small>grill + ADR / glossary</small></div>
+      <div class="arch-box">grilling<small>stress-test a plan</small></div>
+    </div>
+    <div class="arch-arrow">&#8594;</div>
+    <div class="arch-stage st3">
+      <div class="arch-stage-title">Design &amp; Architecture</div>
+      <div class="arch-box">codebase-design<small>deep-module vocabulary</small></div>
+      <div class="arch-box">domain-modeling<small>domain model + ADRs</small></div>
+      <div class="arch-box">improve-codebase-architecture<small>deepening-opportunity report</small></div>
+    </div>
+    <div class="arch-arrow">&#8594;</div>
+    <div class="arch-stage st4">
+      <div class="arch-stage-title">Build</div>
+      <div class="arch-box repo"><span class="star">&#9733;</span> research-plan-implement<small>codebase-aware R&#8594;P&#8594;I</small></div>
+      <div class="arch-box repo"><span class="star">&#9733;</span> spec-coding<small>reqs &#8594; design &#8594; tasks &#8594; execute</small></div>
+    </div>
+    <div class="arch-arrow">&#8594;</div>
+    <div class="arch-stage st5">
+      <div class="arch-stage-title">Review &amp; Verify</div>
+      <div class="arch-box repo"><span class="star">&#9733;</span> code-review-expert<small>senior-lens code review</small></div>
+      <div class="arch-box">requesting-code-review<small>pre-merge verification</small></div>
+    </div>
+    <div class="arch-arrow">&#8594;</div>
+    <div class="arch-stage st6">
+      <div class="arch-stage-title">Maintain</div>
+      <div class="arch-box repo"><span class="star">&#9733;</span> spec-compact<small>post-ship spec cleanup</small></div>
+      <div class="arch-box repo"><span class="star">&#9733;</span> spec-lint<small>spec health check</small></div>
+    </div>
+  </div>
+  <div class="arch-superpowers">
+    <span class="sp-label">Superpowers</span>
+    <span class="sp-note">obra/superpowers plugin enabled across the whole lifecycle &#8212; process skills auto-load on trigger (not listed here)</span>
+    <span class="sp-link">github.com/obra/superpowers</span>
+  </div>
+  <div class="arch-section-title">Cross-cutting Domains</div>
+  <div class="arch-catalog">
+    <div class="arch-layer blue">
+      <div class="arch-layer-title">Bid, Discovery</div>
+      <div class="arch-grid arch-grid-1">
+        <div class="arch-box">experience-prototype<small>RFP &#8594; working demo</small></div>
+        <div class="arch-box repo"><span class="star">&#9733;</span> gap-analysis<small>requirements gap register</small></div>
+        <div class="arch-box">rfp-daily<small>daily RFP workspace audit</small></div>
+      </div>
+    </div>
+    <div class="arch-layer teal">
+      <div class="arch-layer-title">Diagrams &amp; Docs</div>
+      <div class="arch-grid arch-grid-1">
+        <div class="arch-box repo"><span class="star">&#9733;</span> architecture-diagram<small>HTML/CSS architecture diagrams</small></div>
+        <div class="arch-box">baoyu-diagram<small>dark-theme SVG diagrams</small></div>
+        <div class="arch-box">baoyu-infographic<small>layout &#215; style infographics</small></div>
+        <div class="arch-box">bpmn<small>PlantUML BPMN / EIP maps</small></div>
+        <div class="arch-box">drawio<small>draw.io / .drawio diagrams</small></div>
+      </div>
+    </div>
+    <div class="arch-layer purple">
+      <div class="arch-layer-title">Communicate &amp; Deliver</div>
+      <div class="arch-grid arch-grid-1">
+        <div class="arch-box">caveman<small>token-compressed output mode</small></div>
+        <div class="arch-box repo"><span class="star">&#9733;</span> declawed<small>de-slop AI prose</small></div>
+        <div class="arch-box">ubiquitous-language<small>DDD glossary</small></div>
+        <div class="arch-box">zuhlke-copywriting<small>on-brand Z&#252;hlke text</small></div>
+        <div class="arch-box">zuhlke-slides<small>branded PowerPoint decks</small></div>
+      </div>
+    </div>
+    <div class="arch-layer orange">
+      <div class="arch-layer-title">Design &amp; Frontend</div>
+      <div class="arch-grid arch-grid-1">
+        <div class="arch-box">impeccable<small>UX / UI audit + polish</small></div>
+        <div class="arch-box">interface-kit<small>UI implementation reference</small></div>
+        <div class="arch-box">zuhlke-brand-design<small>on-brand Z&#252;hlke web UI</small></div>
+      </div>
+    </div>
+    <div class="arch-layer sky">
+      <div class="arch-layer-title">Research &amp; Intel</div>
+      <div class="arch-grid arch-grid-1">
+        <div class="arch-box">baoyu-youtube-transcript<small>YouTube transcripts + covers</small></div>
+        <div class="arch-box">insight-profile<small>Z&#252;hlke Insight profiles</small></div>
+        <div class="arch-box">last30days<small>last-30-days social / web pulse</small></div>
+        <div class="arch-box">sales-account-research<small>company / person sales intel</small></div>
+      </div>
+    </div>
+    <div class="arch-layer meta">
+      <div class="arch-layer-title">Measure &amp; Insights</div>
+      <div class="arch-grid arch-grid-1">
+        <div class="arch-box repo"><span class="star">&#9733;</span> agent-insights<small>cross-tool usage report</small></div>
+      </div>
+    </div>
+    <div class="arch-layer external">
+      <div class="arch-layer-title">Skill Authoring &amp; Meta</div>
+      <div class="arch-grid arch-grid-1">
+        <div class="arch-box">find-skills<small>discover &amp; install skills</small></div>
+        <div class="arch-box">skill-creator<small>create / optimize / eval skills</small></div>
+        <div class="arch-box">writing-great-skills<small>skill-writing reference</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
