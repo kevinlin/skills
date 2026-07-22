@@ -182,7 +182,7 @@ def active_minutes(timestamps, gap_cap=1800):
 
 
 def make_meta(tool, session_id, project, start, end, user_n, assistant_n, tool_calls, transcript,
-              timestamps=None, models=None):
+              timestamps=None, models=None, skill_invocations=None):
     duration = active_minutes(timestamps or [])
     if duration is None and start and end and end >= start:
         # no per-message timestamps: wall-clock span, capped at 8h to avoid idle inflation
@@ -198,6 +198,7 @@ def make_meta(tool, session_id, project, start, end, user_n, assistant_n, tool_c
         "assistant_msg_count": assistant_n,
         "tool_calls": tool_calls,
         "models": models or {},
+        "skill_invocations": skill_invocations or {},
         "transcript": transcript,
     }
 
@@ -206,6 +207,39 @@ def count_model(models, name):
     """Record one use of a model in a per-session model->count dict."""
     if isinstance(name, str) and name and not name.startswith("<"):  # skip "<synthetic>"
         models[name] = models.get(name, 0) + 1
+
+
+def record_skill(skill_invocations, tool_input):
+    """Claude Code / Cowork invoke an agent skill through the `Skill` tool; the skill's
+    name rides in the tool input (`skill`, or `command` for slash-command form). Counting
+    invocations by name lets the report show which skills the user actually leans on —
+    a signal the raw `Skill` tool-call tally can't give."""
+    if not isinstance(tool_input, dict):
+        return
+    name = tool_input.get("skill") or tool_input.get("command") or tool_input.get("name")
+    if isinstance(name, str) and name.strip():
+        name = name.strip()
+        skill_invocations[name] = skill_invocations.get(name, 0) + 1
+
+
+# Cursor and OpenCode have no `Skill` tool; a user runs a skill/command by opening the
+# message with `/name` (`/spec-lint ...`). The `(?=[\s:]|$)` boundary rejects file paths
+# like `/Users/...` and `/dev/null`, which carry a second slash rather than a word break.
+_SLASH_SKILL_RE = re.compile(r"^/([A-Za-z][\w-]*)(?=[\s:]|$)")
+
+
+def record_slash_skill(skill_invocations, user_text):
+    """Capture a leading `/name` slash command in a user message as a skill invocation, so
+    Cursor/OpenCode usage lands in the same tally as Claude's `Skill` tool. A probe of real
+    logs found these tokens are overwhelmingly installed skills (`/impeccable`, `/spec-compact`,
+    `/agent-insights`, ...). The name is stored without the slash, so `/spec-lint` here and
+    the `spec-lint` skill invoked via the `Skill` tool count as one skill across tools."""
+    if not isinstance(user_text, str):
+        return
+    m = _SLASH_SKILL_RE.match(user_text.lstrip())
+    if m:
+        name = m.group(1)
+        skill_invocations[name] = skill_invocations.get(name, 0) + 1
 
 
 def recent_files(pattern, since):
@@ -219,9 +253,9 @@ def recent_files(pattern, since):
 # Missing roots -> return []. Parse errors -> skip item, keep going.
 
 
-def _parse_claude_jsonl(path, tb, tool_calls, models, ts_list):
+def _parse_claude_jsonl(path, tb, tool_calls, models, ts_list, skill_invocations):
     """Parse one Claude Code-format JSONL transcript (used by Claude Code and Claude
-    Cowork). Accumulates into tb/tool_calls/models/ts_list; returns
+    Cowork). Accumulates into tb/tool_calls/models/ts_list/skill_invocations; returns
     (user_n, assistant_n, start, end, cwd)."""
     user_n = assistant_n = 0
     start = end = None
@@ -262,6 +296,8 @@ def _parse_claude_jsonl(path, tb, tool_calls, models, ts_list):
                     name = b.get("name", "?")
                     tool_calls[name] = tool_calls.get(name, 0) + 1
                     tb.tool(name)
+                    if name == "Skill":
+                        record_skill(skill_invocations, b.get("input"))
             if texts:
                 assistant_n += 1
                 tb.assistant(" ".join(texts))
@@ -275,11 +311,12 @@ def scan_claude_code(home, since):
         return sessions
     for path in recent_files(str(root / "*" / "*.jsonl"), since):
         tb = TranscriptBuilder()
-        tool_calls, models, ts_list = {}, {}, []
-        user_n, assistant_n, start, end, cwd = _parse_claude_jsonl(path, tb, tool_calls, models, ts_list)
+        tool_calls, models, ts_list, skills = {}, {}, [], {}
+        user_n, assistant_n, start, end, cwd = _parse_claude_jsonl(
+            path, tb, tool_calls, models, ts_list, skills)
         sessions.append(make_meta(
             "claude-code", Path(path).stem, cwd, start, end, user_n, assistant_n, tool_calls, tb.text(),
-            timestamps=ts_list, models=models))
+            timestamps=ts_list, models=models, skill_invocations=skills))
     return sessions
 
 
@@ -316,13 +353,13 @@ def scan_claude_cowork(home, since):
             created = epoch_from_ms(meta.get("createdAt"))
             updated = epoch_from_ms(meta.get("lastActivityAt")) or created
             tb = TranscriptBuilder()
-            tool_calls, models, ts_list = {}, {}, []
+            tool_calls, models, ts_list, skills = {}, {}, [], {}
             user_n = assistant_n = 0
             start = end = None
             session_dir = Path(mpath).with_suffix("")
             for tpath in sorted(glob.glob(str(session_dir / ".claude" / "projects" / "*" / "*.jsonl")),
                                 key=os.path.getmtime):
-                u, a, s, e, _cwd = _parse_claude_jsonl(tpath, tb, tool_calls, models, ts_list)
+                u, a, s, e, _cwd = _parse_claude_jsonl(tpath, tb, tool_calls, models, ts_list, skills)
                 user_n += u
                 assistant_n += a
                 if s:
@@ -336,7 +373,7 @@ def scan_claude_cowork(home, since):
             sessions.append(make_meta(
                 "claude-cowork", sid, str(meta.get("title") or ""),
                 start or created, end or updated, user_n, assistant_n, tool_calls, tb.text(),
-                timestamps=ts_list, models=models))
+                timestamps=ts_list, models=models, skill_invocations=skills))
     return sessions
 
 
@@ -886,6 +923,7 @@ def scan_cursor(home, since):
             tb = TranscriptBuilder()
             user_n = assistant_n = 0
             tool_calls = {}
+            skills = {}
             # bubbles carry no model info; the composer-level modelConfig is the
             # session's selected model
             models = {}
@@ -912,6 +950,7 @@ def scan_cursor(home, since):
                 if b.get("type") == 1 and text:
                     user_n += 1
                     tb.user(text)
+                    record_slash_skill(skills, text)
                 elif b.get("type") == 2:
                     if isinstance(tfd, dict) and tfd.get("name"):
                         tool_calls[tfd["name"]] = tool_calls.get(tfd["name"], 0) + 1
@@ -921,7 +960,7 @@ def scan_cursor(home, since):
                         tb.assistant(text)
             sessions.append(make_meta(
                 "cursor", cid, str(o.get("name") or ""), created, updated,
-                user_n, assistant_n, tool_calls, tb.text(), models=models))
+                user_n, assistant_n, tool_calls, tb.text(), models=models, skill_invocations=skills))
     except sqlite3.Error:
         pass
     finally:
@@ -1023,6 +1062,7 @@ def _opencode_session_from_parts(sid, directory, title, created, updated, messag
     user_n = assistant_n = 0
     tool_calls = {}
     models = {}
+    skills = {}
     ts_list = [t for _r, t, _p, _m in messages if t]
     for role, _ts, parts, model in messages:
         count_model(models, model)
@@ -1039,11 +1079,13 @@ def _opencode_session_from_parts(sid, directory, title, created, updated, messag
         if role == "user" and joined:
             user_n += 1
             tb.user(joined)
+            record_slash_skill(skills, joined)
         elif role == "assistant" and joined:
             assistant_n += 1
             tb.assistant(joined)
     return make_meta("opencode", sid, directory or title, created, updated,
-                     user_n, assistant_n, tool_calls, tb.text(), timestamps=ts_list, models=models)
+                     user_n, assistant_n, tool_calls, tb.text(), timestamps=ts_list, models=models,
+                     skill_invocations=skills)
 
 
 def _opencode_bases(home):
@@ -1599,11 +1641,13 @@ def cmd_aggregate(args):
     day_hist = {}
     models_used = {}  # model -> number of sessions it appeared in
     total_minutes = 0.0
+    skills_used = {}  # skill name -> invocations across all sessions
     briefs, friction_details = [], []
     for m in sorted(metas, key=lambda x: x["end_ts"] or 0, reverse=True):
         t = m["tool"]
         pt = per_tool.setdefault(t, {"sessions": 0, "user_messages": 0, "assistant_messages": 0,
-                                     "hours": 0.0, "tool_calls": 0, "top_tools": {}, "models": {}})
+                                     "hours": 0.0, "tool_calls": 0, "skill_invocations": 0,
+                                     "top_tools": {}, "models": {}})
         pt["sessions"] += 1
         pt["user_messages"] += m["user_msg_count"]
         pt["assistant_messages"] += m["assistant_msg_count"]
@@ -1616,6 +1660,8 @@ def cmd_aggregate(args):
         for model in m.get("models") or {}:
             models_used[model] = models_used.get(model, 0) + 1
             pt["models"][model] = pt["models"].get(model, 0) + 1
+        add_counts(skills_used, m.get("skill_invocations"))
+        pt["skill_invocations"] += sum((m.get("skill_invocations") or {}).values())
         ats = activity_ts(m)
         if ats:
             day = datetime.fromtimestamp(ats).strftime("%Y-%m-%d")
@@ -1669,8 +1715,10 @@ def cmd_aggregate(args):
             "user_messages": sum(m["user_msg_count"] for m in metas),
             "assistant_messages": sum(m["assistant_msg_count"] for m in metas),
             "hours": round(total_minutes / 60.0, 1),
+            "skill_invocations": sum(skills_used.values()),
             "tools_detected": sorted(per_tool.keys()),
             "models_detected": sorted(models_used.keys()),
+            "skills_detected": sorted(skills_used.keys()),
         },
         "per_tool": per_tool,
         "distributions": {
@@ -1682,6 +1730,7 @@ def cmd_aggregate(args):
             "expertise_level": order_expertise_level(expertise_level),  # per-session user expertise, novice->expert
             "agent_tools_used": top(tools_used, 12),
             "models": top(models_used, 12),  # sessions per model
+            "skills_used": top(skills_used, 12),  # agent-skill invocations by skill name
         },
         "sessions_per_day": dict(sorted(day_hist.items())),
         "facet_ingestion": {"ingested": ingested, "errors": ingest_errors},
@@ -1774,11 +1823,21 @@ REPORT_CSS = """
   --ink: 224 32% 13%;
   --ink-foreground: 40 30% 96%;
   --ink-muted: 224 16% 72%;
-  --chart-1: 221 68% 56%;
-  --chart-2: 152 30% 47%;
-  --chart-3: 251 48% 63%;
-  --chart-4: 12 66% 56%;
-  --chart-5: 42 78% 47%;
+  /* Categorical chart palette: the dataviz validated 8-hue set (fixed slot order is the
+     CVD-safety mechanism, not cosmetic). Each metric owns one slot report-wide so it reads
+     consistently; slots are assigned so no two charts in a section share one. chart-friction
+     is the status "critical" red — friction is a state, not a category. Light-mode slots 3/4/5
+     sit below 3:1 on the surface, which is fine here: every bar carries a visible label + value
+     (the relief rule), so hue is never the sole channel. Validate with dataviz before editing. */
+  --chart-1: 213 68% 50%;   /* blue    — sessions */
+  --chart-2: 17 82% 56%;    /* orange  — hours */
+  --chart-3: 159 73% 40%;   /* aqua    — user messages / user expertise */
+  --chart-4: 41 100% 46%;   /* yellow  — skills (invocations / used) */
+  --chart-5: 337 70% 70%;   /* magenta — tools (calls / agent tools used) */
+  --chart-6: 120 100% 26%;  /* green   — goals */
+  --chart-7: 249 48% 44%;   /* violet  — outcomes */
+  --chart-8: 0 73% 59%;     /* red     — models */
+  --chart-friction: 0 61% 52%;  /* critical red — friction */
   --radius: 12px;
   --radius-inner: 8px;
   --shadow-card: 0 1px 2px hsl(224 32% 13% / .04), 0 2px 6px hsl(224 32% 13% / .05),
@@ -1800,11 +1859,17 @@ REPORT_CSS = """
   --ink: 224 28% 11%;
   --ink-foreground: 40 25% 94%;
   --ink-muted: 224 12% 66%;
-  --chart-1: 221 66% 66%;
-  --chart-2: 152 32% 56%;
-  --chart-3: 251 52% 72%;
-  --chart-4: 12 68% 66%;
-  --chart-5: 42 70% 60%;
+  /* Same eight hues, stepped for the dark surface (#1a1a19) and validated as a set —
+     not an automatic flip of the light values. All 8 clear 3:1 on the dark surface. */
+  --chart-1: 213 77% 56%;   /* blue    — sessions */
+  --chart-2: 17 70% 50%;    /* orange  — hours */
+  --chart-3: 159 73% 36%;   /* aqua    — user messages / user expertise */
+  --chart-4: 40 100% 39%;   /* yellow  — skills */
+  --chart-5: 338 61% 58%;   /* magenta — tools */
+  --chart-6: 120 100% 26%;  /* green   — goals */
+  --chart-7: 247 69% 72%;   /* violet  — outcomes */
+  --chart-8: 0 72% 65%;     /* red     — models */
+  --chart-friction: 0 61% 52%;  /* critical red — friction */
   --shadow-card: 0 0 0 1px hsl(224 14% 23%), 0 10px 28px hsl(224 40% 4% / .5);
 }
 * { box-sizing: border-box; }
@@ -2084,6 +2149,9 @@ def cmd_render(args):
     t = agg["totals"]
     analysis_model = agg.get("analysis_model") or "unknown"
     version = agg.get("version") or "unknown"
+    # Skills are a Claude feature; hide the skill visuals entirely for users who never
+    # invoke one, so a run over pure Cursor/Codex logs doesn't sprout empty zero-charts.
+    has_skills = (t.get("skill_invocations") or 0) > 0
 
     sections = []  # (title, body_html); numbered + stagger-animated at assembly
 
@@ -2102,13 +2170,17 @@ def cmd_render(args):
     # One chart per collected metric, all in the same tool order (by sessions desc)
     # so the eye can compare a tool's rank across metrics.
     tools_sorted = sorted(per_tool.items(), key=lambda kv: -kv[1]["sessions"])
+    metric_specs = [
+        ("sessions", "Sessions", "chart-1"),
+        ("hours", "Hours", "chart-2"),
+        ("user_messages", "User messages", "chart-3"),
+    ]
+    if has_skills:  # sits between User messages and Tool calls
+        metric_specs.append(("skill_invocations", "Skill invocations", "chart-4"))
+    metric_specs.append(("tool_calls", "Tool calls", "chart-5"))
     metric_charts = "".join(
-        card(label, bar_chart({k: v[key] for k, v in tools_sorted}, tone))
-        for key, label, tone in (
-            ("sessions", "Sessions", "chart-1"),
-            ("hours", "Hours", "chart-2"),
-            ("user_messages", "User messages", "chart-3"),
-            ("tool_calls", "Tool calls", "chart-4")))
+        card(label, bar_chart({k: v.get(key, 0) for k, v in tools_sorted}, tone))
+        for key, label, tone in metric_specs)
     def top_models(v, n=3):
         ms = v.get("models") or {}
         return ", ".join(sorted(ms, key=lambda k: -ms[k])[:n])
@@ -2176,7 +2248,7 @@ def cmd_render(args):
         friction_body += "</div>"
     if agg["distributions"].get("friction"):
         friction_body += card("Friction signals (from session facets)",
-                              bar_chart(agg["distributions"]["friction"], "chart-4"))
+                              bar_chart(agg["distributions"]["friction"], "chart-friction"))
     if friction_body:
         sections.append(("Friction", friction_body))
 
@@ -2209,13 +2281,17 @@ def cmd_render(args):
             for u in nuc["use_cases"])
         sections.append(("New Use Cases to Try", f"{body}<div class='grid2'>{cards}</div>"))
 
+    # Tones follow the fixed metric->slot map (see the palette comment in REPORT_CSS):
+    # skills always chart-4 and tools always chart-5 (matching the Per-Tool charts), so the
+    # concept reads the same across sections; the rest are distinct within this section.
     d = agg["distributions"]
     sections.append(("Stats", "<div class='grid2'>"
-                     + card("Goals", bar_chart(d.get("goal_categories", {}), "chart-1"))
-                     + card("Outcomes", bar_chart(d.get("outcomes", {}), "chart-2"))
-                     + card("Model Uses (by session)", bar_chart(d.get("models", {}), "chart-3"))
-                     + card("Agent tools used", bar_chart(d.get("agent_tools_used", {}), "chart-4"))
-                     + card("User Expertise (per session)", bar_chart(d.get("expertise_level", {}), "chart-5"))
+                     + card("Goals", bar_chart(d.get("goal_categories", {}), "chart-6"))
+                     + card("Outcomes", bar_chart(d.get("outcomes", {}), "chart-7"))
+                     + card("Model Uses (by session)", bar_chart(d.get("models", {}), "chart-8"))
+                     + (card("Skills used", bar_chart(d.get("skills_used", {}), "chart-4")) if has_skills else "")
+                     + card("Agent tools used", bar_chart(d.get("agent_tools_used", {}), "chart-5"))
+                     + card("User Expertise (per session)", bar_chart(d.get("expertise_level", {}), "chart-3"))
                      + "</div>"))
 
     fe = nar.get("fun_ending") or {}
@@ -2232,11 +2308,12 @@ def cmd_render(args):
     hero_stats = "".join(
         f"<div><span class='stat-num'>{fmt_num(num)}</span><span class='stat-label'>{esc(label)}</span></div>"
         for num, label in (
-            (t["sessions"], "sessions"),
-            (t["user_messages"], "user messages"),
-            (t["hours"], "hours"),
-            (len(t["tools_detected"]), "agent tools"),
-            (len(t.get("models_detected") or []), "models")))
+            [(t["sessions"], "sessions"),
+             (t["user_messages"], "user messages"),
+             (t["hours"], "hours")]
+            + ([(t["skill_invocations"], "skill invocations")] if has_skills else [])
+            + [(len(t["tools_detected"]), "agent tools"),
+               (len(t.get("models_detected") or []), "models")]))
 
     html_doc = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">

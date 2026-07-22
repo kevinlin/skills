@@ -195,3 +195,14 @@ Windows notes:
   `model`/`modelId`/`modelID` message key. copilot-jetbrains classic Xodus chat logs carry
   no recoverable model id; the Nitrite agent logs do expose a selected model (e.g. `auto`)
   via the `model`,<value>,`modelProviderName` token triple. Aggregation counts sessions per model.
+- Skill invocations: each session records a `skill_invocations` map (skill name -> count).
+  Two sources feed it. (1) claude-code / claude-cowork: the `Skill` tool (assistant
+  `tool_use` block named `Skill`), with the name read from its input (`skill` / `command`).
+  (2) cursor / opencode: a leading `/name` slash command in the user's message text — how
+  skills are invoked there (a real-log probe found these tokens are overwhelmingly installed
+  skills). The `/name` must be followed by whitespace/colon/end, so file paths (`/Users/...`,
+  `/dev/null`) are not miscounted. The name is stored without the slash, so `/spec-lint` and
+  the `spec-lint` `Skill` tool call merge into one skill across tools. Other adapters
+  (codex, copilot, kiro, antigravity) contribute none: codex expands custom prompts before
+  logging (the `/name` is lost) and the rest expose no reliable per-invocation marker.
+  Aggregation sums invocations into a per-tool total and a `skills_used` distribution.

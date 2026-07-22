@@ -45,6 +45,7 @@ def make_claude_code(home):
         {"type": "assistant", "timestamp": iso(T0 + 60),
          "message": {"role": "assistant", "model": "claude-opus-4-5", "content": [
              {"type": "text", "text": "I'll add validation now."},
+             {"type": "tool_use", "name": "Skill", "input": {"skill": "research-plan-implement"}},
              {"type": "tool_use", "name": "Edit", "input": {}}]}},
         {"type": "user", "timestamp": iso(T0 + 180), "cwd": "/tmp/proj-alpha",
          "message": {"role": "user", "content": "thanks, looks good. now add tests please"}},
@@ -77,6 +78,7 @@ def make_claude_cowork(home):
         {"type": "assistant", "timestamp": iso(T0 + 60),
          "message": {"role": "assistant", "model": "claude-opus-4-8", "content": [
              {"type": "text", "text": "Drafted release notes covering 12 PRs."},
+             {"type": "tool_use", "name": "Skill", "input": {"skill": "spec-coding"}},
              {"type": "tool_use", "name": "Write", "input": {}}]}},
         {"type": "user", "timestamp": iso(T0 + 180), "cwd": "/tmp/cowork-sandbox/outputs",
          "message": {"role": "user", "content": "group the fixes by area and add upgrade notes"}},
@@ -150,7 +152,7 @@ def make_cursor(home):
                 "name": "Fix login redirect", "fullConversationHeadersOnly": headers,
                 "modelConfig": {"modelName": "composer-2.5-fast", "maxMode": False}}
     bubbles = {
-        "b0": {"type": 1, "text": "The login page redirects to / instead of /dashboard, fix it"},
+        "b0": {"type": 1, "text": "/spec-lint The login page redirects to / instead of /dashboard, fix it"},
         "b1": {"type": 2, "text": "Found it: the callback ignores the next param.",
                "toolFormerData": {"name": "read_file"}},
         "b2": {"type": 1, "text": "works now, thanks!"},
@@ -215,7 +217,7 @@ def make_opencode(home):
             msg.update({"modelID": "gpt-5.2", "providerID": "openai"})
         write(storage / "message" / sid / f"{mid}.json", msg)
     write(storage / "part" / m1 / "prt_1.json",
-          {"id": "prt_1", "messageID": m1, "type": "text", "text": "Rename all SNAKE_CASE config keys to camelCase"})
+          {"id": "prt_1", "messageID": m1, "type": "text", "text": "/spec-coding Rename all SNAKE_CASE config keys to camelCase"})
     write(storage / "part" / m2 / "prt_2.json",
           {"id": "prt_2", "messageID": m2, "type": "text", "text": "Renamed 23 keys and updated readers."})
     write(storage / "part" / m2 / "prt_3.json",

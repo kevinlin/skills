@@ -2,7 +2,7 @@
 name: agent-insights
 description: Generate a cross-tool usage insights report from locally stored AI coding agent sessions (Claude Code, Claude Cowork, GitHub Copilot for VS Code/CLI/JetBrains, Cursor, Codex, Kiro, Antigravity, OpenCode) over the last N days, default 30. Use when the user invokes /agent-insights, asks for insights, analytics, or a report on their agent sessions, asks how they're using their coding agents or what's working or causing friction, wants to compare their coding agent tools, or asks what their AI coding patterns look like, even when they don't say "report".
 metadata:
-  version: 1.5.7
+  version: 1.6.0
 ---
 
 # agent-insights
@@ -107,10 +107,15 @@ logs. If you genuinely cannot determine your own model id, omit the flag (it rec
 
 Validates and ingests the facet batch files into the cache, then merges all cached
 sessions in the window into `~/.agent-insights/aggregate.json` (also printed to stdout):
-`version` (the skill's `metadata.version`), `analysis_model`, totals, per-tool breakdown
-(sessions, messages, hours, tool calls, models used),
-goal/outcome/satisfaction/friction/expertise_level/model distributions, and
-`narrative_context` (session briefs + friction details) for the next step.
+`version` (the skill's `metadata.version`), `analysis_model`, totals (incl. total
+`skill_invocations`), per-tool breakdown (sessions, messages, hours, tool calls, skill
+invocations, models used),
+goal/outcome/satisfaction/friction/expertise_level/model/skills_used distributions, and
+`narrative_context` (session briefs + friction details) for the next step. Skill
+invocations are counted deterministically during the scan (no facet extraction): the
+`Skill` tool in Claude Code / Cowork logs, plus leading `/name` slash commands in Cursor
+and OpenCode user messages (where skills are invoked as slash commands). Names merge
+across tools, so `/spec-lint` and the `spec-lint` skill count as one.
 
 If the scan reported `facet_extractions_deferred` > 0, only part of the window has
 facets. Loop Steps 1-3 until deferred is 0 — each round's scan prepares batches for
