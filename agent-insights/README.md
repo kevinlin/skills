@@ -62,7 +62,7 @@ every source.
 5. **Render** (`render`): self-contained HTML report at
    `~/.agent-insights/report-YYYY-MM-DD_<days>-days.html` (mode 0600), where `<days>`
    is the analyzed window (default 30). Contains the narrative sections, a per-tool
-   breakdown, and the Stats charts (Goals, Outcomes, Model Uses, Skills used, Agent tools
+   breakdown, and the Stats charts (Goals, Outcomes, Models used, Skills used, Agent tools
    used, User Expertise). When any skill invocations are present, a "skill invocations"
    hero stat, a per-tool "Skill invocations" chart, and the "Skills used" Stats chart
    appear; they're hidden for runs with no skill usage. Charts use a fixed metric-to-hue

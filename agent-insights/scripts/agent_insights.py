@@ -2288,7 +2288,7 @@ def cmd_render(args):
     sections.append(("Stats", "<div class='grid2'>"
                      + card("Goals", bar_chart(d.get("goal_categories", {}), "chart-6"))
                      + card("Outcomes", bar_chart(d.get("outcomes", {}), "chart-7"))
-                     + card("Model Uses (by session)", bar_chart(d.get("models", {}), "chart-8"))
+                     + card("Models Used (by session)", bar_chart(d.get("models", {}), "chart-8"))
                      + (card("Skills used", bar_chart(d.get("skills_used", {}), "chart-4")) if has_skills else "")
                      + card("Agent tools used", bar_chart(d.get("agent_tools_used", {}), "chart-5"))
                      + card("User Expertise (per session)", bar_chart(d.get("expertise_level", {}), "chart-3"))
