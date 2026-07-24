@@ -9,7 +9,7 @@ The scan errors only when zero sessions are found across ALL sources.
 | Claude Code | `~/.claude/projects/<encoded-path>/*.jsonl` | same | same | JSONL |
 | Claude Cowork | `~/Library/Application Support/Claude/local-agent-mode-sessions/` | `~/.config/Claude/local-agent-mode-sessions/` | `%APPDATA%\Claude\local-agent-mode-sessions\` or (Store build) `%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\local-agent-mode-sessions\` | JSON + JSONL |
 | Copilot (VS Code) | `~/Library/Application Support/Code/User/workspaceStorage/<hash>/chatSessions/*` | `~/.config/Code/User/workspaceStorage/...` | `%APPDATA%\Code\User\workspaceStorage\...` | JSON or JSONL |
-| Copilot CLI | `~/.copilot/history-session-state/` | same | same | JSON |
+| Copilot CLI | `~/.copilot/session-state/<id>/events.jsonl` + `~/.copilot/session-store.db` (newer), `~/.copilot/history-session-state/` (older) | same | same | JSONL + SQLite (newer), JSON (older) |
 | Copilot (JetBrains) | `~/.config/github-copilot/<ide>/*-sessions/<id>/00000000000.xd` (Xodus) + `.../copilot-*-nitrite.db` (Nitrite) | same | `%LOCALAPPDATA%\github-copilot\<ide>\...` | Xodus binary log + Nitrite/MVStore (Java-serialized) |
 | Cursor | `~/Library/Application Support/Cursor/User/globalStorage/state.vscdb` | `~/.config/Cursor/...` | `%APPDATA%\Cursor\...` | SQLite |
 | Codex | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` (+ `archived_sessions/`) | same | same | JSONL |
@@ -75,10 +75,22 @@ Windows notes:
 - Project comes from sibling `workspace.json` (`folder` URI).
 
 ### copilot-cli
-- `~/.copilot/history-session-state/<session>/*.json`, layout varies by version and was
-  not observable during development: the adapter does a tolerant deep search for a list of
-  message dicts (`role`/`type` + `content`/`text`) under common keys (`messages`,
-  `chatMessages`, `history`, `timeline`, `events`).
+- Newer builds: one dir per session under `~/.copilot/session-state/<conversationId>/`
+  with an append-only `events.jsonl`: `session.start` (cwd, selected model),
+  `user.message` (`content` is the clean prompt; `transformedContent` carries the
+  injected wrappers, and `<`-leading contents are context injections, not prompts),
+  `assistant.message` (`model`, text, `toolRequests`), `tool.execution_start` (one tool
+  call, `toolName`), `skill.invoked` (executed skill name). The shared
+  `~/.copilot/session-store.db` SQLite (`sessions`: id/cwd/summary + ISO timestamps;
+  `turns`: user_message/assistant_response/timestamp) is merged in as a fallback for
+  sessions whose session-state dir was pruned — it carries no tool calls or model.
+  Dedup by conversation id prefers the events.jsonl variant. Sessions whose
+  conversationId a JetBrains Nitrite metadata DB references belong to the IDE and are
+  claimed by copilot-jetbrains instead.
+- Older builds: `~/.copilot/history-session-state/<session>/*.json`, layout varies by
+  version and was not observable during development: the adapter does a tolerant deep
+  search for a list of message dicts (`role`/`type` + `content`/`text`) under common
+  keys (`messages`, `chatMessages`, `history`, `timeline`, `events`).
 
 ### copilot-jetbrains
 - GitHub Copilot plugin for JetBrains IDEs (IntelliJ, WebStorm, PyCharm, Rider, Android
@@ -117,11 +129,21 @@ Windows notes:
   variant recovered more user messages. For very large agent logs (hundreds of MB) only
   the trailing 96 MB is read — MVStore appends, so the newest (in-window) chunks live
   near the end.
+- Plugin 1.13+ delegates agent chat to the embedded Copilot CLI: the per-project
+  `copilot-agent-sessions-nitrite.db` then keeps only `NtAgentSession` *metadata*
+  (session title, `modelName`, `conversationId`) with no turn text at all — its parse
+  yields 0 user messages and the substantive filter drops it. The real turns live in
+  the Copilot CLI store (`~/.copilot/session-state/<conversationId>/events.jsonl` +
+  `session-store.db`); the adapter recovers each `conversationId` from the Nitrite
+  metadata, claims the matching CLI sessions, and re-attributes them to
+  copilot-jetbrains (`scan_copilot_cli` skips those same ids, so nothing is counted
+  twice).
 - The top-level `~/.config/github-copilot/copilot-intellij.db` and `auth.db` are plain
   SQLite stores (UI state / auth, e.g. a single `mcp-first-boot-completed` flag) — they
   hold NO chat transcripts and are intentionally not scanned. The `bg-agent-sessions/`
-  `copilot-session-metadata.db` / `copilot-agent-snapshots.db` are likewise skipped (the
-  `copilot-*-nitrite.db` glob excludes them).
+  `copilot-session-metadata.db` / `copilot-agent-snapshots.db` hold only background-agent
+  bookkeeping and file snapshots, likewise skipped (the `copilot-*-nitrite.db` glob
+  excludes them).
 
 ### cursor
 - Everything in globalStorage `state.vscdb`, table `cursorDiskKV`:
@@ -194,15 +216,19 @@ Windows notes:
   `ERROR_MESSAGE` machine id, generic adapters (copilot-cli, kiro) any
   `model`/`modelId`/`modelID` message key. copilot-jetbrains classic Xodus chat logs carry
   no recoverable model id; the Nitrite agent logs do expose a selected model (e.g. `auto`)
-  via the `model`,<value>,`modelProviderName` token triple. Aggregation counts sessions per model.
+  via the `model`,<value>,`modelProviderName` token triple, and CLI-backed sessions
+  (plugin 1.13+) get per-message models from events.jsonl `assistant.message`.
+  Aggregation counts sessions per model.
 - Skill invocations: each session records a `skill_invocations` map (skill name -> count).
-  Two sources feed it. (1) claude-code / claude-cowork: the `Skill` tool (assistant
+  Three sources feed it. (1) claude-code / claude-cowork: the `Skill` tool (assistant
   `tool_use` block named `Skill`), with the name read from its input (`skill` / `command`).
   (2) cursor / opencode: a leading `/name` slash command in the user's message text — how
   skills are invoked there (a real-log probe found these tokens are overwhelmingly installed
   skills). The `/name` must be followed by whitespace/colon/end, so file paths (`/Users/...`,
   `/dev/null`) are not miscounted. The name is stored without the slash, so `/spec-lint` and
-  the `spec-lint` `Skill` tool call merge into one skill across tools. Other adapters
-  (codex, copilot, kiro, antigravity) contribute none: codex expands custom prompts before
-  logging (the `/name` is lost) and the rest expose no reliable per-invocation marker.
+  the `spec-lint` `Skill` tool call merge into one skill across tools. (3) copilot-cli
+  and CLI-backed copilot-jetbrains sessions: `skill.invoked` events in events.jsonl
+  carry the executed skill's name directly. Other adapters (codex, copilot-vscode, kiro,
+  antigravity) contribute none: codex expands custom prompts before logging (the `/name`
+  is lost) and the rest expose no reliable per-invocation marker.
   Aggregation sums invocations into a per-tool total and a `skills_used` distribution.

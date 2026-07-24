@@ -38,6 +38,20 @@ def jsonl(items):
     return "\n".join(json.dumps(i) for i in items) + "\n"
 
 
+def tc_string(s):
+    """Java-serialization TC_STRING wire encoding (0x74 + u2 length + utf8 bytes)."""
+    b = s.encode("utf-8")
+    return b"\x74" + len(b).to_bytes(2, "big") + b
+
+
+def write_nitrite_db(path, tokens):
+    """Copilot-for-JetBrains Nitrite fixture: MVStore header + TC_STRING tokens
+    interleaved with 0x80 separators (record tags the parser breaks on)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"H:2,block:7,blockSize:1000\x00"
+                     + b"\x80".join(tc_string(t) for t in tokens))
+
+
 def make_claude_code(home):
     lines = [
         {"type": "user", "timestamp": iso(T0), "cwd": "/tmp/proj-alpha",
@@ -139,6 +153,93 @@ def make_copilot_cli(home):
               {"role": "user", "content": "turn the auth ones into GitHub issues", "timestamp": ms(T0 + 150)},
               {"role": "assistant", "content": "Created 2 issues.", "timestamp": ms(T0 + 200)},
           ]})
+
+
+def make_copilot_cli_store(home):
+    """Newer Copilot CLI builds (also embedded by the JetBrains plugin) replaced
+    history-session-state/ JSON with `~/.copilot/session-state/<conversationId>/
+    events.jsonl` (rich event log) plus a shared `~/.copilot/session-store.db` SQLite
+    (`sessions` + `turns`). Three sessions here: one claimed by a JetBrains IDE via
+    the nitrite metadata's conversationId (-> copilot-jetbrains), one standalone
+    (-> copilot-cli), one present only in the store db (fallback path, no events.jsonl)."""
+    def events(sid, cwd, prompt, answer, model, tool, skill=None):
+        rows = [
+            {"type": "session.start", "timestamp": iso(T0),
+             "data": {"sessionId": sid, "selectedModel": model,
+                      "context": {"cwd": cwd, "gitRoot": cwd, "branch": "main"}}},
+            {"type": "user.message", "timestamp": iso(T0 + 5),
+             "data": {"content": prompt, "transformedContent": f"<current_datetime>x</current_datetime>\n\n{prompt}"}},
+            # injected context rides in as its own user.message; `<`-leading -> not a prompt
+            {"type": "user.message", "timestamp": iso(T0 + 6),
+             "data": {"content": "<skill-context name=\"x\">wrapper</skill-context>"}},
+            {"type": "assistant.message", "timestamp": iso(T0 + 30),
+             "data": {"model": model, "content": "",
+                      "toolRequests": [{"name": tool, "arguments": {}}]}},
+            {"type": "tool.execution_start", "timestamp": iso(T0 + 35),
+             "data": {"toolName": tool, "arguments": {}, "model": model}},
+            {"type": "assistant.message", "timestamp": iso(T0 + 120),
+             "data": {"model": model, "content": answer, "toolRequests": []}},
+        ]
+        if skill:  # parser dispatches on event type; row position is irrelevant
+            rows.append({"type": "skill.invoked", "timestamp": iso(T0 + 33),
+                         "data": {"name": skill, "path": f"/tmp/skills/{skill}/SKILL.md"}})
+        write(home / ".copilot" / "session-state" / sid / "events.jsonl", jsonl(rows))
+
+    # claimed by the JetBrains fixture below -> attributed copilot-jetbrains
+    events("88888888-aaaa-bbbb-cccc-0000000000a1", "/tmp/proj-jetbrains-agent",
+           "Profile the slow integration test suite", "Slowest test is test_sync; 41s in setup.",
+           "claude-sonnet-5", "bash", skill="agent-insights")
+    # standalone CLI session -> stays copilot-cli
+    events("88888888-aaaa-bbbb-cccc-0000000000b2", "/tmp/proj-cli-new",
+           "List the failing CI jobs", "Two jobs failing: lint and e2e.",
+           "gpt-5", "view")
+
+    db = home / ".copilot" / "session-store.db"
+    db.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(db)
+    con.execute("CREATE TABLE sessions (id TEXT PRIMARY KEY, cwd TEXT, repository TEXT,"
+                " host_type TEXT, branch TEXT, summary TEXT, created_at TEXT, updated_at TEXT)")
+    con.execute("CREATE TABLE turns (id INTEGER PRIMARY KEY, session_id TEXT, turn_index INT,"
+                " user_message TEXT, assistant_response TEXT, timestamp TEXT)")
+    # store rows for the two events.jsonl sessions (dedup keeps the richer events variant)
+    for sid, cwd, summ in [
+        ("88888888-aaaa-bbbb-cccc-0000000000a1", "/tmp/proj-jetbrains-agent", "Profile the slow integration test suite"),
+        ("88888888-aaaa-bbbb-cccc-0000000000b2", "/tmp/proj-cli-new", "List the failing CI jobs"),
+    ]:
+        con.execute("INSERT INTO sessions VALUES (?,?,NULL,NULL,'main',?,?,?)",
+                    (sid, cwd, summ, iso(T0), iso(T0 + 120)))
+    # store-only session: its session-state dir is gone, only the shared db remembers it
+    con.execute("INSERT INTO sessions VALUES (?,?,NULL,NULL,'main',?,?,?)",
+                ("88888888-aaaa-bbbb-cccc-0000000000c3", "/tmp/proj-cli-old-turns",
+                 "Rename the config module", iso(T0), iso(T0 + 200)))
+    con.execute("INSERT INTO turns VALUES (NULL,?,0,?,?,?)",
+                ("88888888-aaaa-bbbb-cccc-0000000000c3", "Rename the config module", None, iso(T0)))
+    con.execute("INSERT INTO turns VALUES (NULL,?,1,?,?,?)",
+                ("88888888-aaaa-bbbb-cccc-0000000000c3",
+                 "<skill-context name=\"y\">wrapper</skill-context>",
+                 "Renamed config to settings across 6 files.", iso(T0 + 200)))
+    con.commit()
+    con.close()
+
+
+def make_copilot_jetbrains_agent_meta(home):
+    """Newer Copilot-for-JetBrains plugin builds delegate agent chat to the embedded
+    Copilot CLI: the per-project Nitrite DB keeps only NtAgentSession *metadata* — the
+    session title (`name`/`value`), the `modelName`, and the `conversationId` linking to
+    the CLI's session-state store where the turns actually live. No `query`/`response`
+    markers, no message text. This fixture emits that metadata-only wire shape."""
+    tokens = [
+        "$nitrite_store_info", "MVStore/2.2.224",
+        "com.github.copilot.agent.session.persistence.nitrite.entity.NtAgentSession",
+        "name", "value", "Profile the slow integration test suite", "source", "copilot",
+        "conversationId", "88888888-aaaa-bbbb-cccc-0000000000a1",
+        "schemaVersion", "createdAt", str(ms(T0)), "activeAt", str(ms(T0 + 120)),
+        "input", "turns", "workingSet", "isArchived", "chatType", "PANEL",
+        "modelName", "claude-sonnet-5", "modelProvider", "modelIdType", "status",
+    ]
+    write_nitrite_db(home / ".config" / "github-copilot" / "ws" / "chat-agent-sessions"
+                     / "3AAAgentSessionDirKsuid000000" / "copilot-agent-sessions-nitrite.db",
+                     tokens)
 
 
 def make_cursor(home):
@@ -291,10 +392,6 @@ def make_copilot_jetbrains_nitrite(home):
     `query`/`response` field markers, status/author tokens, decimal `created_at` epoch-ms
     timestamps, the `model`,<value>,`modelProviderName` triple, and file:// references —
     interleaved with `0x80` separators (Xodus/MVStore record tags the parser breaks on)."""
-    def tc_string(s):
-        b = s.encode("utf-8")
-        return b"\x74" + len(b).to_bytes(2, "big") + b
-
     tokens = [
         "$nitrite_store_info", "MVStore/2.2.224",
         "com.github.copilot.chat.session.persistence.nitrite.entity.NtChatSession",
@@ -313,11 +410,9 @@ def make_copilot_jetbrains_nitrite(home):
         "response", "GitHub Copilot", "Added Pageable support to the list endpoint.",
         "created_at", str(ms(T0 + 200)),
     ]
-    blob = b"\x80".join(tc_string(t) for t in tokens)
-    db = (home / ".config" / "github-copilot" / "iu" / "chat-sessions"
-          / "77777777-aaaa-bbbb-cccc-000000000077" / "copilot-chat-nitrite.db")
-    db.parent.mkdir(parents=True, exist_ok=True)
-    db.write_bytes(b"H:2,block:7,blockSize:1000\x00" + blob)
+    write_nitrite_db(home / ".config" / "github-copilot" / "iu" / "chat-sessions"
+                     / "77777777-aaaa-bbbb-cccc-000000000077" / "copilot-chat-nitrite.db",
+                     tokens)
 
 
 def make_sandbox(home):
@@ -337,7 +432,8 @@ def make_sandbox(home):
 def main():
     target = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).parent / "fixtures")
     for fn in (make_claude_code, make_claude_cowork, make_copilot_vscode, make_copilot_cli,
-               make_copilot_jetbrains, make_copilot_jetbrains_nitrite, make_cursor, make_codex,
+               make_copilot_cli_store, make_copilot_jetbrains, make_copilot_jetbrains_nitrite,
+               make_copilot_jetbrains_agent_meta, make_cursor, make_codex,
                make_kiro, make_opencode, make_antigravity, make_sandbox):
         fn(target)
     print(f"fixtures written to {target}")

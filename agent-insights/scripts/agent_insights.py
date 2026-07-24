@@ -11,6 +11,7 @@ Python 3 stdlib only. All data stays local.
 """
 
 import argparse
+import functools
 import glob
 import json
 import os
@@ -38,6 +39,7 @@ EXPERTISE_LEVELS = ["1_novice", "2_beginner", "3_intermediate", "4_advanced", "5
 SELF_MARKERS = (
     "RESPOND WITH ONLY A VALID JSON OBJECT",
     "agent-insights facet extraction",
+    "agent-stats facet extraction",
 )
 
 DEFAULT_DATA_DIR = Path("~/.agent-insights").expanduser()
@@ -581,8 +583,13 @@ def _session_from_generic_messages(tool, sid, project, msgs, fallback_ts):
 
 
 def scan_copilot_cli(home, since):
-    sessions = []
-    root = home / ".copilot" / "history-session-state"
+    # Newer CLI builds store sessions in ~/.copilot/session-state + session-store.db
+    # (see _scan_copilot_cli_new). Sessions started from a JetBrains IDE (whose Copilot
+    # plugin embeds this CLI) are claimed by scan_copilot_jetbrains instead.
+    new = _scan_copilot_cli_new(home, since)
+    claimed = _jetbrains_conversation_ids(home, since) if new else set()
+    sessions = [m for sid, m in new.items() if sid not in claimed]
+    root = home / ".copilot" / "history-session-state"  # older CLI JSON layout
     if not root.is_dir():
         return sessions
     for entry in sorted(root.iterdir()):
@@ -787,17 +794,23 @@ def _jb_nitrite_content(t):
             and not t.startswith('{"') and not t.startswith("[{") and not t.isdigit())
 
 
+def _nitrite_tail(path):
+    """Trailing `_MAX_NITRITE_BYTES` of a Nitrite DB (MVStore appends, so the newest
+    records live at the end)."""
+    size = os.path.getsize(path)
+    with open(path, "rb") as f:
+        if size > _MAX_NITRITE_BYTES:
+            f.seek(size - _MAX_NITRITE_BYTES)
+        return f.read(_MAX_NITRITE_BYTES)
+
+
 def _parse_jetbrains_nitrite(path):
     """Reconstruct a Copilot-for-JetBrains chat/agent/edit session from its Nitrite
     `copilot-*-nitrite.db` bytes. Walks the Java-serialized strings and rebuilds turns
     from the `query`/`response` field markers (the message text is the first content-like
     string within a short lookahead, skipping status/author tokens like `ok` and
     `GitHub Copilot`). Recovers `created_at` epoch-ms timestamps and the selected model."""
-    size = os.path.getsize(path)
-    with open(path, "rb") as f:
-        if size > _MAX_NITRITE_BYTES:
-            f.seek(size - _MAX_NITRITE_BYTES)
-        buf = f.read(_MAX_NITRITE_BYTES)
+    buf = _nitrite_tail(path)
     sid = Path(path).parent.name
     mtime = os.path.getmtime(path)
     tb = TranscriptBuilder()
@@ -866,23 +879,173 @@ def _copilot_jetbrains_roots(home):
     return out
 
 
+# --- new Copilot CLI storage (shared by copilot-cli and copilot-jetbrains) -------
+# Newer Copilot CLI builds dropped the history-session-state/ JSON layout: each session
+# now lives in ~/.copilot/session-state/<conversationId>/events.jsonl (an append-only
+# event log with clean user/assistant text, per-message model, tool executions, and
+# skill invocations) plus a shared ~/.copilot/session-store.db SQLite (`sessions` +
+# `turns`) that outlives pruned session-state dirs. The JetBrains Copilot plugin
+# (1.13+) embeds this CLI for its agent chat: the IDE's Nitrite DB keeps only session
+# metadata (title, model, conversationId) and the turns land here. The conversationIds
+# recovered from the Nitrite metadata partition the store between the two adapters, so
+# a session is never counted twice.
+
+
+def _parse_copilot_cli_events(path, sid):
+    """One session from `session-state/<id>/events.jsonl`. `user.message` `content` is
+    the clean prompt (`transformedContent` carries the injected wrappers; `<`-leading
+    contents are context injections, not prompts). `assistant.message` carries `model`
+    and text; `tool.execution_start` is one executed tool; `skill.invoked` names a skill
+    run. `session.start` gives cwd."""
+    tb = TranscriptBuilder()
+    tool_calls, models, skills, ts_list = {}, {}, {}, []
+    user_n = assistant_n = 0
+    cwd = None
+    for o in iter_jsonl(path):
+        t = o.get("type")
+        d = o.get("data") or {}
+        ts = epoch_from_iso(o.get("timestamp"))
+        if ts:
+            ts_list.append(ts)
+        if t == "session.start":
+            ctx = d.get("context") or {}
+            cwd = ctx.get("cwd") or ctx.get("gitRoot") or cwd
+        elif t == "user.message":
+            txt = (d.get("content") or "").strip()
+            if txt and not txt.startswith("<"):
+                user_n += 1
+                tb.user(txt)
+        elif t == "assistant.message":
+            count_model(models, d.get("model"))  # per-message model needs every event
+            txt = (d.get("content") or "").strip()
+            if txt:  # tool-request-only events carry no message text; don't count them
+                assistant_n += 1
+                tb.assistant(txt)
+        elif t == "tool.execution_start":
+            name = d.get("toolName")
+            if name:
+                tool_calls[name] = tool_calls.get(name, 0) + 1
+                tb.tool(name)
+        elif t == "skill.invoked":
+            record_skill(skills, d)  # data carries the skill's `name`
+    start = min(ts_list) if ts_list else None
+    end = max(ts_list) if ts_list else os.path.getmtime(path)
+    return make_meta("copilot-cli", sid, cwd, start, end, user_n, assistant_n,
+                     tool_calls, tb.text(), timestamps=ts_list, models=models,
+                     skill_invocations=skills)
+
+
+def _copilot_cli_store_sessions(home, since):
+    """Sessions from the shared `~/.copilot/session-store.db` (`sessions` + `turns`).
+    Coarser than events.jsonl (no tool calls, no model) but survives session-state
+    pruning. `<`-leading user_message rows are injected context, not prompts."""
+    out = []
+    db = home / ".copilot" / "session-store.db"
+    try:
+        mtimes = [os.path.getmtime(p) for p in (db, str(db) + "-wal") if os.path.exists(p)]
+    except OSError:
+        mtimes = []
+    if not mtimes or max(mtimes) < since:
+        return out
+    con, tmpdir = open_sqlite_ro(db)
+    if con is None:
+        return out
+    try:
+        for sid, cwd, created, updated in con.execute(
+                "SELECT id, cwd, created_at, updated_at FROM sessions").fetchall():
+            end = epoch_from_iso(updated) or epoch_from_iso(created)
+            if end and end < since:
+                continue
+            tb = TranscriptBuilder()
+            ts_list = []
+            user_n = assistant_n = 0
+            for um, ar, tts in con.execute(
+                    "SELECT user_message, assistant_response, timestamp FROM turns"
+                    " WHERE session_id = ? ORDER BY turn_index", (sid,)):
+                ts = epoch_from_iso(tts)
+                if ts:
+                    ts_list.append(ts)
+                um = (um or "").strip()
+                if um and not um.startswith("<"):
+                    user_n += 1
+                    tb.user(um)
+                ar = (ar or "").strip()
+                if ar:
+                    assistant_n += 1
+                    tb.assistant(ar)
+            start = epoch_from_iso(created) or (min(ts_list) if ts_list else None)
+            out.append(make_meta("copilot-cli", sid, cwd, start, end, user_n,
+                                 assistant_n, {}, tb.text(), timestamps=ts_list))
+    except sqlite3.Error:
+        pass
+    finally:
+        con.close()
+        if tmpdir:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+    return out
+
+
+def _keep_richer(by_sid, meta):
+    """Keep whichever variant of a session recovered more user messages."""
+    sid = meta["session_id"]
+    cur = by_sid.get(sid)
+    if cur is None or meta["user_msg_count"] > cur["user_msg_count"]:
+        by_sid[sid] = meta
+
+
+@functools.lru_cache(maxsize=None)
+def _scan_copilot_cli_new(home, since):
+    """All sessions in the new CLI storage, keyed by conversation id. events.jsonl is
+    preferred over the store-db variant of the same session (more user messages, or
+    equal counts with richer content). Cached — both Copilot adapters partition this
+    same result, so the store is read once per scan."""
+    by_sid = {}
+    root = home / ".copilot" / "session-state"
+    if root.is_dir():
+        for ev in recent_files(str(root / "*" / "events.jsonl"), since):
+            try:
+                _keep_richer(by_sid, _parse_copilot_cli_events(ev, Path(ev).parent.name))
+            except (OSError, ValueError):
+                continue
+    for meta in _copilot_cli_store_sessions(home, since):
+        _keep_richer(by_sid, meta)
+    return by_sid
+
+
+@functools.lru_cache(maxsize=None)
+def _jetbrains_conversation_ids(home, since):
+    """conversationIds of CLI-backed sessions started from a JetBrains IDE, recovered
+    from the plugin's Nitrite session-metadata DBs (the value is the Java-serialized
+    string right after the `conversationId` field name). scan_copilot_jetbrains claims
+    these; scan_copilot_cli skips them. Cached — both adapters need the same set. The
+    mtime gate matches scan_copilot_jetbrains: an in-window CLI session implies its
+    owning Nitrite DB was written just as recently."""
+    ids = set()
+    for root in _copilot_jetbrains_roots(home):
+        for db in recent_files(str(root / "*" / "*-sessions" / "*" / "copilot-*-nitrite.db"), since):
+            try:
+                buf = _nitrite_tail(db)
+            except OSError:
+                continue
+            pending = False
+            for t in _iter_java_strings(buf):
+                t = t.strip()
+                if pending and _JB_UUID_RE.match(t):
+                    ids.add(t)
+                pending = t == "conversationId"
+    return ids
+
+
 def scan_copilot_jetbrains(home, since):
     # A session dir can hold both a content-bearing Nitrite DB and a metadata-only Xodus
     # `.xd` (newer sessions write the real turns to Nitrite). Key by session id and keep
     # whichever variant recovered more user messages, so the empty `.xd` never shadows it.
     by_sid = {}
-
-    def consider(meta):
-        sid = meta["session_id"]
-        cur = by_sid.get(sid)
-        if cur is None or meta["user_msg_count"] > cur["user_msg_count"]:
-            by_sid[sid] = meta
-
     for root in _copilot_jetbrains_roots(home):
         # <product>/<*-sessions>/<session-id>/copilot-*-nitrite.db  (newer chat/agent/edit)
         for db in recent_files(str(root / "*" / "*-sessions" / "*" / "copilot-*-nitrite.db"), since):
             try:
-                consider(_parse_jetbrains_nitrite(Path(db)))
+                _keep_richer(by_sid, _parse_jetbrains_nitrite(Path(db)))
             except (OSError, ValueError):
                 continue
         # <product>/<*-sessions>/<session-id>/00000000000.xd  (also old intellij/ layout)
@@ -892,7 +1055,16 @@ def scan_copilot_jetbrains(home, since):
                 data = xd.read_bytes()
             except OSError:
                 continue
-            consider(_parse_jetbrains_chat(data, xd.parent.name, os.path.getmtime(xd)))
+            _keep_richer(by_sid, _parse_jetbrains_chat(data, xd.parent.name, os.path.getmtime(xd)))
+    # Plugin 1.13+ delegates agent chat to the embedded Copilot CLI: the Nitrite DB
+    # above keeps only metadata (its session parses to 0 user messages and is dropped
+    # by the substantive filter) and the real turns live in the CLI store. Claim the
+    # CLI sessions whose conversationId the Nitrite metadata references.
+    claimed = _jetbrains_conversation_ids(home, since)
+    if claimed:
+        for sid, meta in _scan_copilot_cli_new(home, since).items():
+            if sid in claimed:
+                _keep_richer(by_sid, dict(meta, tool="copilot-jetbrains"))
     return list(by_sid.values())
 
 
@@ -1344,6 +1516,8 @@ def _known_source_roots(home):
         ("claude-code", home / ".claude" / "projects"),
         ("codex", home / ".codex" / "sessions"),
         ("copilot-cli", home / ".copilot" / "history-session-state"),
+        ("copilot-cli", home / ".copilot" / "session-state"),  # newer CLI layout
+        ("copilot-cli", home / ".copilot" / "session-store.db"),  # survives session-state pruning
         ("copilot-jetbrains", home / ".config" / "github-copilot"),
         ("copilot-jetbrains", home / "AppData" / "Local" / "github-copilot"),  # Windows
         ("antigravity", home / ".gemini" / "antigravity" / "brain"),
