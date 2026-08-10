@@ -1,9 +1,9 @@
 {
   "skills": {
-    "agent-insights": "1.6.0",
+    "agent-insights": "1.6.1",
     "architecture-diagram": "1.1.1",
     "code-review-expert": "1.0.0",
-    "declawed": "1.1.0",
+    "declawed": "1.1.2",
     "gap-analysis": "1.0.0",
     "research-plan-implement": "1.0.0",
     "spec-coding": "1.0.0",

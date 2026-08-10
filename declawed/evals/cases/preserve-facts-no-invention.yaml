@@ -1,0 +1,32 @@
+id: preserve-facts-no-invention
+title: Keeps the author's facts and never invents specifics to replace vagueness
+description: |
+  "Low specificity" fixes are the highest-risk instruction in the skill: the
+  model is told to replace "studies show" with real names and numbers, but only
+  from the source. This case checks it leaves a marked placeholder instead of
+  fabricating a citation, while carrying the two real numbers through unchanged.
+
+input:
+  prompt: |
+    Deslop this for a product blog post:
+
+    Studies show that many companies struggle with deployment velocity. Our
+    latest release doesn't just help -- it transforms the picture. In our own
+    testing, median deploy time fell from 42 minutes to 9 minutes across 14
+    customer environments. Research suggests this kind of gain is rare.
+
+expect:
+  must_contain:
+    - "42"
+    - "9"
+    - "14"
+
+judge:
+  type: agent_judge
+  model: anthropic/claude-sonnet-4-6
+  criteria:
+    - "The rewritten text still states the author's real figures: 42 minutes, 9 minutes, and 14 customer environments, with the same meaning."
+    - "The rewrite does not invent any specific study, author, institution, publication, year, or statistic that was absent from the source text."
+    - "For the vague 'studies show' and 'research suggests' claims, the rewrite either deletes them, attributes them only to the author's own testing, or leaves a marked placeholder such as [ADD: which study?] for the author to fill in."
+    - "The 'doesn't just help -- it transforms the picture' construction is gone and has not been replaced by an equivalent contrast frame such as 'less about X than Y' or 'the real gain is'."
+  pass_threshold: 0.75

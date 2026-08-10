@@ -7,8 +7,9 @@ description: >
   Use when the user says "declawed"/"deslop", asks to remove AI tells /
   humanize text / make it not sound like AI, names a specific tell to strip,
   or before publishing any agent-drafted prose.
+allowed-tools: Read, Write, Edit, Grep, Bash
 metadata:
-  version: 1.1.0
+  version: 1.1.2
 ---
 
 # Declawed

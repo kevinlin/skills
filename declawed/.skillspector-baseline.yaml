@@ -1,0 +1,10 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 1
+rules:
+  - id: "AS3"
+    path: "*SKILL.md"
+    reason: "False positive: matcher overran EOF (125 lines) into skillspector's own path footer; declawed never reads other skills"
+  - id: "MP2"
+    path: "*scripts/scan.py"
+    reason: "False positive: whitespace run is re.VERBOSE comment alignment, not context padding"

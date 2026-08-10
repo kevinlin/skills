@@ -1,0 +1,29 @@
+id: reddit-register
+title: Applies the genre register instead of a generic clean-up
+description: |
+  Phase 0 and Phase 4 make genre decisive. A reddit reply must lose the bold
+  headers and the bullet-essay structure that a docs pass would keep. The check
+  targets the rewritten prose, not the change log.
+
+input:
+  prompt: |
+    This is a reply I'm about to post on r/devops. Make it not sound like AI.
+
+    **Great question!** Here's my take on migrating to Kubernetes:
+
+    - **Start small**: Don't just lift and shift, containerise incrementally.
+    - **Observability matters**: It's not merely about metrics, it's about traces too.
+    - **Culture is key**: This isn't a tooling change, it's a mindset shift.
+
+    Hope this helps! Let me know if you have any questions.
+
+judge:
+  type: agent_judge
+  model: anthropic/claude-sonnet-4-6
+  criteria:
+    - "The rewritten reddit reply contains no markdown bold and is not structured as a bulleted essay; it reads as plain conversational paragraphs a person would type into a reddit comment box."
+    - "The reply drops the 'Great question!', 'Hope this helps!' and 'Let me know if you have any questions' scaffolding."
+    - "All three negative-parallelism constructions ('Don't just lift and shift', 'not merely about metrics, it's about traces', 'isn't a tooling change, it's a mindset shift') are gone, and none has been swapped for an equivalent contrast frame."
+    - "The rewrite does not overcorrect: no fake typos, no manufactured slang, no forced casual persona beyond ordinary reddit register."
+    - "The technical substance (incremental containerisation, traces alongside metrics, the organisational change point) is preserved rather than deleted wholesale."
+  pass_threshold: 0.75

@@ -1,0 +1,38 @@
+id: report-scan-and-changelog
+title: Reports scan findings before rewriting and ends with the required change log
+description: |
+  Phase 1 requires a findings table before any rewrite; Phase 4 requires a change
+  log with fixed fields. Both are deterministic string checks, so this stays
+  rule_based.
+
+input:
+  prompt: |
+    Run a declawed pass on this paragraph:
+
+    It's worth noting that our platform doesn't just streamline workflows, it
+    fundamentally reimagines them. From startups to enterprises, teams leverage
+    our robust, scalable, and intuitive tooling to unlock unprecedented value in
+    today's ever-evolving landscape. What do you think?
+
+expect:
+  must_contain:
+    - "Changes"
+
+# Assertions here cover only the reporting contract (findings table + change log).
+# They must not check for the absence of slop phrases: Phase 1 requires quoting
+# the worst example of each tell, so the original slop legitimately appears in
+# the reply. Removal of tells is asserted in strip-not-x-but-y, which reads a
+# prose-only file.
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all:
+          - "Changes"
+          - "Verify passes"
+          - "Cadence"
+        any:
+          - "Puffery"
+          - "puffery"
+          - "Negative parallelism"
+          - "negative parallelism"

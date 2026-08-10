@@ -1,0 +1,33 @@
+id: academic-no-overcorrection
+title: De-slops academic prose without trading precision for personality
+description: |
+  The "overcorrection is also slop" guard. In academic register the pass must cut
+  puffery and hedging while leaving hedged scientific claims, terminology, and
+  third-person voice intact -- no added attitude, no first-person hot takes.
+
+input:
+  prompt: |
+    Deslop this abstract for a peer-reviewed systems paper.
+
+    In the ever-evolving landscape of distributed systems, consistency remains a
+    pivotal concern. This paper doesn't just propose another protocol -- it
+    delves into a fundamentally novel approach. It is worth noting that our
+    method plays a vital role in reducing coordination overhead. Experiments on a
+    32-node cluster show a 2.1x throughput improvement over Raft under write-heavy
+    workloads, a testament to the robustness of the design.
+
+expect:
+  must_contain:
+    - "32"
+    - "2.1"
+
+judge:
+  type: agent_judge
+  model: anthropic/claude-sonnet-4-6
+  criteria:
+    - "Puffery is gone: 'ever-evolving landscape', 'pivotal', 'delves into', 'plays a vital role in', 'a testament to' no longer appear or have been replaced by plain, concrete wording."
+    - "The 'doesn't just propose another protocol -- it delves into' construction is removed and not reframed as an equivalent contrast."
+    - "The empirical claims are unchanged: a 32-node cluster and a 2.1x throughput improvement over Raft under write-heavy workloads."
+    - "Register is preserved: the text reads as formal academic prose with no added slang, jokes, rhetorical questions, personal opinions, or manufactured casual voice. Conventional academic first-person plural such as 'We present' or 'We evaluate' is correct in this genre and must NOT be counted as a register failure."
+    - "Technical terminology (consistency, coordination overhead, Raft, throughput) is retained rather than simplified away."
+  pass_threshold: 0.75

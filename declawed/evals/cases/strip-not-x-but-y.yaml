@@ -1,0 +1,28 @@
+id: strip-not-x-but-y
+title: Removes the "not X but Y" family and puffery instead of paraphrasing it
+description: |
+  The core promise of the skill. A dense slop paragraph must come back with the
+  negative-parallelism frame gone, not restated as "less about X than Y" or
+  another banned escape hatch. The rewritten prose is written to its own file so
+  the assertion never reads the changelog.
+
+input:
+  prompt: |
+    Deslop this LinkedIn post for me. Write only the rewritten prose to a file
+    called rewritten.md in the current directory (no changelog, no headings, no
+    commentary in that file), then show me the change log in your reply.
+
+    In today's fast-paced world, effective communication isn't just important --
+    it's absolutely pivotal. Great leaders don't just talk; they listen, they
+    empathize, and they inspire. It's worth noting that the best teams are built
+    not on talent, but on trust. This isn't a minor tweak, it's a seismic shift
+    in how modern organisations operate.
+
+expect:
+  files_exist:
+    - "rewritten.md"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-no-negative-parallelism.sh
+  timeout_seconds: 30
