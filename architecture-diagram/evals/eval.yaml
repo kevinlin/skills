@@ -1,0 +1,26 @@
+schema_version: v1alpha1
+
+environment:
+  type: none
+
+skills:
+  - source: local_path
+    path: .
+
+engine:
+  name: claude_code
+
+cases:
+  files:
+    - evals/cases/layered-stack.yaml
+    - evals/cases/no-code-fence.yaml
+    - evals/cases/style-and-layout-selection.yaml
+    - evals/cases/orthogonal-connectors.yaml
+    - evals/cases/pipeline-stages.yaml
+    - evals/cases/continuous-html-block.yaml
+  defaults:
+    timeout_seconds: 300
+    max_turns: 8
+
+report:
+  formats: [json]

@@ -1,0 +1,36 @@
+id: continuous-html-block
+title: Keeps the HTML block continuous, with no empty lines inside it
+description: |
+  Rule 2 is marked CRITICAL — an empty line inside the HTML makes Markdown
+  reopen a paragraph and the diagram renders as visible source. No contains-style
+  assertion can express "no blank line between the first <div and the last
+  </div>", so this case uses a script judge. The prompt asks for a diagram large
+  enough (three tiers plus a sidebar) that an agent is tempted to space the
+  sections apart for readability.
+
+  The script also re-checks the Rule 0 / Rule 1 baseline (class vocabulary
+  present, no fence, no ASCII or Mermaid), because a case may declare only one
+  judge type.
+
+input:
+  prompt: |
+    Draw the architecture of our claims platform: an agent portal and a customer
+    app on top, then claim intake, fraud scoring and payout services, then
+    Postgres and an S3 document store, all on AWS ECS. Put the monitoring stack
+    (CloudWatch, PagerDuty) in a sidebar.
+
+    Inline in your reply. I am pasting it into a Markdown wiki page, so it has to
+    render there as a diagram.
+
+expect:
+  must_contain:
+    - "arch-box"
+  must_not_contain:
+    - "```html"
+    - "```mermaid"
+    - "┌"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/check-continuous-html.sh
+  timeout_seconds: 30

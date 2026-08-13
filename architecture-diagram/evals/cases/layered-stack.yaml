@@ -1,0 +1,60 @@
+id: layered-stack
+title: Produces a layered diagram with the skill's wrapper, layer and box classes
+description: |
+  The skill claims to build layered architecture diagrams from its HTML/CSS
+  templates, with a three-column layout when the system has monitoring on one
+  side and cross-cutting concerns on the other (Rules 4 and 5). Checks that the
+  answer is a real diagram built on the documented class vocabulary
+  (arch-wrapper / arch-sidebar / arch-main / arch-layer / arch-box) rather than
+  prose, ASCII art, Mermaid, or an ad-hoc markup of its own.
+
+input:
+  prompt: |
+    Draw me an architecture diagram for our e-commerce platform. It is a
+    multi-tier system: web and mobile clients, an API tier with a checkout,
+    catalog and payments service, a data tier with Postgres, Redis and S3, and
+    it runs on Kubernetes. We also have an observability stack (Prometheus,
+    Grafana, on-call paging) and a compliance side (PCI DSS scope, audit log,
+    access review) that I want shown alongside the main stack rather than as
+    another layer.
+
+    Put the diagram inline in your reply. Do not write it to a file.
+
+expect:
+  must_contain:
+    - "arch-layer"
+    - "arch-box"
+  must_not_contain:
+    - "```html"
+    - "```mermaid"
+    - "┌"
+    - "│"
+
+judge:
+  type: rule_based
+  failure:
+    - output_contains:
+        any:
+          - "```html"
+          - "```HTML"
+          - "```mermaid"
+          - "graph TD"
+          - "graph LR"
+          - "┌"
+          - "│"
+          - "└"
+          - "─"
+  success:
+    - output_contains:
+        all:
+          - "arch-wrapper"
+          - "arch-main"
+          - "arch-sidebar"
+          - "arch-layer"
+          - "arch-box"
+          - "<style"
+        any:
+          - "arch-layer user"
+          - "arch-layer application"
+          - "arch-layer data"
+          - "arch-layer infra"

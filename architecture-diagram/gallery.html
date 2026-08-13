@@ -21,7 +21,7 @@
 <body>
 <header>
   <h1>architecture-diagram - style gallery</h1>
-  <p>12 styles, each isolated in its own frame. Grouped cool -> warm -> light-neutral -> dark. Regenerate with <code>python3 scripts/build_gallery.py</code>.</p>
+  <p>13 styles, each isolated in its own frame. Grouped cool -> warm -> light-neutral -> dark -> brand. Regenerate with <code>python3 scripts/build_gallery.py</code>.</p>
 </header>
 <div class="grid">
   <section class="card">
@@ -654,6 +654,62 @@
     .arch-box { border-radius: 6px; padding: 8px; text-align: center; font-size: 11px; font-weight: 600; line-height: 1.35; color: #cbd5e1; background: rgba(51, 65, 85, 0.6); border: 1px solid rgba(148, 163, 184, 0.3); }.arch-box.highlight { background: rgba(59, 130, 246, 0.2); border: 1px solid #60a5fa; color: #93c5fd; }.arch-box.tech { font-size: 10px; color: #94a3b8; background: rgba(30, 41, 59, 0.6); }
     .arch-layer.external { background: rgba(51, 65, 85, 0.2); border: 1px dashed #475569; }.arch-layer.external .arch-layer-title { color: #94a3b8; }.arch-layer.user { background: rgba(59, 130, 246, 0.06); border: 1px solid #60a5fa; }.arch-layer.user .arch-layer-title { color: #93c5fd; }.arch-layer.application { background: rgba(245, 158, 11, 0.06); border: 1px solid #fbbf24; }.arch-layer.application .arch-layer-title { color: #fcd34d; }.arch-layer.ai { background: rgba(16, 185, 129, 0.06); border: 1px solid #34d399; }.arch-layer.ai .arch-layer-title { color: #6ee7b7; }.arch-layer.data { background: rgba(236, 72, 153, 0.06); border: 1px solid #f472b6; }.arch-layer.data .arch-layer-title { color: #f9a8d4; }.arch-layer.infra { background: rgba(139, 92, 246, 0.06); border: 1px solid #a78bfa; }.arch-layer.infra .arch-layer-title { color: #c4b5fd; }
     .arch-sidebar-panel { border-radius: 8px; padding: 10px; background: rgba(51, 65, 85, 0.3); border: 1px solid #475569; margin-bottom: 8px; }.arch-sidebar-title { font-size: 12px; font-weight: bold; text-align: center; color: #94a3b8; margin-bottom: 6px; }.arch-sidebar-item { font-size: 10px; text-align: center; color: #cbd5e1; background: rgba(30, 41, 59, 0.5); padding: 5px; border-radius: 4px; margin: 3px 0; border: 1px solid rgba(51, 65, 85, 0.6); }.arch-sidebar-item.metric { background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(96, 165, 250, 0.4); color: #93c5fd; font-weight: 600; }
+  </style>
+  <div class=&quot;arch-title&quot;>System Architecture</div>
+  <div class=&quot;arch-wrapper&quot;>
+    <div class=&quot;arch-sidebar&quot;>
+      <div class=&quot;arch-sidebar-panel&quot;><div class=&quot;arch-sidebar-title&quot;>Monitoring</div><div class=&quot;arch-sidebar-item&quot;>App Metrics</div><div class=&quot;arch-sidebar-item&quot;>Perf Tracking</div><div class=&quot;arch-sidebar-item&quot;>Health Checks</div><div class=&quot;arch-sidebar-item&quot;>Alerts</div></div>
+      <div class=&quot;arch-sidebar-panel&quot;><div class=&quot;arch-sidebar-title&quot;>Analytics</div><div class=&quot;arch-sidebar-item&quot;>User Behavior</div><div class=&quot;arch-sidebar-item&quot;>Business KPIs</div><div class=&quot;arch-sidebar-item&quot;>Tech Metrics</div><div class=&quot;arch-sidebar-item&quot;>Reports</div></div>
+      <div class=&quot;arch-sidebar-panel&quot;><div class=&quot;arch-sidebar-title&quot;>Ops</div><div class=&quot;arch-sidebar-item&quot;>CI/CD Pipeline</div><div class=&quot;arch-sidebar-item&quot;>Deployment</div><div class=&quot;arch-sidebar-item&quot;>Config</div><div class=&quot;arch-sidebar-item&quot;>Maintenance</div></div>
+    </div>
+    <div class=&quot;arch-main&quot;>
+      <div class=&quot;arch-layer user&quot;>
+        <div class=&quot;arch-layer-title&quot;>User Interface Layer</div>
+        <div class=&quot;arch-grid arch-grid-4&quot;><div class=&quot;arch-box&quot;>Web App<br><small>React/Vue</small></div><div class=&quot;arch-box&quot;>Mobile App<br><small>React Native</small></div><div class=&quot;arch-box&quot;>Desktop App<br><small>Electron</small></div><div class=&quot;arch-box&quot;>API Client<br><small>REST/GraphQL</small></div></div>
+      </div>
+      <div class=&quot;arch-layer application&quot;>
+        <div class=&quot;arch-layer-title&quot;>Application Services</div>
+        <div class=&quot;arch-grid arch-grid-3&quot;><div class=&quot;arch-box&quot;>Business Logic<br><small>Core Services</small></div><div class=&quot;arch-box highlight&quot;>API Gateway<br><small>Routing &amp; Auth</small></div><div class=&quot;arch-box&quot;>Background Jobs<br><small>Queue Processing</small></div></div>
+      </div>
+      <div class=&quot;arch-layer ai&quot;>
+        <div class=&quot;arch-layer-title&quot;>Intelligence Layer</div>
+        <div class=&quot;arch-grid arch-grid-2&quot;><div class=&quot;arch-box&quot;>ML Models<br><small>Inference Engine</small></div><div class=&quot;arch-box&quot;>Rule Engine<br><small>Business Rules</small></div></div>
+      </div>
+      <div class=&quot;arch-layer data&quot;>
+        <div class=&quot;arch-layer-title&quot;>Data Layer</div>
+        <div class=&quot;arch-grid arch-grid-4&quot;><div class=&quot;arch-box tech&quot;>Primary DB<br><small>PostgreSQL</small></div><div class=&quot;arch-box tech&quot;>Cache<br><small>Redis</small></div><div class=&quot;arch-box tech&quot;>Search<br><small>Elasticsearch</small></div><div class=&quot;arch-box tech&quot;>File Storage<br><small>S3/MinIO</small></div></div>
+      </div>
+      <div class=&quot;arch-layer infra&quot;>
+        <div class=&quot;arch-layer-title&quot;>Infrastructure</div>
+        <div class=&quot;arch-grid arch-grid-5&quot;><div class=&quot;arch-box tech&quot;>Container<br><small>Docker/K8s</small></div><div class=&quot;arch-box tech&quot;>Load Balancer<br><small>Nginx</small></div><div class=&quot;arch-box tech&quot;>Message Queue<br><small>RabbitMQ</small></div><div class=&quot;arch-box tech&quot;>Logging<br><small>ELK Stack</small></div><div class=&quot;arch-box tech&quot;>CDN<br><small>CloudFlare</small></div></div>
+      </div>
+      <div class=&quot;arch-layer external&quot;>
+        <div class=&quot;arch-layer-title&quot;>External Services</div>
+        <div class=&quot;arch-grid arch-grid-4&quot;><div class=&quot;arch-box tech&quot;>Third-party APIs<br><small>Payment/Auth</small></div><div class=&quot;arch-box tech&quot;>Cloud Services<br><small>AWS/Azure</small></div><div class=&quot;arch-box tech&quot;>SaaS Tools<br><small>Analytics</small></div><div class=&quot;arch-box tech&quot;>Integrations<br><small>Webhooks</small></div></div>
+      </div>
+    </div>
+    <div class=&quot;arch-sidebar&quot;>
+      <div class=&quot;arch-sidebar-panel&quot;><div class=&quot;arch-sidebar-title&quot;>Security</div><div class=&quot;arch-sidebar-item&quot;>Authentication</div><div class=&quot;arch-sidebar-item&quot;>Authorization</div><div class=&quot;arch-sidebar-item&quot;>Encryption</div><div class=&quot;arch-sidebar-item&quot;>Network Sec</div></div>
+      <div class=&quot;arch-sidebar-panel&quot;><div class=&quot;arch-sidebar-title&quot;>Compliance</div><div class=&quot;arch-sidebar-item&quot;>Audit Logging</div><div class=&quot;arch-sidebar-item&quot;>Data Privacy</div><div class=&quot;arch-sidebar-item&quot;>Regulatory</div><div class=&quot;arch-sidebar-item&quot;>Standards</div></div>
+      <div class=&quot;arch-sidebar-panel&quot;><div class=&quot;arch-sidebar-title&quot;>Backup</div><div class=&quot;arch-sidebar-item&quot;>Data Backup</div><div class=&quot;arch-sidebar-item&quot;>Disaster Recovery</div><div class=&quot;arch-sidebar-item&quot;>HA</div><div class=&quot;arch-sidebar-item&quot;>Failover</div></div>
+    </div>
+  </div>
+</div></body>"></iframe>
+  </section>
+  <section class="card">
+    <div class="meta">
+      <h2>zuhlke</h2>
+      <p class="voice">AA Zuehlke (Medium, no bold) titles + Lato body — official two-font system, flush left</p>
+      <p class="desc">Official Zühlke corporate identity — edge-to-edge gradient header band, borderless layers washed in faint brand-colour tints, purple as lead colour, 8px radius, calm and reduced</p>
+    </div>
+    <iframe loading="lazy" srcdoc="<!doctype html><meta charset='utf-8'><body style='margin:0;padding:16px;background:#eceff3;'><div style=&quot;width: 1200px; box-sizing: border-box; position: relative; background: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #cccccc; font-family: 'Lato', system-ui, -apple-system, sans-serif;&quot;>
+  <style scoped>
+    .arch-wrapper { display: flex; gap: 12px; }.arch-sidebar { width: 165px; flex-shrink: 0; }.arch-main { flex: 1; min-width: 0; }.arch-title { margin: -20px -20px 18px -20px; padding: 16px 24px; background: linear-gradient(45deg, #aa41af 22%, #3c69c8 78%, #00a5e6 100%); border-radius: 8px 8px 0 0; text-align: left; font-family: 'AA Zuehlke', 'Lato', system-ui, sans-serif; font-size: 22px; font-weight: 500; letter-spacing: 0.01em; color: #ffffff; }
+    .arch-layer { margin: 8px 0; padding: 14px; border-radius: 8px; background: #ffffff; border: 1px solid #e6e6e6; box-shadow: 0 1px 3px rgba(13, 13, 13, 0.05); }.arch-layer-title { font-family: 'AA Zuehlke', 'Lato', system-ui, sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; margin-bottom: 10px; text-align: left; }
+    .arch-grid { display: grid; gap: 8px; }.arch-grid-2 { grid-template-columns: repeat(2, 1fr); }.arch-grid-3 { grid-template-columns: repeat(3, 1fr); }.arch-grid-4 { grid-template-columns: repeat(4, 1fr); }.arch-grid-5 { grid-template-columns: repeat(5, 1fr); }.arch-grid-6 { grid-template-columns: repeat(6, 1fr); }
+    .arch-box { border-radius: 4px; padding: 8px; text-align: center; font-size: 11px; font-weight: 600; line-height: 1.35; color: #0d0d0d; background: #ffffff; border: 1px solid #e0e0e0; }.arch-box.highlight { background: #985b9c; border: 1px solid #985b9c; color: #ffffff; }.arch-box.tech { font-size: 10px; font-weight: 400; color: #57524d; background: #fafafa; }
+    .arch-layer.external { background: rgba(102, 204, 255, 0.12); border: 1px dashed #7fbde0; }.arch-layer.external .arch-layer-title { color: #33708f; }.arch-layer.user { background: rgba(60, 105, 200, 0.07); }.arch-layer.user .arch-layer-title { color: #30549f; }.arch-layer.application { background: rgba(152, 91, 156, 0.08); }.arch-layer.application .arch-layer-title { color: #7a4a7e; }.arch-layer.ai { background: rgba(0, 165, 230, 0.07); }.arch-layer.ai .arch-layer-title { color: #007bad; }.arch-layer.data { background: rgba(0, 204, 102, 0.07); }.arch-layer.data .arch-layer-title { color: #007a3d; }.arch-layer.infra { background: rgba(170, 65, 175, 0.07); }.arch-layer.infra .arch-layer-title { color: #8a3490; }
+    .arch-sidebar-panel { border-radius: 8px; padding: 10px; background: #ffffff; border: 1px solid #e6e6e6; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(13, 13, 13, 0.05); }.arch-sidebar-title { font-family: 'AA Zuehlke', 'Lato', system-ui, sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.01em; text-align: left; color: #7a4a7e; margin-bottom: 6px; }.arch-sidebar-item { font-size: 10px; text-align: center; color: #57524d; background: #fafafa; padding: 5px; border-radius: 4px; margin: 3px 0; border: 1px solid #e6e6e6; }.arch-sidebar-item.metric { background: rgba(152, 91, 156, 0.08); border: 1px solid #985b9c; color: #7a4a7e; font-weight: 700; }
   </style>
   <div class=&quot;arch-title&quot;>System Architecture</div>
   <div class=&quot;arch-wrapper&quot;>

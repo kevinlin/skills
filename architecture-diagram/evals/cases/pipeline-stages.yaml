@@ -1,0 +1,56 @@
+id: pipeline-stages
+title: Uses the pipeline layout for a stage-based flow instead of stacked layers
+description: |
+  The layout catalogue routes horizontal, stage-based flows (data pipelines,
+  CI/CD) to layouts/pipeline.md, whose structure is arch-pipeline with
+  arch-stage columns separated by arch-arrow — a different shape from the
+  stacked arch-layer default. Checks the skill switches layout on the shape of
+  the system rather than emitting stacked layers for everything.
+
+  Regression note: a weaker engine answered this prompt in a single turn with
+  box-drawing ASCII art inside a bare ``` fence, never invoking the skill. The
+  old negative check only banned "```html", so that answer was caught by luck
+  (a missing arch-stage) rather than by design. The fence-agnostic ASCII and
+  Mermaid bans below close that hole.
+
+input:
+  prompt: |
+    Diagram our CI/CD pipeline as a left-to-right flow: commit, build, test,
+    security scan, deploy to staging, deploy to production. Each stage has a
+    couple of tools in it — GitHub Actions, pnpm, vitest, Trivy, Argo CD.
+
+    Put the diagram inline in your reply, not in a file.
+
+expect:
+  must_contain:
+    - "arch-stage"
+  must_not_contain:
+    - "```html"
+    - "```mermaid"
+    - "┌"
+    - "│"
+
+judge:
+  type: rule_based
+  failure:
+    - output_contains:
+        any:
+          - "```html"
+          - "```HTML"
+          - "```mermaid"
+          - "graph TD"
+          - "graph LR"
+          - "┌"
+          - "│"
+          - "└"
+          - "─"
+  success:
+    - output_contains:
+        all:
+          - "arch-stage"
+          - "arch-box"
+          - "<style"
+          - "<div"
+        any:
+          - "arch-pipeline"
+          - "arch-arrow"

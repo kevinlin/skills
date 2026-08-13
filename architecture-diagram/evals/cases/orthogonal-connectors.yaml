@@ -1,0 +1,55 @@
+id: orthogonal-connectors
+title: Draws connectors as orthogonal SVG paths, not lines or curves
+description: |
+  The skill's connector rule is specific: an SVG overlay using <path> with M/L
+  commands for strictly horizontal and vertical segments, with <line>, Bézier
+  curves and diagonals ruled out. The prompt asks for arrows between components
+  without hinting at the mechanism, so the constraint has to come from the
+  skill. The labels ("sync", "async") also test that arch-conn-label text is
+  carried through rather than dropped.
+
+input:
+  prompt: |
+    I need an architecture diagram of our API gateway fan-out: a gateway on top,
+    and below it three services — orders, inventory and notifications — with
+    arrows drawn from the gateway to each service so the request flow is
+    visible. Label the arrow into orders with "sync" and the one into
+    notifications with "async".
+
+    Put the diagram inline in your reply, not in a file.
+
+expect:
+  must_contain:
+    - "<svg"
+    - "<path"
+  must_not_contain:
+    - "```html"
+    - "```mermaid"
+    - "<line"
+    - "┌"
+    - "│"
+
+judge:
+  type: rule_based
+  failure:
+    - output_contains:
+        any:
+          - "```html"
+          - "```HTML"
+          - "```mermaid"
+          - "graph TD"
+          - "graph LR"
+          - "<line"
+          - "┌"
+          - "│"
+          - "└"
+          - "─"
+  success:
+    - output_contains:
+        all:
+          - "<svg"
+          - "<path"
+          - "arch-conn"
+          - "marker-end"
+          - "sync"
+          - "async"

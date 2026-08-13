@@ -29,10 +29,11 @@ Draw the architecture for this system in the Steel Blue style, three-column layo
 architecture-diagram/
 ├── SKILL.md                 # The workflow: rules, style/layout catalogs, advanced components
 ├── README.md
-├── gallery.html             # All 12 styles rendered side by side — open in a browser
-├── styles/                  # 12 visual styles — complete copy-ready HTML templates
+├── gallery.html             # All 13 styles rendered side by side — open in a browser
+├── styles/                  # 13 visual styles — complete copy-ready HTML templates
 │   ├── steel-blue.md        #   Consulting, finance, government, RFPs
 │   ├── neon-dark.md         #   Tech talks, dev conferences, cybersecurity
+│   ├── zuhlke.md            #   Zühlke brand design
 │   └── ...                  #   ember-warm, ocean-teal, sage-forest, and more
 ├── layouts/                 # 13 structural layouts — wireframe skeletons
 │   ├── three-column.md      #   Complex systems with cross-cutting sidebars
@@ -46,7 +47,7 @@ architecture-diagram/
 
 ## Preview
 
-Open [gallery.html](gallery.html) in a browser to see all 12 styles rendered at once, each in its own isolated frame. It's a generated file — after editing any `styles/*.md`, regenerate it:
+Open [gallery.html](gallery.html) in a browser to see all 13 styles rendered at once, each in its own isolated frame. It's a generated file — after editing any `styles/*.md`, regenerate it:
 
 ```
 python3 scripts/build_gallery.py

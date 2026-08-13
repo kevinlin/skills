@@ -17,11 +17,11 @@ SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 STYLES_DIR = SKILL_DIR / "styles"
 OUT = SKILL_DIR / "gallery.html"
 
-# Grouped cool -> warm -> light-neutral -> dark for easy scanning.
+# Grouped cool -> warm -> light-neutral -> dark -> brand for easy scanning.
 ORDER = [
     "steel-blue", "indigo-deep", "ocean-teal", "sage-forest",
     "ember-warm", "dusk-glow", "rose-bloom", "pastel-mix",
-    "frost-clean", "stark-block", "neon-dark", "slate-dark",
+    "frost-clean", "stark-block", "neon-dark", "slate-dark", "zuhlke",
 ]
 
 
@@ -85,7 +85,7 @@ def build() -> str:
 <body>
 <header>
   <h1>architecture-diagram - style gallery</h1>
-  <p>12 styles, each isolated in its own frame. Grouped cool -> warm -> light-neutral -> dark. Regenerate with <code>python3 scripts/build_gallery.py</code>.</p>
+  <p>13 styles, each isolated in its own frame. Grouped cool -> warm -> light-neutral -> dark -> brand. Regenerate with <code>python3 scripts/build_gallery.py</code>.</p>
 </header>
 <div class="grid">{''.join(cards)}</div>
 </body></html>"""

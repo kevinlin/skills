@@ -1,0 +1,47 @@
+id: no-code-fence
+title: Emits the diagram as direct HTML, never inside an html code block
+description: |
+  Rule 1 of the skill: architecture diagrams are written as direct HTML in
+  Markdown and must never be wrapped in a ```html fence. The prompt is phrased
+  the way a user asking for "the HTML" would phrase it, which is exactly the
+  wording that tempts an agent to fence the block.
+
+input:
+  prompt: |
+    Give me the HTML for a small architecture diagram of a URL shortener: a web
+    UI and a public API on top, a shortener service in the middle, and Postgres
+    plus Redis underneath. I am going to paste your answer straight into a
+    Markdown document and have it render, so hand it to me in the form that
+    renders there.
+
+expect:
+  must_contain:
+    - "arch-layer"
+  must_not_contain:
+    - "```html"
+    - "```HTML"
+    - "```mermaid"
+    - "┌"
+    - "│"
+
+judge:
+  type: rule_based
+  failure:
+    - output_contains:
+        any:
+          - "```html"
+          - "```HTML"
+          - "```mermaid"
+          - "graph TD"
+          - "graph LR"
+          - "┌"
+          - "│"
+          - "└"
+          - "─"
+  success:
+    - output_contains:
+        all:
+          - "arch-layer"
+          - "arch-box"
+          - "<style"
+          - "<div"

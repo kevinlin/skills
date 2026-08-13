@@ -1,0 +1,38 @@
+id: style-and-layout-selection
+title: Recommends a style and a layout from the skill's own catalogues
+description: |
+  The skill ships two catalogues — 13 styles with a "context it serves" column
+  and 13 layouts with a "best for" column — and claims a style and a layout can
+  be picked per audience and combined freely. Two requests are given whose
+  catalogue rows are unambiguous: a banking RFP proposal (Steel Blue) and an
+  ETL flow (Pipeline). No diagram is asked for, so this case stays cheap.
+
+input:
+  prompt: |
+    Before I draw anything, help me choose. I have two diagrams to produce this
+    week:
+
+    1. A system overview that goes into an RFP proposal for a retail bank —
+       formal, printed, read by procurement.
+    2. An ETL flow for our data team: ingest, process, transform, store, serve,
+       left to right.
+
+    For each one, tell me which of your styles and which of your layouts to
+    use, and name the files.
+
+expect:
+  must_contain:
+    - "steel-blue"
+  must_not_contain:
+    - "I don't have"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all:
+          - "steel-blue"
+          - "pipeline"
+        any:
+          - "styles/steel-blue.md"
+          - "Steel Blue"

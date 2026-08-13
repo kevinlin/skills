@@ -1,18 +1,100 @@
 ---
 name: architecture-diagram
-description: Create layered system architecture diagrams using HTML/CSS templates with color-coded tiers and grid layouts. Best for technology stacks, microservices topology, and multi-tier application design.
+description: 'Use when the user needs an architecture or system diagram, a CI/CD, build, or release pipeline, an ETL or data pipeline, a deployment flow, a left-to-right component or stage flow, or any diagram inline in a Markdown wiki or page. This skill applies even when Mermaid or ASCII seems more compatible.'
+allowed-tools: Read, Write, Edit, Glob, Bash
+permissions:
+  - env
 metadata:
-  version: 1.1.1
+  version: 1.2.2
 ---
 
 # Architecture Diagram Generator
+
+## Required Workflow
+
+Every diagram request, however small, goes through these steps in order:
+
+1. **Pick a style** from the Style Examples table and **read that file**. It holds the complete CSS block.
+2. **Pick a layout** from the Layout Examples table by the shape of the system, and **read that file** too. Stacked tiers → a layer layout; a left-to-right stage flow (CI/CD, ETL, data pipeline) → [layouts/pipeline.md](layouts/pipeline.md); arrows between components → [layouts/connectors.md](layouts/connectors.md).
+3. **Copy the template's CSS and class names verbatim** and fill in the user's components. Do not hand-roll inline styles, do not rename or re-prefix the `arch-*` classes, and do not invent a shorter class set.
+4. **For every diagram or recommendation, state its selections together as one literal repository-relative `styles/<style>.md` path and one literal repository-relative `layouts/<layout>.md` path,** such as `styles/steel-blue.md` with `layouts/pipeline.md`. For a recommendation-only response covering multiple diagrams, group each diagram with its own style-and-layout pair. Do not include an alternative diagram tool.
+5. **For a diagram-generation response, use this exact shape:** one short selection sentence naming the literal style and layout paths, followed immediately by the raw, unfenced HTML block copied from the chosen templates and using their `arch-*` class vocabulary. The diagram's final closing `</div>` is the response's final content. For multiple generated diagrams, repeat the selection-sentence-and-HTML pair for each diagram, with the final diagram's closing `</div>` as the response's final content.
+
+### Minimum skeletons
+
+If you answer without opening a style or layout file, these are the shapes to expand — never anything else. Colors come from the chosen style file.
+
+**Stacked layers** (default shape):
+
+<div style="width: 900px; box-sizing: border-box; position: relative;">
+  <style scoped>
+    .arch-title { text-align: center; font-size: 20px; font-weight: 600; color: #333; margin-bottom: 16px; }
+    .arch-wrapper { display: flex; gap: 12px; }.arch-main { flex: 1; min-width: 0; }
+    .arch-layer { margin: 8px 0; padding: 14px; border-radius: 6px; border: 1px solid #ccc; background: #fafafa; }
+    .arch-layer-title { font-size: 13px; font-weight: bold; margin-bottom: 10px; text-align: center; }
+    .arch-grid { display: grid; gap: 8px; }.arch-grid-2 { grid-template-columns: repeat(2, 1fr); }.arch-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .arch-box { border-radius: 4px; padding: 8px; text-align: center; font-size: 11px; font-weight: 600; color: #333; background: #fff; border: 1px solid #ddd; }
+  </style>
+  <div class="arch-title">System Architecture</div>
+  <div class="arch-wrapper"><div class="arch-main">
+    <div class="arch-layer user"><div class="arch-layer-title">User Layer</div><div class="arch-grid arch-grid-2"><div class="arch-box">Web UI</div><div class="arch-box">Public API</div></div></div>
+    <div class="arch-layer application"><div class="arch-layer-title">Application Layer</div><div class="arch-grid arch-grid-2"><div class="arch-box">Service A</div><div class="arch-box">Service B</div></div></div>
+    <div class="arch-layer data"><div class="arch-layer-title">Data Layer</div><div class="arch-grid arch-grid-2"><div class="arch-box tech">PostgreSQL</div><div class="arch-box tech">Redis</div></div></div>
+  </div></div>
+</div>
+
+**Stage flow** (left-to-right pipelines — see [layouts/pipeline.md](layouts/pipeline.md)):
+
+<div style="width: 1100px; box-sizing: border-box; position: relative;">
+  <style scoped>
+    .arch-pipeline { display: flex; gap: 0; align-items: stretch; }
+    .arch-stage { flex: 1; padding: 14px; border: 1px solid #ccc; border-radius: 4px; background: #fafafa; display: flex; flex-direction: column; }
+    .arch-stage-title { font-size: 12px; font-weight: 600; color: #555; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .arch-arrow { display: flex; align-items: center; justify-content: center; width: 36px; flex-shrink: 0; font-size: 20px; color: #999; }
+  </style>
+  <div class="arch-title">Pipeline</div>
+  <div class="arch-pipeline">
+    <div class="arch-stage"><div class="arch-stage-title">Stage One</div><div class="arch-box">Tool</div></div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-stage"><div class="arch-stage-title">Stage Two</div><div class="arch-box">Tool</div></div>
+  </div>
+</div>
+
+**Arrows between components** (SVG overlay, orthogonal `arch-conn` paths — full reference in [layouts/connectors.md](layouts/connectors.md)):
+
+<div style="position: relative;">
+  <style scoped>
+    .arch-conn { stroke: #94a3b8; stroke-width: 1.5; fill: none; }
+    .arch-conn-dashed { stroke: #94a3b8; stroke-width: 1.5; fill: none; stroke-dasharray: 6 4; }
+    .arch-conn-label { font-size: 9px; fill: #64748b; font-family: sans-serif; }
+  </style>
+  <!-- positioned boxes here -->
+  <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible;">
+    <defs><marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#94a3b8" stroke-width="1"/></marker></defs>
+    <path d="M 200,72 L 200,90 L 400,90 L 400,108" class="arch-conn" marker-end="url(#arrowhead)"/>
+    <text x="420" y="86" class="arch-conn-label">sync</text>
+  </svg>
+</div>
+
+### Do not substitute inline styles
+
+Keep the `<style scoped>` block and the `arch-*` classes even when the target is GitHub, GitLab or another Markdown renderer. Scoped style blocks and class-based CSS render there; swapping them for per-element `style="..."` attributes throws away the chosen style's palette and the shared class vocabulary. Do not offer Mermaid, ASCII art or an image as an "in case your renderer strips this" fallback — the HTML block is the answer.
 
 **Quick Start:** Create HTML structure with flexible layout (single/double/triple column) → Define CSS styles for layers and grids → Add content with categorized panels → Use semantic colors for different layers.
 
 ## Critical Rules
 
+### Rule 0: Always the Skill's HTML Vocabulary
+**NON-NEGOTIABLE**, whatever the request wording:
+
+- Every diagram is HTML + CSS from this skill. Never substitute ASCII art, box-drawing characters, Mermaid, or an image — not even for a small or "quick" diagram, and not as an alternative offered alongside the HTML.
+- Use the skill's own class names verbatim: `arch-wrapper`, `arch-main`, `arch-layer`, `arch-box`, `arch-grid-N`, `arch-sidebar*`, `arch-pipeline`, `arch-stage`, `arch-arrow`, `arch-conn*`. Never rename or re-prefix them, and never replace them with ad-hoc inline styles. Copy the template from the chosen style and layout file instead of inventing markup.
+- Pick the layout from the Layout Examples table by the shape of the system, not by habit. A left-to-right, stage-based flow (CI/CD, ETL, data pipeline) uses [layouts/pipeline.md](layouts/pipeline.md) — `arch-pipeline` with `arch-stage` columns separated by `arch-arrow` — not stacked `arch-layer` blocks.
+
 ### Rule 1: Direct HTML Embedding
 **IMPORTANT**: Write architecture diagrams as direct HTML in Markdown. **NEVER** use code blocks (` ```html `). The HTML should be embedded directly in the document without any fencing.
+
+This holds when the user asks for "the HTML", asks for something to paste into Markdown, or asks for source. Markdown renders raw HTML; a fence would show the source instead of the diagram, so the raw block *is* the deliverable. Fence it only if the user explicitly says they want to see the code rather than the rendered diagram.
 
 ### Rule 2: No Empty Lines in HTML Structure
 **CRITICAL**: Do NOT add any empty lines within the HTML architecture diagram structure. Keep the entire HTML block continuous to prevent parsing errors.
@@ -71,6 +153,7 @@ Choose a visual style that matches your project's tone and audience. Each exampl
 | 10 | **Indigo Deep** | [styles/indigo-deep.md](styles/indigo-deep.md) | Uppercase, wide-tracked sans | Brand-consistent systems, enterprise white papers, internal platforms |
 | 11 | **Pastel Mix** | [styles/pastel-mix.md](styles/pastel-mix.md) | Rounded-friendly bold sans | SaaS products, startups, general tech architecture, product docs |
 | 12 | **Slate Dark** | [styles/slate-dark.md](styles/slate-dark.md) | Neutral Helvetica, dark mode | Enterprise dark mode, internal tools, developer dashboards |
+| 13 | **Zühlke** | [styles/zuhlke.md](styles/zuhlke.md) | AA Zuehlke + Lato two-font, flush left | Zühlke brand design |
 
 ## Layout Examples
 
