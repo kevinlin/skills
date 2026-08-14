@@ -1,0 +1,41 @@
+id: unshipped-plan-asks-first
+title: Asks whether the plan shipped before compacting an unimplemented plan
+description: |
+  Step 2.5: five ship heuristics, then "If all are silent, ask: 'I can't tell
+  whether this plan has shipped — compaction removes detail from the spec for
+  good (only git preserves it). Confirm the implementation is complete?' Wait
+  for an explicit yes."
+
+  This fixture is the shipped-plan tree with every ship signal removed: no `src/`
+  tree, so none of the Critical Files exist; no Changelog or Status section; live
+  TODOs still open; and a prompt that says only that the plan is long. Nothing
+  licenses a compaction.
+
+  Failure mode under test: reading "it's gotten long" as permission and
+  compacting a plan whose implementation detail is still the only record of the
+  intended work.
+
+input:
+  prompt: |
+    Use the spec-compact skill for this request.
+    docs/specs/plan_widget_cache.md has gotten long. Trim it down.
+
+context:
+  repo_fixture: evals/fixtures/repos/unshipped-plan
+
+constraints:
+  timeout_seconds: 420
+  max_turns: 20
+
+expect:
+  files_exist:
+    - "docs/specs/plan_widget_cache.md"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        any: ["shipped", "implementation is complete", "implemented yet"]
+        not: ["Compaction plan for", "## Compacted"]
+    - output_contains:
+        any: ["Confirm", "confirm", "Can you confirm"]

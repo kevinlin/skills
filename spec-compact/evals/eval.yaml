@@ -1,0 +1,33 @@
+schema_version: v1alpha1
+
+# spec-compact rewrites one markdown file in place after asking for a go-ahead,
+# so every case here runs against a fixture spec tree in the case workspace:
+# a shipped plan (with sibling design, requirements, index and convention), the
+# same tree with all ship evidence removed, and a variant carrying dead links
+# and index drift. Assertions are deterministic — grep over the rewritten file
+# and the Step 4 report — because the skill prescribes both formats verbatim.
+
+environment:
+  type: none
+
+skills:
+  - source: local_path
+    path: .
+
+engine:
+  name: claude_code
+
+cases:
+  files:
+    - evals/cases/refuses-requirements-file.yaml
+    - evals/cases/unshipped-plan-asks-first.yaml
+    - evals/cases/confirm-before-write.yaml
+    - evals/cases/classification-report-buckets.yaml
+    - evals/cases/applies-after-yes.yaml
+    - evals/cases/defers-lint-findings.yaml
+  defaults:
+    timeout_seconds: 420
+    max_turns: 20
+
+report:
+  formats: [json]

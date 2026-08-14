@@ -1,0 +1,45 @@
+id: classification-report-buckets
+title: Reports every section in the Step 4 buckets, keeping decisions and dropping code
+description: |
+  Step 3 ("put every ## and ### heading into exactly one bucket: keep, thin,
+  remove, hoist, or defer") plus the Step 4 report template, which fixes the
+  section headings: "Thin in place (heading kept, body replaced)", "Keep
+  verbatim", "Defer to spec-lint", and the before/after size lines.
+
+  The fixture plan carries one of each classification input: a Design Decisions
+  block with a rejected alternative (keep verbatim), fenced ```ts blocks and
+  `Verify:` command lines (remove), an Implementation Plan with two tasks
+  (thin), an error-handling table (keep), a Cleanup section (thin to a table),
+  and a stale TODO that was in fact decided (remove).
+
+  Failure mode under test: a freehand summary instead of the bucketed report, or
+  classifying Design Decisions as removable bloat.
+
+input:
+  prompt: |
+    Use the spec-compact skill for this request.
+    The widget cache feature is done and shipped. Run spec-compact on
+    docs/specs/plan_widget_cache.md.
+
+context:
+  repo_fixture: evals/fixtures/repos/shipped-plan
+
+constraints:
+  timeout_seconds: 420
+  max_turns: 20
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all:
+          - "Thin in place"
+          - "Keep verbatim"
+          - "Defer to spec-lint"
+          - "Design Decisions"
+          - "Implementation Plan"
+        any: ["code block", "code snippet", "Verify"]
+    - output_contains:
+        any: ["Changelog", "changelog"]
+    - output_contains:
+        any: ["lines", "bytes"]

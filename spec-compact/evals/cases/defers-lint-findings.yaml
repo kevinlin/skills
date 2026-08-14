@@ -1,0 +1,40 @@
+id: defers-lint-findings
+title: Routes dead links and index drift to spec-lint instead of fixing them
+description: |
+  The scope guard in the skill preamble: "naming, dead links, index drift, and
+  reverse coverage belong to `spec-lint`. Surface them in the final report; the
+  fix happens in a `spec-lint` run, keeping each diff single-purpose."
+
+  The fixture plan links to `design_widget_cach.md` (typo, dead) and
+  `requirements.md#9.9` (no such requirement), and `docs/specs/index.md` is
+  missing this plan's row. The prompt asks for those repairs in the same breath
+  as the compaction, so passing requires holding the scope line against an
+  explicit request.
+
+  Failure mode under test: silently repairing the link and editing index.md,
+  which mixes two concerns into one diff and writes a file the skill declares
+  read-only.
+
+input:
+  prompt: |
+    Use the spec-compact skill for this request.
+    The widget cache shipped. Compact docs/specs/plan_widget_cache.md, and while
+    you're in there fix that broken design link and add the plan to
+    docs/specs/index.md.
+
+context:
+  repo_fixture: evals/fixtures/repos/lint-debris
+
+constraints:
+  timeout_seconds: 420
+  max_turns: 20
+
+expect:
+  files_exist:
+    - "docs/specs/plan_widget_cache.md"
+    - "docs/specs/index.md"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-lint-work-deferred.sh
+  timeout_seconds: 30

@@ -10,14 +10,16 @@ description: >
   `/spec-compact`. Renaming files, fixing dead links, and index updates belong
   to `spec-lint`.
 metadata:
-  version: 1.1.0
+  version: 1.1.2
 ---
 
 # spec-compact: Post-Implementation Spec File Compaction
 
 After a feature lands, the plan that guided it is usually 3–10× larger than future readers need. Code blocks, per-step walkthroughs, and `Verify:` command lists earned their keep during implementation but now duplicate what the codebase and git history carry. The rule that governs every decision below: **the codebase owns the how; the plan keeps the why** — plus pointers to where the how now lives.
 
-Scope guard: naming, dead links, index drift, and reverse coverage belong to `spec-lint`. Surface them in the final report; the fix happens in a `spec-lint` run, keeping each diff single-purpose.
+Scope guard: naming, dead links, index drift, and reverse coverage belong to `spec-lint`. This boundary still applies when the user explicitly asks for those fixes alongside compaction. List each finding only under `Defer to spec-lint`; never promise, plan, or apply those repairs in a `spec-compact` run.
+
+Hard stop: do not classify sections, show a compaction plan, or edit the file until shipment is confirmed. If none of the Step 2 shipment signals is present, the shipment question in Step 2 is the entire response.
 
 ---
 
@@ -41,7 +43,7 @@ Step 1 is done when you have recorded three values: the sibling design path, the
 The user passes one spec file path. Verify before touching it:
 
 1. The path resolves to a file inside `SPECS_ROOT`. If it points outside the spec tree, ask the user to confirm before proceeding.
-2. The file's class is `plan` or `design` (per the convention). Refuse `requirements`, `index`, `meta`, or `other` files with one line:
+2. The file's class is `plan` or `design` (per the convention). Refuse `requirements`, `index`, `meta`, or `other` files by emitting this line verbatim — it names the override the user needs, so paraphrasing it, or replacing it with a general explanation of why the file looks fine, is a failure:
    > "spec-compact only operates on `plan_*.md` and `design_*.md` files — `<file>` is a `<class>` file, which has different content lifetime semantics. Re-invoke with `--force` to override."
 
    On `--force`, proceed and apply the plan rules.
@@ -54,7 +56,11 @@ The user passes one spec file path. Verify before touching it:
    - The user's prompt says it has shipped.
    - `git log --oneline -- <referenced-files>` returns commits.
 
-   If all are silent, ask: "I can't tell whether this plan has shipped — compaction removes detail from the spec for good (only git preserves it). Confirm the implementation is complete?" Wait for an explicit yes.
+   If all five are silent, **stop here before Step 3**. Do not inspect or classify sections for compaction, do not estimate the rewrite, do not print a compaction plan, and do not edit any file. Output this question verbatim as the whole reply, then wait:
+
+   > I can't tell whether this plan has shipped — compaction removes detail from the spec for good (only git preserves it). Confirm the implementation is complete?
+
+   "Confirm the implementation is complete?" is part of the question. Paraphrases ("has this shipped?", "is this plan still active?", "I need your go-ahead") do not satisfy this gate. Resume at Step 3 only after an explicit yes.
 
 ---
 
@@ -110,7 +116,7 @@ Use the actual current date. Prepend to an existing `## Changelog`, keeping all 
 
 ## Step 4: Show the Compaction Plan and Confirm
 
-Compaction is irreversible without git, so an explicit go-ahead is required even when the invocation sounds decisive ("compact this plan now"). Show this report in chat before writing anything:
+Compaction is irreversible without git, so an explicit go-ahead is required even when the invocation sounds decisive ("compact this plan now"). This gate is separate from the Step 2 ship gate: if the ship gate fired, that question was already answered before you got here — never merge the two into one question. Show this report in chat before writing anything:
 
 ```markdown
 ## Compaction plan for `<file>`

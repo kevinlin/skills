@@ -1,0 +1,32 @@
+id: refuses-requirements-file
+title: Refuses a requirements file and names the --force override
+description: |
+  Step 2.2: "The file's class is `plan` or `design` (per the convention). Refuse
+  `requirements`, `index`, `meta`, or `other` files with one line: 'spec-compact
+  only operates on `plan_*.md` and `design_*.md` files — <file> is a <class>
+  file, which has different content lifetime semantics. Re-invoke with --force
+  to override.'"
+
+  The fixture ships `docs/specs/meta/convention.md`, which classes
+  `requirements.md` explicitly, so the class is knowable without guessing.
+
+  Failure mode under test: compacting acceptance criteria — permanent content —
+  because the user called the file bloated, or refusing without telling the user
+  the override exists.
+
+input:
+  prompt: |
+    Use the spec-compact skill for this request.
+    docs/specs/requirements.md has gotten bloated. Compact it for me.
+
+context:
+  repo_fixture: evals/fixtures/repos/shipped-plan
+
+expect:
+  files_exist:
+    - "docs/specs/requirements.md"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-requirements-refused.sh
+  timeout_seconds: 30

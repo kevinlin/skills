@@ -1,0 +1,49 @@
+id: applies-after-yes
+title: On yes, strips the how, keeps the why and the heading skeleton, adds a changelog entry
+description: |
+  The core rewrite: Step 3's classification table plus Step 5 ("Write the file in
+  place. Preserve any frontmatter block and the H1 untouched") and the changelog
+  entry from Step 3.
+
+  Turn 1 asks for the compaction, turn 2 answers `yes` to the Step 4 gate. The
+  script judge then reads the rewritten plan and checks both directions: the
+  `Verify:` lines, per-task `Files:` preambles, implementation code blocks and
+  file-by-file Steps bodies are gone; the Context, Design Decisions (including
+  the rejected alternative and the polling rationale), the section and task
+  headings, the Critical Files pointers, the follow-up link and the old changelog
+  entry all survive; and a compaction entry was added.
+
+  Failure modes under test: deleting the Implementation Plan section wholesale
+  instead of thinning it, dropping rationale along with the steps, or leaving the
+  code blocks in place while calling the file compacted.
+
+  No `post_condition` on turn 1 on purpose: skill-up 0.7.0 records a turn's
+  response as the turn's first assistant message, so a turn that opens with a
+  tool call is captured as `[tool: Skill]` and every text matcher fails even
+  though the gate was printed. The Step 4 gate is asserted by the single-turn
+  `confirm-before-write` case instead.
+
+input:
+  turns:
+    - role: user
+      content: |
+        Use the spec-compact skill for this request.
+        The widget cache shipped in May. Compact docs/specs/plan_widget_cache.md.
+    - role: user
+      content: "yes"
+
+context:
+  repo_fixture: evals/fixtures/repos/shipped-plan
+
+constraints:
+  timeout_seconds: 600
+  max_turns: 30
+
+expect:
+  files_exist:
+    - "docs/specs/plan_widget_cache.md"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-compaction-applied.sh
+  timeout_seconds: 30

@@ -6,8 +6,8 @@
     "declawed": "1.1.2",
     "gap-analysis": "1.0.0",
     "research-plan-implement": "1.0.0",
-    "spec-coding": "1.0.0",
-    "spec-compact": "1.1.0",
+    "spec-coding": "1.0.1",
+    "spec-compact": "1.1.2",
     "spec-lint": "1.2.0"
   }
 }
