@@ -12,7 +12,7 @@ description: >
   or plans match the design, reports orphan specs or broken spec links, or names a
   supported framework in a context that implies auditing its spec artefacts.
 metadata:
-  version: 1.2.0
+  version: 1.2.1
 ---
 
 # spec-lint: Multi-Profile Specification Doc Health Check
@@ -83,6 +83,8 @@ The skill ships with a canonical convention reference at `references/convention.
    - If multiple profiles are active, pick the primary one (the one with most spec files) for the meta location.
 
 2. Ensure the `meta/` directory exists. Create it if missing.
+
+   Resolve `meta/` to an absolute path once, here, and use that absolute path for every bookkeeping write (the seed in this step, the report in Step 6). Shell working directories drift between commands — a relative `<SPECS_ROOT>/meta/` after a `cd` into the spec tree silently nests a second copy of the tree.
 
 3. Decide what to do with `meta/convention.md`:
    - **Missing** → copy the bundled `references/convention.md` verbatim. Mention the seed in the lint report (`info`).
@@ -200,7 +202,7 @@ Same procedure one layer down: each plan/tasks-layer artefact must address every
 
 ## Step 6: Lint Report
 
-Write the report to the `meta/` location determined in Step 2, named `lint-report-YYYY-MM-DD.md`. Overwrite if a same-day report already exists.
+Write the report to the absolute `meta/` path resolved in Step 2, named `lint-report-YYYY-MM-DD.md`. Overwrite if a same-day report already exists.
 
 ```markdown
 # Spec Lint Report — YYYY-MM-DD

@@ -1,0 +1,26 @@
+schema_version: v1alpha1
+
+environment:
+  type: none
+
+skills:
+  - source: local_path
+    path: .
+
+engine:
+  name: claude_code
+
+cases:
+  files:
+    - evals/cases/default-profile-dead-links.yaml
+    - evals/cases/orphan-and-index-drift.yaml
+    - evals/cases/reverse-consistency-design-gap.yaml
+    - evals/cases/kiro-profile-detection.yaml
+    - evals/cases/no-specs-asks-user.yaml
+    - evals/cases/report-artifacts-read-only.yaml
+  defaults:
+    timeout_seconds: 600
+    max_turns: 40
+
+report:
+  formats: [json]

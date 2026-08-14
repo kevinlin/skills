@@ -1,0 +1,50 @@
+id: kiro-profile-detection
+title: Detects the kiro profile and reports the feature folder's missing design.md
+description: |
+  Covers Step 1.2 profile probing on a non-default layout and Step 4's
+  completeness check for implicit-index profiles.
+
+  The repo carries `.kiro/specs/` and `.kiro/steering/`, so the profile is
+  `kiro`, not `default` — and there is no `docs/specs/` to fall back to. The
+  `user-login` feature folder has `requirements.md` and `tasks.md` but no
+  `design.md`, which the kiro profile requires.
+
+  The judge also rejects a run that writes its bookkeeping into a
+  `docs/specs/meta/` root the repo does not use.
+
+input:
+  prompt: |
+    Audit the spec docs in this repo, please.
+
+context:
+  files:
+    ".kiro/steering/product.md": |
+      # Product
+
+      An internal admin console for support agents.
+
+    ".kiro/steering/tech.md": |
+      # Tech
+
+      TypeScript, React, Fastify, PostgreSQL.
+
+    ".kiro/specs/user-login/requirements.md": |
+      # Requirements — User Login
+
+      ## Acceptance Criteria
+
+      1. WHEN a user submits valid credentials THEN the system SHALL issue a session cookie.
+      2. WHEN a user submits invalid credentials THEN the system SHALL return HTTP 401.
+      3. WHEN a user fails five attempts in ten minutes THEN the system SHALL lock the account.
+
+    ".kiro/specs/user-login/tasks.md": |
+      # Tasks — User Login
+
+      - [ ] 1. Add the `POST /session` route.
+      - [ ] 2. Hash and verify credentials with argon2id.
+      - [ ] 3. Add the failed-attempt counter.
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-kiro-profile.sh
+  timeout_seconds: 30

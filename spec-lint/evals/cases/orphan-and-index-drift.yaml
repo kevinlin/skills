@@ -1,0 +1,70 @@
+id: orphan-and-index-drift
+title: Flags a spec file that is absent from the root index and has no inbound links
+description: |
+  Covers Step 4 (root index verification for the explicit-index `default`
+  profile) and check 5.3 (orphan specs).
+
+  `reporting/design_reporting.md` exists on disk, is listed nowhere in
+  `index.md`, and no other spec links to it. `billing/` is fully wired up, so
+  a run that flags every file indiscriminately is not what passes — the judge
+  requires the reporting file to be named.
+
+input:
+  prompt: |
+    Please run a spec health check over docs/specs and summarise the issues.
+
+context:
+  files:
+    "docs/specs/index.md": |
+      # Spec Index
+
+      ## Billing
+
+      | Artifact | Path |
+      |---|---|
+      | Design | [design_billing.md](billing/design_billing.md) |
+      | Plan | [plan_billing.md](billing/plan_billing.md) |
+
+    "docs/specs/requirements.md": |
+      # Project Requirements
+
+      1. The system issues an invoice for every completed order.
+      2. The system emails a monthly usage report.
+
+    "docs/specs/design.md": |
+      # Project Design
+
+      ## Overview
+
+      A single Python service backed by PostgreSQL.
+
+    "docs/specs/billing/design_billing.md": |
+      # Billing Design
+
+      ## Components
+
+      - `InvoiceBuilder` renders an invoice from an order.
+
+    "docs/specs/billing/plan_billing.md": |
+      # Billing Plan
+
+      ## Goal
+
+      Ship invoicing.
+
+      ## Tasks
+
+      - [ ] Implement `InvoiceBuilder`.
+
+    "docs/specs/reporting/design_reporting.md": |
+      # Reporting Design
+
+      ## Components
+
+      - `MonthlyDigest` aggregates usage rows into an email body.
+      - `DigestScheduler` triggers the job on the first of the month.
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-orphan-index.sh
+  timeout_seconds: 30

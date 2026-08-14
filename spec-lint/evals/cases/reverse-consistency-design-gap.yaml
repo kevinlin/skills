@@ -1,0 +1,81 @@
+id: reverse-consistency-design-gap
+title: Reports a requirement the design never covers, and a design item the plan never covers
+description: |
+  Covers checks 5.8 and 5.9 — the reverse-consistency pair the skill calls its
+  most important job.
+
+  `requirements_billing.md` states three numbered requirements. The design
+  covers invoicing and refunds but says nothing about tax calculation (5.8
+  gap). The plan implements the invoice and refund components but not the
+  design's `AuditLog` component (5.9 gap). The tree is otherwise clean: the
+  index links every file, all links resolve, and names follow the convention,
+  so coverage is the only thing left to find.
+
+input:
+  prompt: |
+    Do the specs under docs/specs still line up? I want to know whether the
+    design covers the requirements and whether the plan covers the design.
+
+context:
+  files:
+    "docs/specs/index.md": |
+      # Spec Index
+
+      ## Billing
+
+      | Artifact | Path |
+      |---|---|
+      | Requirements | [requirements_billing.md](billing/requirements_billing.md) |
+      | Design | [design_billing.md](billing/design_billing.md) |
+      | Plan | [plan_billing.md](billing/plan_billing.md) |
+
+    "docs/specs/requirements.md": |
+      # Project Requirements
+
+      1. Billing is correct and auditable.
+
+    "docs/specs/design.md": |
+      # Project Design
+
+      ## Overview
+
+      A single Python service backed by PostgreSQL.
+
+    "docs/specs/billing/requirements_billing.md": |
+      # Billing Requirements
+
+      1. **Invoice generation** — every completed order produces an invoice PDF.
+      2. **Refund handling** — a refund reverses the captured payment within 30 days.
+      3. **Tax calculation** — each invoice line carries the VAT rate of the
+         customer's country, resolved at the time the order completes.
+
+    "docs/specs/billing/design_billing.md": |
+      # Billing Design
+
+      Implements [requirements_billing.md](requirements_billing.md).
+
+      ## Components
+
+      - `InvoiceBuilder` renders the invoice PDF from a completed order.
+      - `RefundProcessor` reverses a captured payment against the gateway.
+      - `AuditLog` records every invoice and refund event with an actor and a
+        timestamp, append-only, for the finance team's quarterly review.
+
+    "docs/specs/billing/plan_billing.md": |
+      # Billing Plan
+
+      Implements [design_billing.md](design_billing.md).
+
+      ## Goal
+
+      Ship billing.
+
+      ## Tasks
+
+      - [ ] Implement `InvoiceBuilder` and its PDF template.
+      - [ ] Implement `RefundProcessor` and wire it to the payment gateway.
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-coverage-gaps.sh
+  timeout_seconds: 30

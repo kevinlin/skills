@@ -1,0 +1,77 @@
+id: default-profile-dead-links
+title: Detects the default profile and reports dead cross-doc links and a missing anchor
+description: |
+  Covers Step 1 (detect the `default` profile from a `docs/specs/` root) and
+  check 5.2 (dead cross-doc links, severity `error`).
+
+  The fixture plants two link defects in `billing/design_billing.md`:
+  a link to `requirements_billing.md`, which does not exist, and a link to
+  `../design.md#data-flow`, where the target file exists but has no heading
+  that slugifies to `data-flow`. Everything else in the tree resolves, so a
+  run that reports nothing fails.
+
+  The judge greps the generated lint report plus the agent's final message, so
+  it passes whether the finding is delivered in the report file, the reply, or
+  both.
+
+input:
+  prompt: |
+    Can you lint the spec docs in this repo and tell me what's broken?
+
+context:
+  files:
+    "docs/specs/index.md": |
+      # Spec Index
+
+      ## Billing
+
+      | Artifact | Path |
+      |---|---|
+      | Design | [design_billing.md](billing/design_billing.md) |
+      | Plan | [plan_billing.md](billing/plan_billing.md) |
+
+    "docs/specs/requirements.md": |
+      # Project Requirements
+
+      1. The system issues an invoice for every completed order.
+      2. The system supports refunds within 30 days.
+
+    "docs/specs/design.md": |
+      # Project Design
+
+      ## Overview
+
+      A single Python service backed by PostgreSQL.
+
+      ## Components
+
+      Billing, reporting, and an HTTP API layer.
+
+    "docs/specs/billing/design_billing.md": |
+      # Billing Design
+
+      Upstream requirements: [requirements_billing.md](requirements_billing.md)
+
+      System context: [project design](../design.md#data-flow)
+
+      ## Components
+
+      - `InvoiceBuilder` renders an invoice from an order.
+      - `RefundProcessor` reverses a captured payment.
+
+    "docs/specs/billing/plan_billing.md": |
+      # Billing Plan
+
+      ## Goal
+
+      Ship invoicing and refunds.
+
+      ## Tasks
+
+      - [ ] Implement `InvoiceBuilder`.
+      - [ ] Implement `RefundProcessor`.
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-dead-links.sh
+  timeout_seconds: 30
