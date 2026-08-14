@@ -1,0 +1,30 @@
+schema_version: v1alpha1
+
+environment:
+  type: none
+
+skills:
+  - source: local_path
+    path: .
+
+engine:
+  name: claude_code
+
+cases:
+  files:
+    - evals/cases/goal-confirmation-first.yaml
+    - evals/cases/requirements-ears-draft.yaml
+    - evals/cases/design-doc-sections.yaml
+    - evals/cases/task-plan-checkboxes.yaml
+    - evals/cases/resume-at-execution-stage.yaml
+    - evals/cases/execute-one-task-only.yaml
+    - evals/cases/question-without-execution.yaml
+  defaults:
+    timeout_seconds: 600
+    max_turns: 40
+
+benchmark:
+  enabled: true
+
+report:
+  formats: [json]

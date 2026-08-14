@@ -1,0 +1,155 @@
+id: task-plan-checkboxes
+title: Turns an approved design into a numbered checkbox task list of coding-only work
+description: |
+  Stage 4. `tasks.md` is a numbered checkbox list where each task names the
+  files to touch, references the acceptance criteria it satisfies, and stays
+  inside "writing, modifying, and testing" code — the skill explicitly excludes
+  deployment, user testing, and performance monitoring from the list.
+
+  Requirements and design are seeded and approved by the prompt, so task
+  planning is the only stage left. The design deliberately mentions a rollout
+  flag and a metrics counter: an agent that mirrors the design section by
+  section will emit "deploy" and "monitor" checkboxes the skill forbids. The
+  approval gate is graded too — planning is not execution, so `src/orders.py`
+  must be untouched and no new module may appear.
+
+input:
+  prompt: |
+    Use the spec-coding skill for this request.
+    docs/specs/discount-codes/design.md is approved. Break it into the task plan
+    for the spec-driven workflow.
+
+context:
+  files:
+    "README.md": |
+      # Orders
+
+      A small order-taking service. Orders are held in memory; checkout turns an
+      order into an amount due.
+
+    "src/orders.py": |
+      # SENTINEL-ORDERS-BODY
+      ORDERS: dict[str, dict] = {}
+
+
+      def create_order(order_id: str, items: list[dict]) -> dict:
+          total = sum(item["price"] * item["qty"] for item in items)
+          order = {"id": order_id, "items": items, "total": total}
+          ORDERS[order_id] = order
+          return order
+
+
+      def get_order(order_id: str) -> dict | None:
+          return ORDERS.get(order_id)
+
+    "src/checkout.py": |
+      from .orders import get_order
+
+
+      def checkout(order_id: str) -> dict:
+          order = get_order(order_id)
+          if order is None:
+              raise KeyError(order_id)
+          return {"order_id": order_id, "amount_due": order["total"]}
+
+    "tests/test_orders.py": |
+      from src.orders import create_order, get_order
+
+
+      def test_total_is_summed():
+          order = create_order("o1", [{"price": 300, "qty": 2}])
+          assert order["total"] == 600
+          assert get_order("o1") == order
+
+    "docs/specs/discount-codes/requirements.md": |
+      # Feature Requirements: Discount Codes
+
+      ## Introduction
+
+      Customers apply a discount code at checkout to reduce the order total.
+
+      ## Requirements
+
+      ### 1. Applying a code
+
+      **User Story:** As a customer, I want to enter a discount code at checkout,
+      so that I pay less for my order.
+
+      **Acceptance Criteria:**
+      1. WHEN a customer submits a valid code that has not expired and has uses
+         remaining, THE SYSTEM SHALL reduce the order total by the code's
+         percentage.
+      2. IF a customer submits a second code for the same order, THEN THE SYSTEM
+         SHALL refuse it and keep the code already applied.
+
+      ### 2. Refusing a code
+
+      **User Story:** As a customer, I want a clear reason when a code is
+      refused, so that I know what to do next.
+
+      **Acceptance Criteria:**
+      1. WHEN a submitted code is unknown, expired, or past its usage cap, THE
+         SYSTEM SHALL leave the total unchanged and return a message naming the
+         reason.
+
+      ### 3. Recording use
+
+      **User Story:** As a finance analyst, I want every applied code recorded,
+      so that I can reconcile discounts against revenue.
+
+      **Acceptance Criteria:**
+      1. WHEN a code is applied successfully, THE SYSTEM SHALL record the order
+         id, the code, and the discount amount.
+
+    "docs/specs/discount-codes/design.md": |
+      # Design: Discount Codes
+
+      ## Overview
+
+      A `DiscountCode` record, a `DiscountResolver` that validates a submitted
+      code against an order, and an audit hook that records every application.
+      `checkout()` gains one call into the resolver; nothing else changes.
+
+      ## Architecture
+
+      `src/checkout.py` calls `DiscountResolver.apply(order, code)`. The resolver
+      owns validation and the audit write, so checkout stays a thin caller.
+
+      ## Components and Interfaces
+
+      - `DiscountCode` (`src/discounts.py`) — code, percentage, expires_at,
+        usage_cap, uses_so_far.
+      - `DiscountResolver` (`src/discounts.py`) — `apply(order, code) ->
+        DiscountResult`, raising nothing; refusals come back as data.
+      - `DiscountAudit` (`src/discount_audit.py`) — `record(order_id, code,
+        amount)` appends to an in-memory log.
+
+      ## Data Models
+
+      `DiscountResult`: `applied: bool`, `amount: int`, `reason: str | None`.
+
+      ## Error Handling
+
+      Unknown, expired, and capped codes return `applied=False` with a reason
+      string. A second code on an order returns the same shape with reason
+      `already_applied`.
+
+      ## Testing Strategy
+
+      Unit tests per refusal reason in `tests/test_discounts.py`, plus a
+      checkout-level test that the total drops once and only once.
+
+      ## Rollout and Operations
+
+      The resolver sits behind the `DISCOUNTS_ENABLED` flag; deployment enables
+      it per environment. Operations monitor the applied-versus-refused counter
+      after release.
+
+expect:
+  files_exist:
+    - "docs/specs/discount-codes/design.md"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-task-plan.sh
+  timeout_seconds: 30

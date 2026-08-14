@@ -9,7 +9,7 @@ description: >
   trigger when a user has existing spec files (requirements.md, design.md,
   tasks.md) and wants to continue or execute tasks from them.
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 ---
 
 # Spec-Driven Development
@@ -43,6 +43,11 @@ check whether spec files already exist for the feature:
 
 When resuming, read all existing spec files first to rebuild context, then confirm
 with the user where they'd like to pick up.
+
+A request for status, such as "where did we leave it?" or "what is next?", is
+informational. Name the next unchecked task using its title from `tasks.md`, ask
+whether the user wants to execute it, and do not edit files or run the task until
+the user explicitly asks for implementation.
 
 ## Approval Gates
 

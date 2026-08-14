@@ -1,0 +1,115 @@
+id: design-doc-sections
+title: Writes design.md with the six required sections and stops before task planning
+description: |
+  Stage 3. The design goes next to the approved requirements as
+  `docs/specs/discount-codes/design.md` and carries the six named sections —
+  Overview, Architecture, Components and Interfaces, Data Models, Error
+  Handling, Testing Strategy — with the codebase research folded in rather than
+  parked in a separate research file.
+
+  Requirements are seeded and the prompt approves them, so Stage 2 is closed
+  and Stage 3 is the only work left. The approval gate is graded too: tasks.md
+  must not appear, and no implementation may start. The seeded module names
+  (`checkout`, `create_order`) are what "research the codebase" should surface,
+  so the judge requires the design to name at least one of them.
+
+input:
+  prompt: |
+    Use the spec-coding skill for this request.
+    The requirements in docs/specs/discount-codes/requirements.md are approved.
+    Move on to the design stage of the spec-driven workflow.
+
+context:
+  files:
+    "README.md": |
+      # Orders
+
+      A small order-taking service. Orders are held in memory; checkout turns an
+      order into an amount due.
+
+    "src/orders.py": |
+      # SENTINEL-ORDERS-BODY
+      ORDERS: dict[str, dict] = {}
+
+
+      def create_order(order_id: str, items: list[dict]) -> dict:
+          total = sum(item["price"] * item["qty"] for item in items)
+          order = {"id": order_id, "items": items, "total": total}
+          ORDERS[order_id] = order
+          return order
+
+
+      def get_order(order_id: str) -> dict | None:
+          return ORDERS.get(order_id)
+
+    "src/checkout.py": |
+      from .orders import get_order
+
+
+      def checkout(order_id: str) -> dict:
+          order = get_order(order_id)
+          if order is None:
+              raise KeyError(order_id)
+          return {"order_id": order_id, "amount_due": order["total"]}
+
+    "tests/test_orders.py": |
+      from src.orders import create_order, get_order
+
+
+      def test_total_is_summed():
+          order = create_order("o1", [{"price": 300, "qty": 2}])
+          assert order["total"] == 600
+          assert get_order("o1") == order
+
+    "docs/specs/discount-codes/requirements.md": |
+      # Feature Requirements: Discount Codes
+
+      ## Introduction
+
+      Customers apply a discount code at checkout to reduce the order total.
+      Codes carry an expiry date and a usage cap.
+
+      ## Requirements
+
+      ### 1. Applying a code
+
+      **User Story:** As a customer, I want to enter a discount code at checkout,
+      so that I pay less for my order.
+
+      **Acceptance Criteria:**
+      1. WHEN a customer submits a valid code that has not expired and has uses
+         remaining, THE SYSTEM SHALL reduce the order total by the code's
+         percentage.
+      2. IF a customer submits a second code for the same order, THEN THE SYSTEM
+         SHALL refuse it and keep the code already applied.
+
+      ### 2. Refusing a code
+
+      **User Story:** As a customer, I want a clear reason when a code is
+      refused, so that I know what to do next.
+
+      **Acceptance Criteria:**
+      1. WHEN a submitted code is unknown, THE SYSTEM SHALL leave the total
+         unchanged and return a "code not recognised" message.
+      2. WHEN a submitted code is past its expiry date, THE SYSTEM SHALL leave
+         the total unchanged and return an "expired code" message.
+      3. WHERE a code has reached its usage cap, THE SYSTEM SHALL leave the total
+         unchanged and return a "code no longer available" message.
+
+      ### 3. Recording use
+
+      **User Story:** As a finance analyst, I want every applied code recorded,
+      so that I can reconcile discounts against revenue.
+
+      **Acceptance Criteria:**
+      1. WHEN a code is applied successfully, THE SYSTEM SHALL record the order
+         id, the code, and the discount amount.
+
+expect:
+  files_exist:
+    - "docs/specs/discount-codes/requirements.md"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-design-doc.sh
+  timeout_seconds: 30

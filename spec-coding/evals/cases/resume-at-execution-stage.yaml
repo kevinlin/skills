@@ -1,0 +1,173 @@
+id: resume-at-execution-stage
+title: Resumes an existing spec at execution and names the next unchecked task
+description: |
+  "Resuming a Workflow": with `tasks.md` present and carrying unchecked items,
+  the skill offers Stage 5 rather than restarting, reads the existing spec files
+  to rebuild context, and confirms with the user where to pick up.
+
+  The workspace holds a complete `docs/specs/rate-limiting/` spec with task 1
+  checked and tasks 2-4 open, and the prompt says nothing about which stage it
+  is at. Passing means naming task 2's work — `TokenBucket.consume` — and
+  putting the pick-up point back to the user as a question. Rule-based rather
+  than script-graded: everything asserted here is in the reply itself.
+
+input:
+  prompt: |
+    Use the spec-coding skill for this request.
+    Picking the rate limiting work back up after the weekend. Where did we leave
+    it, and what is next?
+
+context:
+  files:
+    "README.md": |
+      # Gateway
+
+      A thin request front end. Rate limiting is being added spec-first.
+
+    "src/app.py": |
+      from .limiter import TokenBucket
+
+      BUCKETS: dict[str, TokenBucket] = {}
+
+
+      def handle_request(client_id: str, path: str) -> dict:
+          return {"status": 200, "path": path, "client": client_id}
+
+    "src/limiter.py": |
+      import time
+
+
+      class TokenBucket:
+          """Fixed-capacity token bucket, refilled at a steady rate."""
+
+          def __init__(self, capacity: int, refill_per_second: float) -> None:
+              self.capacity = capacity
+              self.refill_per_second = refill_per_second
+              self.tokens = float(capacity)
+              self.updated_at = time.monotonic()
+
+          def consume(self, tokens: int = 1) -> bool:
+              """Take tokens from the bucket; False when the bucket is empty."""
+              raise NotImplementedError("task 2")
+
+    "tests/test_limiter.py": |
+      from src.limiter import TokenBucket
+
+
+      def test_allows_up_to_capacity_then_refuses():
+          bucket = TokenBucket(capacity=2, refill_per_second=0)
+          assert bucket.consume() is True
+          assert bucket.consume() is True
+          assert bucket.consume() is False
+
+    "docs/specs/rate-limiting/requirements.md": |
+      # Feature Requirements: Rate Limiting
+
+      ## Introduction
+
+      The gateway refuses requests from a client that exceeds its allowance.
+
+      ## Requirements
+
+      ### 1. Per-client allowance
+
+      **User Story:** As an operator, I want each client held to an allowance, so
+      that one caller cannot starve the others.
+
+      **Acceptance Criteria:**
+      1. WHEN a client has tokens remaining, THE SYSTEM SHALL serve the request
+         and decrement the client's tokens.
+      2. WHILE a client's bucket is empty, THE SYSTEM SHALL refuse further
+         requests until the bucket refills.
+
+      ### 2. Refusal response
+
+      **User Story:** As a client developer, I want a clear refusal, so that I
+      can back off correctly.
+
+      **Acceptance Criteria:**
+      1. WHEN a request is refused, THE SYSTEM SHALL return status 429.
+
+      ### 3. Visibility
+
+      **User Story:** As an operator, I want allowed and refused counts, so that
+      I can size the allowance.
+
+      **Acceptance Criteria:**
+      1. WHEN a request is served or refused, THE SYSTEM SHALL increment the
+         matching counter.
+
+    "docs/specs/rate-limiting/design.md": |
+      # Design: Rate Limiting
+
+      ## Overview
+
+      A token bucket per client, checked by middleware in front of
+      `handle_request`.
+
+      ## Architecture
+
+      `handle_request` calls `RateLimitMiddleware.check(client_id)` before doing
+      any work. The middleware owns the bucket registry.
+
+      ## Components and Interfaces
+
+      - `TokenBucket` (`src/limiter.py`) — `consume(tokens=1) -> bool`, refilling
+        by elapsed time against `refill_per_second`.
+      - `RateLimitMiddleware` (`src/middleware.py`) — `check(client_id) -> bool`.
+      - `RateLimitMetrics` (`src/metrics.py`) — allowed and refused counters.
+
+      ## Data Models
+
+      Bucket state: capacity, refill_per_second, tokens, updated_at.
+
+      ## Error Handling
+
+      A refused request returns status 429; the bucket never raises.
+
+      ## Testing Strategy
+
+      Unit tests for the bucket, then a middleware test for the 429 path.
+
+    "docs/specs/rate-limiting/tasks.md": |
+      # Implementation Tasks: Rate Limiting
+
+      - [x] 1. Add the `TokenBucket` skeleton and its unit test file
+          - Files: `src/limiter.py`, `tests/test_limiter.py`
+          - References: Requirement 1.1
+
+      - [ ] 2. Implement `TokenBucket.consume` so it refills by elapsed time and
+        refuses when the bucket is empty
+          - Files: `src/limiter.py`
+          - Makes `tests/test_limiter.py` pass
+          - References: Requirement 1.1, 1.2
+
+      - [ ] 3. Add `RateLimitMiddleware` in `src/middleware.py` and call it from
+        `handle_request`
+          - Files: `src/middleware.py`, `src/app.py`
+          - References: Requirement 2.1
+
+      - [ ] 4. Record allowed and refused counts in `src/metrics.py`
+          - Files: `src/metrics.py`
+          - References: Requirement 3.1
+
+expect:
+  files_exist:
+    - "docs/specs/rate-limiting/tasks.md"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all:
+          # Task 2's subject, and the question that hands the pick-up point back.
+          - "consume"
+          - "?"
+        any:
+          - "Task 2"
+          - "task 2"
+          - "Stage 5"
+          - "stage 5"
+          - "Execution"
+          - "execution"
+          - "execute"
