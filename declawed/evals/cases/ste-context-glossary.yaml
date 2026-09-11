@@ -1,0 +1,43 @@
+id: ste-context-glossary
+title: Applies the general language layer to a terse status email
+description: |
+  The General language rules in references/tones.md: full sentences that carry
+  their evidence instead of bare point form, ASD-STE100 grammar (25-word cap, no
+  -ing verb forms, no phrasal verbs), and the glossary's canonical terms. The
+  glossary lives in the prompt, which counts as "defined in the conversation".
+  The guard against overcorrection: not every sentence may use the
+  "Given X, Y, so Z" shape, and no fact may be invented.
+
+input:
+  prompt: |
+    Deslop this status email to my manager before I send it.
+
+    Our glossary: **Customer** is the canonical term; "client" is an alias to avoid.
+
+    Hi Sam,
+
+    - migrated client DB
+    - load test: 30% faster
+    - nightly report fits window now
+    - need sign-off by Fri
+
+    We are currently looking into setting up the remaining replicas for the other client regions, which we are hoping to finish off before the next release window opens.
+
+    Thanks
+
+expect:
+  must_contain:
+    - "30"
+    - "Customer"
+
+judge:
+  type: agent_judge
+  model: anthropic/claude-sonnet-4-6
+  criteria:
+    - "The rewritten email uses 'Customer' for the customer database and regions, and the alias 'client' no longer appears in the rewritten email."
+    - "The bullet point form is gone: the migration, the 30% load-test result, the nightly report, and the sign-off request appear as full sentences, and at least one conclusion states its evidence (the load test) together with a concrete consequence (the nightly report window or the sign-off)."
+    - "No fact is invented: the only figures and dates are 30%, the nightly report, and Friday; no new numbers, names, dates, or reasons appear."
+    - "No sentence in the rewritten email is longer than 25 words, and the rewrite contains no -ing verb forms ('looking', 'setting', 'hoping') and no phrasal verbs ('looking into', 'set up', 'finish off')."
+    - "The rewrite does not force every sentence into the same 'Given X, Y, so Z' shape; sentence openings and connectors vary."
+    - "The reply's change log includes a 'Language' line that reports STE, the glossary, and the full-sentence treatment."
+  pass_threshold: 0.75

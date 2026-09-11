@@ -17,6 +17,7 @@ cases:
     - evals/cases/preserve-facts-no-invention.yaml
     - evals/cases/reddit-register.yaml
     - evals/cases/academic-no-overcorrection.yaml
+    - evals/cases/ste-context-glossary.yaml
   defaults:
     timeout_seconds: 300
     max_turns: 12

@@ -9,7 +9,7 @@ description: >
   or before publishing any agent-drafted prose.
 allowed-tools: Read, Write, Edit, Grep, Bash
 metadata:
-  version: 1.1.2
+  version: 1.2.0
 ---
 
 # Declawed
@@ -32,6 +32,7 @@ Before touching the text, establish:
 - **Genre and venue** — academic article, tweet, reddit post, LinkedIn, email, blog, docs, marketing. Genre decides which tells are fatal and what "good" means; see [references/tones.md](references/tones.md). If it's stated or obvious from the text, use it. If not, default to general prose (neutral register, plain and specific), note the assumption, and proceed. Only stop to ask when the genre would flip which tells are fatal (reddit forbids the bold and bullet essays that docs rely on) and you genuinely can't tell from the text.
 - **Audience and stance** — who reads it, and what the author actually claims. Slop is what fills the space where a claim should be; you cannot remove it without knowing the claim.
 - **Constraints** — length limits, required citations, house style.
+- **Ubiquitous language** — unless the genre is marketing, locate the project glossary before rewriting; the search order is in [references/tones.md](references/tones.md) → General language.
 
 ## Phase 1: Mechanical scan
 
@@ -65,11 +66,12 @@ Banned escape hatches — these are the same move and count as new findings: "le
 
 ### Everything else
 
+- **General language** (every genre except marketing): apply [references/tones.md](references/tones.md) → General language while you rewrite — full sentences that carry their evidence, ASD-STE100 grammar, and the glossary's canonical terms.
 - **Puffery and inflated vocabulary** (pivotal, seismic, testament, tapestry, landscape, delve…): replace with the plain word, or with the concrete fact the puffery was hiding. "Plays a vital role in" → "does".
 - **Rule-of-three lists**: keep the strongest item, cut the rest — unless all three carry distinct information, in which case keep them and break the rhythm (different lengths, different syntax).
 - **False ranges** ("from X to Y"): if you can't name a meaningful midpoint between X and Y, it's not a range — name the two things or cut one.
 - **Hedged both-sidesing** ("it's worth noting", auto-counterpoints, "while X, it's also true that Y"): commit. One opinion, stated, owned. A counterpoint stays only if the author genuinely concedes it.
-- **Uniform cadence**: vary deliberately. Follow a long sentence with a short one. Fragments are legal. Don't apply a formula (alternating long/short is its own tell) — read the paragraph aloud and break wherever the rhythm is metronomic.
+- **Uniform cadence**: vary deliberately. Follow a long sentence with a short one. Fragments are legal in marketing copy only; everywhere else STE and the full-sentence rule want complete sentences. Don't apply a formula (alternating long/short is its own tell) — read the paragraph aloud and break wherever the rhythm is metronomic.
 - **Low specificity**: replace "many companies" / "studies show" / "recent research" with the actual names, numbers, and dates — **only from the source text, the conversation, or verifiable research you actually do**. Never invent specifics. If the author needs to supply one, leave a marked placeholder: `[ADD: which study?]`.
 - **Stock skeleton**: kill throat-clearing openers ("In today's fast-paced world…"), summary conclusions ("In conclusion… Ultimately…"), and engagement-bait endings ("What do you think?"). Start where the point starts; stop when it's made.
 
@@ -90,7 +92,7 @@ Cap at 4 passes. If a pattern survives 4 passes, rewrite that sentence from scra
 
 ## Phase 4: Register check
 
-Check the clean text against its genre profile in [references/tones.md](references/tones.md): right length, right formality, right person, genre-specific tells gone (e.g. on reddit: no bold, no bullet essay; in academic prose: no first-person hot takes added). Then the final test — read it aloud. Anywhere you wouldn't say it to the actual audience, rewrite that sentence.
+Check the clean text against its genre profile in [references/tones.md](references/tones.md): right length, right formality, right person, genre-specific tells gone (e.g. on reddit: no bold, no bullet essay; in academic prose: no first-person hot takes added). Unless the genre is marketing, also check the General language rules: no bare point-form conclusions, sentences within the STE caps, no -ing verb forms or phrasal verbs, glossary terms used. Then the final test — read it aloud. Anywhere you wouldn't say it to the actual audience, rewrite that sentence.
 
 Deliver two things: the rewritten text, then a change log in this shape:
 
@@ -98,6 +100,7 @@ Deliver two things: the rewritten text, then a change log in this shape:
 Changes
 - <category>: <n> fixed (<how — deleted / made specific / plain word>)
 - Cadence: <what you varied, or "unchanged">
+- Language: STE <applied | skipped (marketing)>; glossary <path, n terms replaced | none found>; full sentences <n bare points expanded | [ADD] left | none needed>
 - Verify passes: <n>
 - Flagged for author: <any [ADD: …] placeholders you left, or "none">
 ```

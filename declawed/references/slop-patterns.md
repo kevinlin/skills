@@ -61,6 +61,7 @@ Single words and stock phrases that spike in LLM output. Each is fine in isolati
 \b(intricate)\b
 \b(landscape|realm|sphere) of\b
 \bleverage(s|d)?\b
+\bload.?bearing\b
 \b(mechanical floor)\b
 \bmeticulous(ly)?\b
 \bnavigat(e|ing) the\b
@@ -157,7 +158,8 @@ No regex; measure or eyeball.
   tr '\n' ' ' < draft.txt | sed 's/[.!?] /\n/g' | awk '{print NF}'
   ```
 
-  Human prose mixes 4-word sentences with 30-word sentences. Variance should be obvious at a glance.
+  Human prose mixes short sentences with long ones. Variance should be obvious at a glance.
+- **Over the STE cap**: any sentence above 25 words (20 in a procedure) breaks the ASD-STE100 rule in [tones.md](tones.md) → General language. Marketing copy is exempt. `scan.py` counts these.
 - **Uniform sentence shape**: every sentence opens subject-first; no fragments, no questions, no inversions.
 - **Uniform paragraph length**: every paragraph 3–4 sentences.
 - **Low specificity**: "many companies", "studies show", "experts agree", "recent research", "various factors" — generic where a human who knew the material would name names, numbers, dates. (Fix only with real specifics; never invented ones.)

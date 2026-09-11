@@ -114,6 +114,10 @@ def structural_checks(text, lines):
              f"{len(sents)} sentences, lengths {min(lengths)}-{max(lengths)} words; "
              f"{runs} run(s) of 3+ within ±4 words"
              + ("  <-- uniform" if runs else "")))
+    over_cap = sum(1 for n in lengths if n > 25)
+    if over_cap:
+        flags.append(("STE length",
+                      f"{over_cap} sentence(s) over 25 words  <-- over (marketing exempt)"))
 
     words = len(text.split())
     em = text.count("—")

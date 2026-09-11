@@ -5,12 +5,60 @@ What "good" means per genre, what tells are fatal there, and what the de-slopped
 1. **Voice comes from commitment, not decoration.** A text sounds human when it asserts specific things a specific person believes, at the level of detail only someone who did the work would know. Slang, typos, and "personality" sprinkled on top do not produce this and read as humanizer-tool output.
 2. **Match the author, not a persona.** If the user supplied earlier writing or a draft with their own phrasing in it, keep their words wherever they survive the scan. De-slopping someone into a generic "casual" voice is just different slop.
 
+## General language (every tone except Marketing / landing copy)
+
+These rules apply on top of every genre profile below, except Marketing / landing copy. Where a profile conflicts, STE wins unless the profile is listed under **Genre carve-outs**.
+
+### Context: full sentences, not point form
+
+- Write full sentences. A bare conclusion ("Migrated the Customer DB. 30% faster.") gives the reader no reason to believe it.
+- For a conclusion, claim, or recommendation, use this shape: `Given <context | evidence>, <conclusion>, so <consequence | artefact>.`
+  - Before: "Migrated the Customer DB. 30% faster."
+  - After: "Given the load test on the new Customer DB, queries run 30% faster, so the reporting job now fits in its nightly window."
+- For a procedure step, use the STE form and put the condition first: `If <condition>, <instruction>.`
+- Use the shape for conclusions only, not for every sentence. Change the connector ("because", "since", "when") and the clause order. If one sentence goes above the 25-word cap, split it into two. When every sentence is "Given X, Y, so Z", the text shows the uniform-shape tell ([slop-patterns.md](slop-patterns.md) section 6).
+- The "so" clause must name a concrete effect or artefact: a file, a number, or a next step. If the source has none, remove the clause. Do not fill it with puffery ("so teams move faster").
+- Take the evidence and the consequence from the source or the conversation only. If one is missing, leave `[ADD: evidence?]`.
+- Lists stay where the genre permits them (docs). Each list item is a full sentence.
+
+### ASD-STE100 Simplified Technical English
+
+Apply the core writing rules of ASD-STE100 (Issue 9, January 2025). The STE dictionary is copyrighted, so this skill does not include it.
+
+- **Words**: use one word for one meaning, and use the same word for the same thing everywhere in the text. Use the simplest common word. Technical names and technical verbs are permitted; the ubiquitous language (below) supplies them.
+- **Verbs**: use the imperative, simple present, simple past, or future. Do not use -ing verb forms (they are permitted in technical names). Do not use phrasal verbs ("set up" → "configure", "find out" → "learn"). Use the active voice. Use the passive voice only in descriptive text, and only when the actor is unknown or not important.
+- **Noun clusters**: 3 words at most. Break a longer cluster with a preposition ("database migration test report" → "report of the database migration test").
+- **Sentences**: one topic per sentence. Do not remove articles or "that" to make a sentence shorter. Procedures: 20 words at most, one instruction per sentence, imperative, condition first. Descriptive text: 25 words at most.
+- **Paragraphs**: one topic per paragraph, topic sentence first, 6 sentences at most.
+- The word caps are a maximum, not a target. Change the sentence length below the cap, because uniform cadence is still a tell.
+
+### Ubiquitous language
+
+Before the rewrite, look for the project's glossary in this order:
+
+1. Terms that the conversation defines.
+2. `UBIQUITOUS_LANGUAGE.md` in the working directory or the repository root (the `ubiquitous-language` skill writes this file).
+3. `GLOSSARY.md`, `CONTEXT.md`, or `docs/**/glossary*`.
+
+- If you find a glossary, use its canonical terms. Replace each "alias to avoid" with its canonical term, and use one term for each concept.
+- If you find no glossary, skip this rule and write "none found" in the change log. Do not make a glossary.
+- Universal rule 2 ("match the author") still applies to domain terms: keep the author's domain terms unless the glossary replaces them. Change the author's general words to STE words.
+
+### Genre carve-outs
+
+A genre profile overrides STE only in these cases:
+
+- **Reddit**: the author's contractions and their own hedges ("iirc").
+- **Tweet / X post**: lowercase is permitted. Keep the "Given … so …" clauses only if they fit in the character limit.
+- **Academic**: passive voice where the venue expects it.
+- **Blog / newsletter / essay**: first person and digressions are permitted. Sentences still stay at 25 words or fewer.
+
 ## Academic article / paper
 
 - **Goal**: precise claims, honest hedges, dense information. Formality stays; puffery goes.
 - **Fatal tells here**: "delve", "novel", inflated significance ("crucial implications", "paradigm shift"), rule-of-three in abstracts, negative parallelism in intros ("X is not merely a tool but a fundamental…"), em-dash chains.
 - **De-slop moves**: replace significance puffery with the actual finding and effect size. Hedges must be calibrated, not reflexive — "may" because the evidence is genuinely uncertain, not as seasoning. Keep passive voice where the venue expects it; do not inject first person or attitude. Numbers, conditions, and citations beat adjectives.
-- **Cadence**: long sentences are fine and normal; the tell is uniformity, not length. Vary clause structure.
+- **Cadence**: keep each sentence at 25 words or fewer (STE cap); the tell is uniformity, not length. Vary clause structure.
 
 ## Tweet / X post
 

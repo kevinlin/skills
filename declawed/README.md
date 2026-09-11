@@ -36,6 +36,8 @@ Invoke it directly:
 
 Or just ask — it triggers on "declawed", "deslop", "remove the AI tells", "humanize this", "make this not sound like AI". Point it at text in the conversation or at a file. It fixes the target genre first (a reddit comment and an academic abstract fail in opposite ways), then runs the loop.
 
+For every genre except marketing copy, the rewrite also follows a general language layer. Conclusions become full sentences that state their evidence and consequence, the grammar follows ASD-STE100 Simplified Technical English, and domain terms come from the project glossary (`UBIQUITOUS_LANGUAGE.md` or similar) when one exists.
+
 ## Output
 
 The rewritten text, plus a short change log: which categories were fixed, how many hits, and how many verify passes it took.
