@@ -15,21 +15,22 @@ PATTERNS
 The highest-priority category. LLMs reach for the negation-then-assertion move roughly once a paragraph; humans use it occasionally and deliberately.
 
 ```
-not (just|only|merely|simply|solely) [^.;]{2,80}(but|it'?s| — )
-isn'?t (just|only|merely|simply|about) 
-it'?s not (a|an|the|that|about|just) [^.;]{2,80}(it'?s|but)
-(is|was|are|were)n'?t about [^.;]{2,60}\. (it|this|that)'?s about
-less about [^.;]{2,60}(than|and more about)
-more than (just|a mere|simply) 
-not because [^.;]{2,80}but because
-the (question|point|issue|problem|goal|real [a-z]+) is(n'?t| not) (whether|about|just|if)
-(doesn'?t|don'?t|didn'?t|won'?t) (just|merely|simply) [^.;]{2,80}(it|they|he|she|we) 
-no [a-z]+, no [a-z]+(, no [a-z]+)?[,.]? just 
-— not [^—.;]{2,60}, but 
-not only [^.;]{2,80}but (also )?
-we'?re not (just )?(talking about|looking at|dealing with)
-gone are the days
-(here|this)'?s the (thing|kicker|catch|twist)
+\b(doesn'?t|don'?t|didn'?t|won'?t) (just|merely|simply) [^.;]{2,80}\b(it|they|he|she|we)\b
+\b(here|this)'?s the (thing|kicker|catch|twist)
+\b(is|was|are|were)n'?t about [^.;]{2,60}\. (it|this|that)'?s about
+\bgone are the days
+\bisn'?t (just|only|merely|simply|about)\b
+\bit'?s not (a|an|the|that|about|just) [^.;]{2,80}(it'?s|but)
+\bless about [^.;]{2,60}(than|and more about)
+\bmore than (just|a mere|simply)\b
+\bno [a-z]+, no [a-z]+(, no [a-z]+)?[,.]? just\b
+\bnot (just|only|merely|simply|solely) [^.;]{2,80}(but|it'?s| — )
+\bnot\b [^.;]{2,60},? but\b
+\bnot because [^.;]{2,80}but because
+\bnot only [^.;]{2,80}but (also )?
+\bthe (\d+|two|three|four|five|few) things (it|this|that|they) (is|are)(n'?t| not)
+\bthe (question|point|issue|problem|goal|real [a-z]+) is(n'?t| not) (whether|about|just|if)
+\bwe'?re not (just )?(talking about|looking at|dealing with)
 ```
 
 Rhetorical-question variant (regex-resistant; check by hand): a one-line question immediately answered by a one-word or one-clause sentence. *"The result? Chaos."* / *"Sound familiar?"*
@@ -77,6 +78,7 @@ Single words and stock phrases that spike in LLM output. Each is fine in isolati
 \b(synergy)\b
 \b(tapestry)\b
 \b(testament|stands as)\b
+\bthe [a-z]+( [a-z]+)? that matters? most\b
 \b(two|three|both|multiple|different|separate) lenses\b
 \bunderscore(s|d)?\b
 \bunlock(s|ing)? (the|your)\b

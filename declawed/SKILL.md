@@ -9,7 +9,7 @@ description: >
   or before publishing any agent-drafted prose.
 allowed-tools: Read, Write, Edit, Grep, Bash
 metadata:
-  version: 1.2.0
+  version: 1.2.1
 ---
 
 # Declawed
