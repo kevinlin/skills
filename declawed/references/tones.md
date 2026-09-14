@@ -19,7 +19,7 @@ These rules apply on top of every genre profile below, except Marketing / landin
 - Use the shape for conclusions only, not for every sentence. Change the connector ("because", "since", "when") and the clause order. If one sentence goes above the 25-word cap, split it into two. When every sentence is "Given X, Y, so Z", the text shows the uniform-shape tell ([slop-patterns.md](slop-patterns.md) section 6).
 - The "so" clause must name a concrete effect or artefact: a file, a number, or a next step. If the source has none, remove the clause. Do not fill it with puffery ("so teams move faster").
 - Take the evidence and the consequence from the source or the conversation only. If one is missing, leave `[ADD: evidence?]`.
-- Lists stay where the genre permits them (docs). Each list item is a full sentence.
+- Convert terse email status bullets to prose paragraphs; adding subjects and punctuation while keeping the bullets does not complete this step. Keep related evidence and results together, without inventing a causal link. Lists stay in technical docs, or when the user explicitly requires a list. Each list item is a full sentence.
 
 ### ASD-STE100 Simplified Technical English
 

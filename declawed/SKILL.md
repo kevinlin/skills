@@ -9,7 +9,7 @@ description: >
   or before publishing any agent-drafted prose.
 allowed-tools: Read, Write, Edit, Grep, Bash
 metadata:
-  version: 1.2.1
+  version: 1.2.2
 ---
 
 # Declawed
@@ -80,7 +80,7 @@ Banned escape hatches — these are the same move and count as new findings: "le
 - No fake typos, forced slang, or manufactured "voice". Humanizer-tool output is its own genre of slop.
 - Em dashes are not banned. Humans use them. The tell is density and the double-dash "— not X, but —" move; the thresholds live in catalog section 5.
 - Don't trade precision for personality in academic or technical text. There, de-slopping means cutting puffery and committing to claims — not adding attitude.
-- Preserve the author's meaning, claims, and facts exactly. This is a style pass, not a content edit. Flag, don't silently fix, anything that looks factually wrong.
+- Preserve the author's meaning, claims, and facts exactly, including uncertainty: "hope" must not become "expect". Do not invent an actor, benchmark subject, or causal link to complete a sentence. A flag after the rewrite does not license an unsupported change in the text.
 
 ## Phase 3: Verify loop
 
@@ -94,7 +94,7 @@ Cap at 4 passes. If a pattern survives 4 passes, rewrite that sentence from scra
 
 Check the clean text against its genre profile in [references/tones.md](references/tones.md): right length, right formality, right person, genre-specific tells gone (e.g. on reddit: no bold, no bullet essay; in academic prose: no first-person hot takes added). Unless the genre is marketing, also check the General language rules: no bare point-form conclusions, sentences within the STE caps, no -ing verb forms or phrasal verbs, glossary terms used. Then the final test — read it aloud. Anywhere you wouldn't say it to the actual audience, rewrite that sentence.
 
-Deliver two things: the rewritten text, then a change log in this shape:
+Deliver two things: the rewritten text, then a change log in this shape. Before sending, check that the `Language` line itself reports all three fields: STE, glossary, and full sentences. Separate category entries do not replace these fields.
 
 ```
 Changes

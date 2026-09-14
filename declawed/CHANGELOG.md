@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2 - 2026-09-14
+
+- Clarify that terse email status bullets become prose, with related evidence and results kept together.
+- Require all three fields in the `Language` change-log line.
+- Preserve uncertainty and avoid unsupported actors, benchmark subjects, and causal links.
+
 ## 1.2.1 — 2026-09-13
 
 ### Catalog updates (`references/slop-patterns.md`)
