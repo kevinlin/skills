@@ -64,7 +64,7 @@ Specs rot. A plan ships but keeps its old steps; a design decision changes durin
 
 ## Communicate & Deliver
 
-### [architecture-diagram](architecture-diagram/)
+### [html-diagram](html-diagram/)
 
 Generates layered system architecture diagrams as pure HTML/CSS: color-coded tiers, grid layouts, and sidebars for cross-cutting concerns like security and monitoring. Ships 12 visual styles and 12 layout patterns that combine freely, covering technology stacks, microservice topologies, pipelines, and before/after comparisons. The lifecycle diagram at the top of this README is one of its outputs.
 

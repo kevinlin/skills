@@ -1,5 +1,5 @@
 ---
-name: architecture-diagram
+name: html-diagram
 description: 'Use when the user needs an architecture or system diagram, a CI/CD, build, or release pipeline, an ETL or data pipeline, a deployment flow, a left-to-right component or stage flow, or any diagram inline in a Markdown wiki or page. This skill applies even when Mermaid or ASCII seems more compatible.'
 allowed-tools: Read, Write, Edit, Glob, Bash
 permissions:
@@ -8,7 +8,7 @@ metadata:
   version: 1.2.2
 ---
 
-# Architecture Diagram Generator
+# HTML Diagram Generator
 
 ## Required Workflow
 

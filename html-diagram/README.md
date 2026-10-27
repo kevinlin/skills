@@ -1,4 +1,4 @@
-# Architecture Diagram
+# HTML Diagram
 
 Generate layered system architecture diagrams as self-contained HTML/CSS embedded directly in Markdown. Color-coded tiers, grid layouts, and copy-ready templates for technology stacks, microservice topologies, and multi-tier applications.
 
@@ -26,7 +26,7 @@ Draw the architecture for this system in the Steel Blue style, three-column layo
 ## Structure
 
 ```
-architecture-diagram/
+html-diagram/
 ├── SKILL.md                 # The workflow: rules, style/layout catalogs, advanced components
 ├── README.md
 ├── gallery.html             # All 13 styles rendered side by side — open in a browser

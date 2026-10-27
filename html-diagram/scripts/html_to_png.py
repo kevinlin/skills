@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render an architecture-diagram HTML file to a PNG.
+"""Render an html-diagram HTML file to a PNG.
 
 The diagrams are self-contained HTML/CSS. This drives a headless browser to
 render one and screenshot it, cropped tight to the diagram at 2x for crisp

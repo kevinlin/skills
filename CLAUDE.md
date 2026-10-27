@@ -47,7 +47,7 @@ Validate manifest changes with `claude plugin validate .` from the repo root. Th
 
 Several skills carry real helper scripts — the repo is not script-free:
 
-- **Python** — `agent-insights/scripts/agent_insights.py`, `declawed/scripts/scan.py`, `research-plan-implement/scripts/spec_metadata.sh` (git metadata for frontmatter), and the `architecture-diagram/scripts/` pair (`build_gallery.py` regenerates the style gallery, `html_to_png.py` renders a diagram to PNG via a headless browser).
+- **Python** — `agent-insights/scripts/agent_insights.py`, `declawed/scripts/scan.py`, `research-plan-implement/scripts/spec_metadata.sh` (git metadata for frontmatter), and the `html-diagram/scripts/` pair (`build_gallery.py` regenerates the style gallery, `html_to_png.py` renders a diagram to PNG via a headless browser).
 
 Skills declare no dependency manifests (no root `requirements.txt` / `package.json`) — scripts rely on the interpreter's standard library.
 

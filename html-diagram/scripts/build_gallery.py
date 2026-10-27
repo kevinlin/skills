@@ -65,7 +65,7 @@ def build() -> str:
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>architecture-diagram - style gallery</title>
+<title>html-diagram - style gallery</title>
 <style>
   :root {{ color-scheme: light; }}
   body {{ margin:0; font-family: system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
@@ -84,7 +84,7 @@ def build() -> str:
 </style></head>
 <body>
 <header>
-  <h1>architecture-diagram - style gallery</h1>
+  <h1>html-diagram - style gallery</h1>
   <p>13 styles, each isolated in its own frame. Grouped cool -> warm -> light-neutral -> dark -> brand. Regenerate with <code>python3 scripts/build_gallery.py</code>.</p>
 </header>
 <div class="grid">{''.join(cards)}</div>
