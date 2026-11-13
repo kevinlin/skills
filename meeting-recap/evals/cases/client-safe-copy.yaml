@@ -1,0 +1,48 @@
+id: client-safe-copy
+title: Derives a client-safe copy that drops internal material and keeps the substance
+description: |
+  The "Client-safe copy (on request)" section of SKILL.md and the rules at the
+  end of `references/recap-template.md`: write
+  `Output/Meetings/Sanitised/<YYYYMMDD_Slug>.md`, Markdown only, with no
+  metadata, timestamps or transcript references, quotes paraphrased,
+  contradictions reworded as "Points to confirm", and the internal sections
+  renamed ("The short version" becomes "Summary").
+
+  The workspace holds a finished internal recap seeded with six things that must
+  not reach the client:
+    - the metadata table,
+    - a link to the transcript,
+    - an "Our reading" line about Harbour Freight's own commercial strategy
+      (change request, paid extension, absorbing the cost),
+    - the name of a sensitive third party,
+    - a term still marked "(unconfirmed)",
+    - a colloquial quote.
+  The judge checks each is gone or rewritten, and that the copy is not simply
+  emptied: it must keep a Summary and a Points to confirm section with content,
+  at least three numbered sections with real text, the Who table, and the
+  decision itself.
+
+  The internal recap is also checked and must be unchanged, and Input/ and
+  Artefacts/ must be untouched.
+
+  Failure modes under test: copying the internal recap with a few words
+  changed; deleting so much that nothing useful is left; leaking the strategy
+  line or the third-party name; editing the internal recap in place instead of
+  deriving a new file.
+
+input:
+  prompt: |
+    Can you make a client-safe version of the 5 Nov rollout planning recap that
+    I can email to Harbour Freight? The internal recap is in
+    Output/Meetings/20261105_Rollout-planning/. Leave the internal one as it is.
+
+    I'm not able to answer questions right now, so make the calls you can
+    defend and tell me what I should look at before I send it.
+
+context:
+  repo_fixture: evals/fixtures/workspaces/client-safe-copy
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/judge_client_safe_copy.py
+  timeout_seconds: 60

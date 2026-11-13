@@ -1,0 +1,47 @@
+id: verify-planted-defects
+title: Verifies a finished recap against its transcript and fixes the planted defects without deleting the facts around them
+description: |
+  The "verify before promoting" step of SKILL.md. The workspace holds a
+  finished, clean recap (Markdown and HTML) into which four isolated defects
+  were planted, the same four in each file:
+    - the banned former project name written into one line,
+    - a timestamp more than 300 seconds past the end of the transcript,
+    - a quote attributed to the wrong speaker (Ingrid instead of Tomasz),
+    - a link to the transcript with a misspelled file name.
+  Three of the four are caught mechanically by `scripts/check_recap.py`; the
+  wrong speaker is not, so only a real comparison against the transcript finds
+  it.
+
+  The judge accepts any correct repair: the old name replaced or the line
+  rewritten, the timestamp corrected or turned into a range, the quote
+  re-attributed or paraphrased, the link repointed (a fragment is fine). It
+  rejects the shortcuts: deleting the line, quote or claim that carried the
+  defect so the facts it recorded disappear, leaving a defect in one of the two
+  files, or damaging the rest of the recap (the other facts, the banner, the
+  numbered sections).
+
+  The judge also requires the Artefacts/ and Input/ folders to be untouched:
+  the user said not to promote, and promoting is not part of this case.
+
+  Failure modes under test: a verifier that only runs the checker and misses
+  the misattributed quote; fixing the Markdown but not the HTML; "fixing" by
+  deleting; promoting after verification without being asked.
+
+input:
+  prompt: |
+    The 5 Nov rollout planning recap in Output/Meetings/20261105_Rollout-planning/
+    is meant to go out to the team this week. Before I promote it, check it
+    properly against the transcript in Input/Meetings/20261105_Rollout-planning/
+    and fix whatever is wrong in the copy under Output/. Both the Markdown and
+    the HTML.
+
+    Don't promote anything yet, I'll do that myself once I've read what you
+    found. I'm not around to answer questions, so make the calls you can defend.
+
+context:
+  repo_fixture: evals/fixtures/workspaces/verify-planted-defects
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/judge_verify_planted_defects.py
+  timeout_seconds: 60

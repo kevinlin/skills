@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an **agent skills repository** — 9 self-contained skills that teach an AI coding agent (Claude Code/Cowork, Codex, Cursor, OpenCode, or any agent supporting the skills format) how to do one software-delivery job well. It is not an application: no root build system, no package manager, no top-level test suite. Individual skills ship their own helper scripts.
+This is an **agent skills repository** — 10 self-contained skills that teach an AI coding agent (Claude Code/Cowork, Codex, Cursor, OpenCode, or any agent supporting the skills format) how to do one software-delivery job well. It is not an application: no root build system, no package manager, no top-level test suite. Individual skills ship their own helper scripts.
 
-`README.md` is the authoritative human catalogue — it lists all 9 skills grouped by delivery phase (Bid/Discover/Design, Build, Review/Verify, Maintain, Communicate/Deliver, Measure). Read it before assuming what a skill does.
+`README.md` is the authoritative human catalogue — it lists all 10 skills grouped by delivery phase (Bid/Discover/Design, Build, Review/Verify, Maintain, Communicate/Deliver, Measure). Read it before assuming what a skill does.
 
 ## Skill Anatomy
 
@@ -36,7 +36,7 @@ When you change a skill's behavior, bump both. `versions.json` is how an install
 
 The repo doubles as a Claude Code plugin marketplace. Two manifests live in `.claude-plugin/` (see the [plugin-marketplaces guide](https://code.claude.com/docs/en/plugin-marketplaces)):
 
-- `marketplace.json` — catalog `ai-sdlc` with one plugin entry, `ai-sdlc-skills`. It uses `source: "./"` plus an explicit `skills` array listing all 9 skill directories, rather than the default `skills/` scan.
+- `marketplace.json` — catalog `ai-sdlc` with one plugin entry, `ai-sdlc-skills`. It uses `source: "./"` plus an explicit `skills` array listing all 10 skill directories, rather than the default `skills/` scan.
 - `plugin.json` — plugin metadata (author, homepage, license). It carries no `version` on purpose: the plugin is git-hosted and actively developed, so every commit counts as a new version (SHA-driven updates). Adding a pinned `version` means you must bump it on every release or installed copies never update — hence the validator's no-version warning is expected.
 
 Because the entry uses an explicit `skills` list, **adding or removing a skill means editing the `skills` array in `marketplace.json`** — a new top-level skill directory won't ship through the plugin until it's listed there. This is a third sync point on top of the two in the versioning invariant, but only for add/remove, not version bumps.
@@ -47,9 +47,9 @@ Validate manifest changes with `claude plugin validate .` from the repo root. Th
 
 Several skills carry real helper scripts — the repo is not script-free:
 
-- **Python** — `agent-insights/scripts/agent_insights.py`, `declawed/scripts/scan.py`, `research-plan-implement/scripts/spec_metadata.sh` (git metadata for frontmatter), and the `html-diagram/scripts/` pair (`build_gallery.py` regenerates the style gallery, `html_to_png.py` renders a diagram to PNG via a headless browser).
+- **Python** — `agent-insights/scripts/agent_insights.py`, `declawed/scripts/scan.py`, `research-plan-implement/scripts/spec_metadata.sh` (git metadata for frontmatter), and the `html-diagram/scripts/` pair (`build_gallery.py` regenerates the style gallery, `html_to_png.py` renders a diagram to PNG via a headless browser)), and `meeting-recap/scripts/` (`diarize.py` drives the local transcription pipeline, `check_recap.py` runs the mechanical recap checks, `build_html.py` and `svgkit.py` build the HTML companion and figures).
 
-Skills declare no dependency manifests (no root `requirements.txt` / `package.json`) — scripts rely on the interpreter's standard library.
+Skills declare no dependency manifests (no root `requirements.txt` / `package.json`) — scripts rely on the interpreter's standard library. The one exception is `meeting-recap/scripts/embed.py`, which runs inside the separately installed MOSS venv (torch + speechbrain); `diarize.py` stays stdlib and shells out to it.
 
 ## Repository conventions
 

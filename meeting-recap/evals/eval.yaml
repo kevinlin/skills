@@ -1,0 +1,52 @@
+schema_version: v1alpha1
+
+# meeting-recap turns a meeting into governed deliverables: an internal recap in
+# Markdown plus a standalone HTML companion, merged glossary terms, an
+# independent verifier pass, and a client-safe copy on request. Every case runs
+# in a synthetic workspace (fictional consultancy "Northwind Consulting",
+# fictional client "Harbour Freight") whose CLAUDE.md sets the folder rules, the
+# banned former project name and the distribution banner, and every case is
+# judged by a script that reads the files the agent wrote. rule_based and
+# llm_judge are not used: the deliverables are files, not the final message, and
+# the bar must not drift between runs.
+#
+# Fixtures are text only and generated: edit evals/fixtures/src/, then run
+# `python3 evals/fixtures/build_manifests.py` (it rebuilds evals/fixtures/workspaces/
+# and stamps the shared checks and the pristine-state sha256 manifests into each
+# judge). `bash evals/fixtures/scripts/selftest.sh` runs every judge from a copy
+# in a fresh temp dir against a good workspace and one bad workspace per assertion.
+#
+# Deliberately not covered: the audio / MOSS-Transcribe-Diarize path (needs a
+# venv and a recording), whiteboard and slide figures, the governed-glossary
+# diff-approval flow, and promotion into Artefacts/. Each needs assets or a
+# human turn this suite does not have.
+#
+# max_turns is generous on purpose: the recap case reads the workspace rules,
+# the glossary, the stakeholder list and the previous recap, writes two files,
+# builds the HTML, runs the checker twice and may fan out the verifier subagent.
+
+environment:
+  type: none
+
+skills:
+  - source: local_path
+    path: .
+
+engine:
+  name: claude_code
+
+cases:
+  files:
+    - evals/cases/recap-from-transcript.yaml
+    - evals/cases/verify-planted-defects.yaml
+    - evals/cases/client-safe-copy.yaml
+  parallelism: 3
+  defaults:
+    timeout_seconds: 1500
+    max_turns: 200
+    collect_artifacts:
+      - "Output/**"
+      - "Glossary.md"
+
+report:
+  formats: [json]

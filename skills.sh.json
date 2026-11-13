@@ -34,9 +34,10 @@
     },
     {
       "title": "Communicate & Deliver",
-      "description": "Skills for diagrams and clear written communication.",
+      "description": "Skills for diagrams, meeting recaps and clear written communication.",
       "skills": [
         "html-diagram",
+        "meeting-recap",
         "declawed"
       ]
     },

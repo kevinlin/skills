@@ -1,6 +1,6 @@
 # Agent Skills
 
-A collection of 9 agent skills for software delivery work, from requirements gap analysis to reviewed, shipped code. Each skill is a self-contained folder that teaches an AI coding agent how to do one job well: run a spec-driven build, review code like a senior engineer, diagram a system architecture, or tell you how you actually use your AI tools. They work with Claude Code/Cowork, Codex, Cursor Copilot, OpenCode, and any other agent that supports the skills format.
+A collection of 10 agent skills for software delivery work, from requirements gap analysis to reviewed, shipped code. Each skill is a self-contained folder that teaches an AI coding agent how to do one job well: run a spec-driven build, review code like a senior engineer, diagram a system architecture, or tell you how you actually use your AI tools. They work with Claude Code/Cowork, Codex, Cursor Copilot, OpenCode, and any other agent that supports the skills format.
 
 ![Agent skills across the delivery lifecycle](assets/skills-map.png)
 
@@ -8,7 +8,7 @@ A collection of 9 agent skills for software delivery work, from requirements gap
 
 ### As a Claude Code plugin (all skills)
 
-All 9 skills ship as one Claude Code plugin. Add the marketplace, then install:
+All 10 skills ship as one Claude Code plugin. Add the marketplace, then install:
 
 ```
 /plugin marketplace add kevinlin/skills
@@ -67,6 +67,10 @@ Specs rot. A plan ships but keeps its old steps; a design decision changes durin
 ### [html-diagram](html-diagram/)
 
 Generates layered system architecture diagrams as pure HTML/CSS: color-coded tiers, grid layouts, and sidebars for cross-cutting concerns like security and monitoring. Ships 12 visual styles and 12 layout patterns that combine freely, covering technology stacks, microservice topologies, pipelines, and before/after comparisons. The lifecycle diagram at the top of this README is one of its outputs.
+
+### [meeting-recap](meeting-recap/)
+
+Turns a meeting into a recap the team can rely on. A recording becomes a speaker-attributed transcript: local MOSS-Transcribe-Diarize separates the voices in one pass, optional voice recognition against clips cut from the meeting proposes names, the content and the user confirm them, and an honest header says how sure each label is. Slides and whiteboard photos become light-theme figures with a 12px font floor, where solid shapes are on the source and dashed ones come from the transcript. Then comes a blunt internal recap in Markdown with a standalone HTML companion, the meeting's new terms merged into the project glossary, and an independent verifier subagent that checks every claim against its source before anything is promoted. It also covers recaps rebuilt from memory and a whiteboard, client-safe copies, and promotion. The pipeline came out of a real engagement's recaps, and the scripts are stdlib Python.
 
 ### [declawed](declawed/)
 

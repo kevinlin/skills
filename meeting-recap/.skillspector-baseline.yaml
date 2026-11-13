@@ -1,0 +1,92 @@
+version: 2
+rules:
+  - id: E2
+    path: tests/test_diarize.py
+    reason: "Test isolation, not harvesting: line 11 deletes only MOSS_* vars so a
+      developer's real MOSS setup cannot leak into the checks; line 36 snapshots
+      os.environ only to restore it after a block. Nothing is logged or sent
+      anywhere."
+  - id: AST4
+    path: scripts/diarize.py
+    reason: Every subprocess.run uses an argv list with shell=False and a fixed
+      executable (ffmpeg, ffprobe, the MOSS venv's mtd-subtitle/python); the
+      remediation the rule asks for is already in place.
+  - id: TT2
+    path: scripts/diarize.py
+    reason: The env sources are the documented operator config (MOSS_VENV,
+      MOSS_MODEL, MOSS_DEVICE, MOSS_VLLM_URL) set by the same user who runs the
+      script; values go into argv lists (no shell), and line 220 write_md writes
+      a path the script builds itself, not one from the environment.
+  - id: AST4
+    path: tests/test_check_recap.py
+    reason: Test runs check_recap.py via sys.executable with an argv list and
+      temp-dir paths it created; no shell, no external input.
+  - id: AST4
+    path: tests/test_diarize.py
+    reason: Test runs ffmpeg (to synthesise a sine fixture) and diarize.py -h via
+      argv lists with no shell; all arguments are literals or temp paths it
+      created.
+  - id: LP1
+    path: evals/fixtures/judge_common.py
+    reason: The only 'network' capability is 'from urllib.parse import unquote',
+      which decodes %-escapes in link targets; the module opens no socket or
+      URL.
+  - id: AST4
+    path: evals/fixtures/judge_common.py
+    reason: Eval judge runs the skill's own check_recap.py via sys.executable with
+      an argv list (no shell) and a 60 s timeout; arguments are paths inside the
+      case workspace and a fixed banned-name literal.
+  - id: AST4
+    path: evals/fixtures/scripts/judge_client_safe_copy.py
+    reason: Eval judge runs the skill's own check_recap.py via sys.executable with
+      an argv list (no shell) and a 60 s timeout; arguments are paths inside the
+      case workspace and a fixed banned-name literal.
+  - id: AST4
+    path: evals/fixtures/scripts/judge_recap_from_transcript.py
+    reason: Eval judge runs the skill's own check_recap.py via sys.executable with
+      an argv list (no shell) and a 60 s timeout; arguments are paths inside the
+      case workspace and a fixed banned-name literal.
+  - id: AST4
+    path: evals/fixtures/scripts/judge_verify_planted_defects.py
+    reason: Eval judge runs the skill's own check_recap.py via sys.executable with
+      an argv list (no shell) and a 60 s timeout; arguments are paths inside the
+      case workspace and a fixed banned-name literal.
+  - id: AST4
+    path: evals/fixtures/scripts/selftest.py
+    reason: Grader self-test runs check_recap.py and copies of the judges via argv
+      lists with no shell, against temp workspaces it built itself.
+  - id: PE2
+    path: evals/fixtures/scripts/selftest.sh
+    reason: "No privilege escalation: 'chmod 700' makes a temp copy of a judge
+      executable for its owner; the script never calls sudo or runs as root."
+  - id: EA2
+    path: evals/fixtures/src/clean-output/Output/Meetings/20261105_Rollout-planning/Rollout-planning-recap.md
+    reason: "Fixture content, not agent instructions: 'without checking' is a
+      sentence in a fictional meeting recap's 'Our reading' paragraph that the
+      eval agent reads as data."
+  - id: EA2
+    path: evals/fixtures/src/clean-output/Output/Meetings/20261105_Rollout-planning/Rollout-planning-recap.html
+    reason: "Fixture content, not agent instructions: 'without checking' is a
+      sentence in a fictional meeting recap's 'Our reading' paragraph that the
+      eval agent reads as data."
+  - id: EA2
+    path: evals/fixtures/workspaces/client-safe-copy/Output/Meetings/20261105_Rollout-planning/Rollout-planning-recap.md
+    reason: "Fixture content, not agent instructions: 'without checking' is a
+      sentence in a fictional meeting recap's 'Our reading' paragraph that the
+      eval agent reads as data."
+  - id: EA2
+    path: evals/fixtures/workspaces/client-safe-copy/Output/Meetings/20261105_Rollout-planning/Rollout-planning-recap.html
+    reason: "Fixture content, not agent instructions: 'without checking' is a
+      sentence in a fictional meeting recap's 'Our reading' paragraph that the
+      eval agent reads as data."
+  - id: EA2
+    path: evals/fixtures/workspaces/verify-planted-defects/Output/Meetings/20261105_Rollout-planning/Rollout-planning-recap.md
+    reason: "Fixture content, not agent instructions: 'without checking' is a
+      sentence in a fictional meeting recap's 'Our reading' paragraph that the
+      eval agent reads as data."
+  - id: EA2
+    path: evals/fixtures/workspaces/verify-planted-defects/Output/Meetings/20261105_Rollout-planning/Rollout-planning-recap.html
+    reason: "Fixture content, not agent instructions: 'without checking' is a
+      sentence in a fictional meeting recap's 'Our reading' paragraph that the
+      eval agent reads as data."
+fingerprints: []

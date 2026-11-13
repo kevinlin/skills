@@ -1,0 +1,50 @@
+id: recap-from-transcript
+title: Turns a transcript into a recap, an HTML companion and a merged glossary, and flags where it contradicts the previous recap
+description: |
+  The core path of SKILL.md: read the workspace rules, the glossary, the
+  stakeholder list and the previous recap, then write `<Slug>-recap.md` and
+  `<Slug>-recap.html` in `Output/Meetings/<YYYYMMDD_Slug>/`, merge the meeting's
+  new terms into the one glossary, and save `check.txt` and `evidence.txt`
+  beside the recap.
+
+  The transcript is a synthetic 25-minute rollout-planning meeting. Its header
+  states who was in the room, who was online, and how sure the speaker labels
+  are, so the agent has no reason to stop and ask. It plants four things a
+  correct recap must carry, each in BOTH the .md and the .html with a timestamp
+  within 90 seconds of its transcript turn:
+    - a decision (wave one is Southport only, after a two-week shadow run),
+    - an open disagreement (Ingrid and Tomasz on Eastgate) that must be written
+      up as open, not settled,
+    - a contradiction with the previous recap (it fixed cutover on 30 November;
+      the meeting learns that is inside the peak freeze), which must also appear
+      in the "Where sources disagree" section,
+    - an attribution (Ingrid's figure of 1,800 pallets).
+
+  The previous recap sits in `Artefacts/`, which is governed. The workspace also
+  bans the former project name outright, so the old name must not appear in any
+  deliverable, not even in quotes or after "formerly".
+
+  Failure modes under test: a recap with no timestamps or evidence; a
+  disagreement collapsed into a decision; the earlier recap's date silently
+  copied forward; a banned name written; the glossary overwritten, duplicated
+  as a second glossary file, or replaced by UBIQUITOUS_LANGUAGE.md; the
+  checker never run; Input/ edited or the recap promoted into Artefacts/ without
+  being asked.
+
+input:
+  prompt: |
+    Callum here. Can you recap the 5 Nov rollout planning meeting for me? The
+    transcript is already in Input/Meetings/20261105_Rollout-planning/. I want
+    the usual Markdown recap plus the HTML companion, and please follow the
+    workspace rules and add whatever new terms came up to our glossary.
+
+    I'm in back-to-back calls all afternoon and can't answer questions, so make
+    the calls you can defend and note anything you had to assume.
+
+context:
+  repo_fixture: evals/fixtures/workspaces/recap-from-transcript
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/judge_recap_from_transcript.py
+  timeout_seconds: 60

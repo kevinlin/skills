@@ -9,7 +9,7 @@
     {
       "name": "ai-sdlc-skills",
       "source": "./",
-      "description": "9 agent skills: gap-analysis, spec-coding, research-plan-implement, code-review-expert, spec-compact, spec-lint, html-diagram, declawed, agent-insights.",
+      "description": "10 agent skills: gap-analysis, spec-coding, research-plan-implement, code-review-expert, spec-compact, spec-lint, html-diagram, meeting-recap, declawed, agent-insights.",
       "category": "productivity",
       "keywords": ["skills", "sdlc", "spec-driven-development", "code-review"],
       "skills": [
@@ -20,6 +20,7 @@
         "./spec-compact",
         "./spec-lint",
         "./html-diagram",
+        "./meeting-recap",
         "./declawed",
         "./agent-insights"
       ]
