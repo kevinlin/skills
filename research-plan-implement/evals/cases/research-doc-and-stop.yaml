@@ -1,0 +1,99 @@
+id: research-doc-and-stop
+title: Phase 1 writes a structured research document and stops before planning
+description: |
+  Phase 1's contract: read the code, then "Generate research document" with the
+  research question, summary, detailed findings, code references and open
+  questions, carrying specific `file:line` references, under the guide's
+  `YYYY-MM-DD-description.md` filename. Then the phase transition hands control
+  back ("Ready to create an implementation plan? Type 'plan' to proceed"), so
+  no plan and no code may appear yet.
+
+  The fixture is a three-module ledger where a currency assumption is spread
+  across `post_entry`, `compute_balance` and the dispatch table, so a research
+  document that actually traced the amount path has to name at least the two
+  functions. The assertions require both.
+
+  Failure modes under test: answering inline with no document, a document with a
+  freeform shape instead of the prescribed sections, findings with no file:line
+  references, or running straight on into planning or code, which the gate
+  checks catch as a plan-shaped markdown file or an unexpected `.py` file.
+
+input:
+  prompt: |
+    Use the research-plan-implement skill for this request.
+
+    Everything in this ledger assumes GBP and we now have to hold balances in
+    several currencies. Before we plan anything, I want to understand how
+    amounts move through the codebase today — research it and write up what you
+    find.
+
+context:
+  files:
+    "README.md": |
+      # Ledger
+
+      A small in-memory ledger. Entries are recorded against an account and
+      `compute_balance` folds them into a single number. Every amount is an
+      integer in minor units and GBP is assumed throughout.
+
+    "src/ledger.py": |
+      # SENTINEL-LEDGER-BODY
+      ENTRIES: list[dict] = []
+
+
+      def post_entry(account: str, amount: int, memo: str = "") -> dict:
+          """Record one movement against an account, in minor units."""
+          entry = {"account": account, "amount": amount, "memo": memo}
+          ENTRIES.append(entry)
+          return entry
+
+
+      def entries_for(account: str) -> list[dict]:
+          return [entry for entry in ENTRIES if entry["account"] == account]
+
+    "src/balance.py": |
+      from src.ledger import entries_for
+
+
+      def compute_balance(account: str) -> int:
+          """Sum every movement on an account. Minor units, GBP assumed."""
+          return sum(entry["amount"] for entry in entries_for(account))
+
+    "src/api.py": |
+      from src.balance import compute_balance
+      from src.ledger import post_entry
+
+      ROUTES = {
+          "post_entry": post_entry,
+          "balance": compute_balance,
+      }
+
+
+      def dispatch(name: str, **kwargs):
+          return ROUTES[name](**kwargs)
+
+    "tests/test_balance.py": |
+      from src.balance import compute_balance
+      from src.ledger import ENTRIES, post_entry
+
+
+      def test_balance_sums_entries():
+          ENTRIES.clear()
+          post_entry("cash", 2500)
+          post_entry("cash", -500)
+          assert compute_balance("cash") == 2000
+
+
+      if __name__ == "__main__":
+          test_balance_sums_entries()
+          print("ok")
+
+expect:
+  files_exist:
+    - "src/ledger.py"
+    - "src/balance.py"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-research-doc.sh
+  timeout_seconds: 30

@@ -1,0 +1,43 @@
+schema_version: v1alpha1
+
+# research-plan-implement is a three-phase workflow skill: Phase 1 writes a
+# research document, Phase 2 turns it into a phased plan, Phase 3 executes one
+# phase at a time behind human approval gates. Every case therefore seeds a
+# small Python ledger fixture (plus, for the later phases, the artefact the
+# previous phase would have produced) and grades the workspace: which document
+# was written, in what shape, which checkboxes moved, and what was left alone.
+#
+# Judges are `script` rather than `rule_based` in five of six cases because the
+# deliverables here are files and gate side effects, and rule_based matches only
+# the agent's final message. The one message-shaped claim, the orientation
+# block on a bare invocation, is rule_based. No case uses agent_judge: this
+# suite runs on every evaluate gate, so nothing here should cost an LLM call.
+#
+# Prompts name the skill explicitly, matching the rest of this repo's suites:
+# implicit trigger matching is the engine's behaviour, not the skill's.
+
+environment:
+  type: none
+
+skills:
+  - source: local_path
+    path: .
+
+engine:
+  name: claude_code
+
+cases:
+  files:
+    - evals/cases/orients-and-waits.yaml
+    - evals/cases/research-doc-and-stop.yaml
+    - evals/cases/plan-from-existing-research.yaml
+    - evals/cases/implements-first-phase-only.yaml
+    - evals/cases/resumes-from-checkmarks.yaml
+    - evals/cases/halts-on-plan-mismatch.yaml
+  defaults:
+    timeout_seconds: 900
+    max_turns: 60
+  parallelism: 3
+
+report:
+  formats: [json]

@@ -1,0 +1,178 @@
+id: plan-from-existing-research
+title: Skips Phase 1 when research exists and writes a plan with split verification criteria
+description: |
+  Two claims at once.
+
+  The workflow variation "Existing research available — skip directly to Phase
+  2. Read the existing document and build on it — don't redo work that's already
+  done." A ready research document is seeded at
+  `docs/research/2026-08-18-multi-currency-ledger.md`, and the assertions require
+  exactly one document in the workspace carrying a "Research Question" heading.
+  A second one means Phase 1 was re-run.
+
+  And Phase 2's output contract: the plan template's Overview, Current State,
+  Desired End State, "What We're NOT Doing", Implementation Approach and
+  numbered phases, with success criteria split into Automated Verification and
+  Manual Verification as checkbox lists. "Resolve all open questions — a plan
+  with unknowns isn't ready" is graded as the absence of TBD / to-be-decided /
+  decide-later.
+
+  The prompt settles the approach up front, so Phase 2's interactive design step
+  has nothing left to negotiate and the plan is the expected output. The
+  approval gate at the end of Phase 2 is graded too: no implementation may start,
+  so the seeded `.py` files must be the only ones present and the ledger sentinel
+  must survive.
+
+  Failure modes under test: re-running research the user already has, a plan
+  written as prose without the template's sections, one merged list of success
+  criteria instead of the automated/manual split, unresolved TBDs, or coding
+  ahead of the approval gate.
+
+input:
+  prompt: |
+    Use the research-plan-implement skill for this request.
+
+    The research is already done, it's at
+    docs/research/2026-08-18-multi-currency-ledger.md, and I don't want it
+    redone. Go straight to the plan.
+
+    On the open question in there: keep amounts in minor units, put a `currency`
+    field on every entry, and convert at read time inside `compute_balance`.
+    GBP stays the reporting currency and the rate table can live in the repo for
+    now. I'm happy with that approach, so write the implementation plan.
+
+context:
+  files:
+    "README.md": |
+      # Ledger
+
+      A small in-memory ledger. Entries are recorded against an account and
+      `compute_balance` folds them into a single number. Every amount is an
+      integer in minor units and GBP is assumed throughout.
+
+    "src/ledger.py": |
+      # SENTINEL-LEDGER-BODY
+      ENTRIES: list[dict] = []
+
+
+      def post_entry(account: str, amount: int, memo: str = "") -> dict:
+          """Record one movement against an account, in minor units."""
+          entry = {"account": account, "amount": amount, "memo": memo}
+          ENTRIES.append(entry)
+          return entry
+
+
+      def entries_for(account: str) -> list[dict]:
+          return [entry for entry in ENTRIES if entry["account"] == account]
+
+    "src/balance.py": |
+      from src.ledger import entries_for
+
+
+      def compute_balance(account: str) -> int:
+          """Sum every movement on an account. Minor units, GBP assumed."""
+          return sum(entry["amount"] for entry in entries_for(account))
+
+    "src/api.py": |
+      from src.balance import compute_balance
+      from src.ledger import post_entry
+
+      ROUTES = {
+          "post_entry": post_entry,
+          "balance": compute_balance,
+      }
+
+
+      def dispatch(name: str, **kwargs):
+          return ROUTES[name](**kwargs)
+
+    "tests/test_balance.py": |
+      from src.balance import compute_balance
+      from src.ledger import ENTRIES, post_entry
+
+
+      def test_balance_sums_entries():
+          ENTRIES.clear()
+          post_entry("cash", 2500)
+          post_entry("cash", -500)
+          assert compute_balance("cash") == 2000
+
+
+      if __name__ == "__main__":
+          test_balance_sums_entries()
+          print("ok")
+
+    "docs/research/2026-08-18-multi-currency-ledger.md": |
+      ---
+      date: 2026-08-18 09:14:02 BST
+      researcher: AI
+      git_commit: 4f21c0a9b3d75e1c8a6f2d4b90e7c3518af6d2b1
+      branch: main
+      repository: ledger
+      topic: "How amounts move through the ledger today"
+      tags: [research, ledger, balance, api]
+      status: complete
+      ---
+
+      # Research: How amounts move through the ledger
+
+      ## Research Question
+
+      Where is the GBP assumption baked in, and what would have to change to
+      hold balances in more than one currency?
+
+      ## Summary
+
+      Amounts enter through `post_entry`, are stored as bare integers in a
+      module-level list, and leave through `compute_balance`, which sums them
+      without looking at any currency. Nothing in the codebase records a
+      currency, so the assumption lives in the absence of a field rather than in
+      any single line of code.
+
+      ## Detailed Findings
+
+      ### Entry recording
+
+      - `post_entry` (`src/ledger.py:5`) builds the entry dict from account,
+        amount and memo only — there is no currency key to carry.
+      - `ENTRIES` (`src/ledger.py:2`) is a process-global list, so any schema
+        change lands on every reader at once.
+      - `entries_for` (`src/ledger.py:12`) filters by account alone.
+
+      ### Balance calculation
+
+      - `compute_balance` (`src/balance.py:4`) sums `entry["amount"]` across the
+        filtered entries. Its docstring is the only place GBP is named.
+
+      ### Dispatch surface
+
+      - `ROUTES` (`src/api.py:4`) exposes `post_entry` and `balance` by name and
+        forwards keyword arguments verbatim, so a new parameter on either
+        function is reachable from callers without changing `dispatch`.
+
+      ## Code References
+
+      - `src/ledger.py:5` — entry dict is constructed here
+      - `src/balance.py:4` — the sum that assumes one currency
+      - `src/api.py:4` — dispatch table forwarding kwargs
+      - `tests/test_balance.py:5` — the only test asserting balance arithmetic
+
+      ## Architecture Notes
+
+      Modules are thin and import each other directly; there is no service or
+      repository layer to hide a schema change behind. Amounts are integers in
+      minor units throughout, which the tests rely on.
+
+      ## Open Questions
+
+      - Should conversion happen at write time or at read time?
+      - Where does the rate table live?
+
+expect:
+  files_exist:
+    - "docs/research/2026-08-18-multi-currency-ledger.md"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-plan-doc.sh
+  timeout_seconds: 30

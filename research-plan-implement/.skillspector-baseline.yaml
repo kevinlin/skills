@@ -1,0 +1,33 @@
+version: 2
+rules:
+  - id: EA2
+    path: SKILL.md
+    reason: Keyword match on the phrase "without approval" in SKILL.md:173, "Do not
+      improvise without approval." The sentence mandates human approval rather
+      than bypassing it, and the adjacent step 3 tells the agent to stop and
+      wait for user confirmation after automated checks. The skill is
+      human-in-the-loop by design; there is no autonomous high-impact action
+      here.
+  - id: AR2
+    path: agents/codebase-analyzer.md
+    reason: "Scope instruction, not anti-refusal: 'without any judgment or
+      suggestions for change' confines this read-only documentation subagent to
+      describing existing code; it does not ask the model to override refusals
+      or safety guidance."
+  - id: AR2
+    path: agents/codebase-pattern-finder.md
+    reason: "Scope instruction, not anti-refusal: 'No evaluation - just show what
+      exists without judgment' keeps this read-only pattern-finding subagent
+      descriptive; nothing asks the model to bypass refusals or safety
+      guidance."
+  - id: EA2
+    path: references/phase2-planning-guide.md
+    reason: "'Implement without asking clarifying questions' describes how complete
+      a written plan must be; the plan itself goes to the user for approval
+      before Phase 3 runs, so no high-impact action is taken autonomously."
+  - id: EA2
+    path: references/phase3-implementation-guide.md
+    reason: Line 76 requires approval before any large deviation from the plan; line
+      78 limits unasked changes to trivial ones such as a renamed function. Both
+      narrow autonomy, and phases stop for user verification.
+fingerprints: []

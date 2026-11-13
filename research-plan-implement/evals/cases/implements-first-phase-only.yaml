@@ -1,0 +1,244 @@
+id: implements-first-phase-only
+title: Phase 3 executes one plan phase, ticks its boxes, and pauses for manual verification
+description: |
+  Phase 3's execution loop: "Execute one phase at a time", run the plan's
+  automated verification, "Update checkboxes in the plan as items pass", then
+  "Pause for manual verification ... Wait for confirmation before proceeding".
+
+  A three-phase plan is seeded with every box unchecked, alongside the code it
+  refers to: `src/fx.py` carries a `convert` stub that raises
+  `NotImplementedError`, and `tests/test_fx.py` is the plan's Phase 1 automated
+  check. Phase 2 creates `src/rates.py`; Phase 3 adds a `convert` route to
+  `ROUTES`. Neither may happen here, and the prompt asks for the plan to be
+  started rather than finished.
+
+  The judge runs the seeded test itself, so "implemented" means the conversion
+  actually works, not that the stub was deleted.
+
+  Failure modes under test: implementing the whole plan in one go, ticking boxes
+  for work that was not verified, leaving Phase 1's boxes unticked after passing
+  its check, or finishing without handing the manual steps back to the user.
+
+input:
+  prompt: |
+    Use the research-plan-implement skill for this request.
+
+    The plan is at docs/plans/2026-08-19-multi-currency-ledger.md and it's
+    approved. Start implementing it.
+
+context:
+  files:
+    "README.md": |
+      # Ledger
+
+      A small in-memory ledger. Multi-currency support is being added phase by
+      phase against an approved plan under `docs/plans/`.
+
+    "src/ledger.py": |
+      # SENTINEL-LEDGER-BODY
+      ENTRIES: list[dict] = []
+
+
+      def post_entry(account: str, amount: int, memo: str = "") -> dict:
+          """Record one movement against an account, in minor units."""
+          entry = {"account": account, "amount": amount, "memo": memo}
+          ENTRIES.append(entry)
+          return entry
+
+
+      def entries_for(account: str) -> list[dict]:
+          return [entry for entry in ENTRIES if entry["account"] == account]
+
+    "src/balance.py": |
+      from src.ledger import entries_for
+
+
+      def compute_balance(account: str) -> int:
+          """Sum every movement on an account. Minor units, GBP assumed."""
+          return sum(entry["amount"] for entry in entries_for(account))
+
+    "src/api.py": |
+      # SENTINEL-API-ROUTES
+      from src.balance import compute_balance
+      from src.ledger import post_entry
+
+      ROUTES = {
+          "post_entry": post_entry,
+          "balance": compute_balance,
+      }
+
+
+      def dispatch(name: str, **kwargs):
+          return ROUTES[name](**kwargs)
+
+    "src/fx.py": |
+      RATES = {
+          ("USD", "GBP"): 0.79,
+          ("EUR", "GBP"): 0.86,
+          ("GBP", "GBP"): 1.0,
+      }
+
+
+      def convert(amount: int, source: str, target: str) -> int:
+          """Convert an amount in minor units between currencies."""
+          raise NotImplementedError("Phase 1")
+
+    "tests/test_fx.py": |
+      from src.fx import convert
+
+
+      def test_converts_between_currencies():
+          assert convert(10_000, "USD", "GBP") == 7900
+          assert convert(2_500, "GBP", "GBP") == 2500
+
+
+      if __name__ == "__main__":
+          test_converts_between_currencies()
+          print("ok")
+
+    "tests/test_balance.py": |
+      from src.balance import compute_balance
+      from src.ledger import ENTRIES, post_entry
+
+
+      def test_balance_sums_entries():
+          ENTRIES.clear()
+          post_entry("cash", 2500)
+          post_entry("cash", -500)
+          assert compute_balance("cash") == 2000
+
+
+      if __name__ == "__main__":
+          test_balance_sums_entries()
+          print("ok")
+
+    "docs/plans/2026-08-19-multi-currency-ledger.md": |
+      # Multi-Currency Ledger Implementation Plan
+
+      ## Overview
+
+      Hold ledger amounts in more than one currency by tagging entries with a
+      currency and converting to GBP at read time.
+
+      ## Current State
+
+      Amounts are bare integers in minor units. `src/fx.py` holds a rate table
+      and a `convert` stub that raises `NotImplementedError`. Nothing calls it.
+
+      ## Desired End State
+
+      `convert` works, the rate table lives in its own module, and callers reach
+      conversion through the existing dispatch table.
+
+      ## What We're NOT Doing
+
+      - Live rate feeds — the checked-in rate table stays for now
+      - Restating entries already recorded
+
+      ## Implementation Approach
+
+      Land the conversion helper behind its own test, then move the rate table
+      out of it, then expose it through dispatch. Each phase verifies on its own.
+
+      ---
+
+      ## Phase 1: Conversion helper
+
+      ### Overview
+
+      Implement `convert` so amounts in minor units convert between currencies,
+      rounding to the nearest minor unit.
+
+      ### Changes Required
+
+      #### 1. Conversion
+
+      **File**: `src/fx.py`
+      **Changes**: Implement `convert` using `RATES`, returning an `int`. An
+      unknown currency pair raises `KeyError`.
+
+      ### Success Criteria
+
+      #### Automated Verification
+
+      - [ ] Conversion test passes: `PYTHONPATH=. python3 tests/test_fx.py`
+
+      #### Manual Verification
+
+      - [ ] A USD amount converted to GBP reads sensibly against the published rate
+
+      **After automated verification passes, pause for manual confirmation before proceeding.**
+
+      ---
+
+      ## Phase 2: Rate table module
+
+      ### Overview
+
+      Move the rate table out of `src/fx.py` so it can be replaced later without
+      touching the conversion logic.
+
+      ### Changes Required
+
+      #### 1. Rate lookup
+
+      **File**: `src/rates.py` (new)
+      **Changes**: Add `rate_for(source: str, target: str) -> float` holding the
+      pairs currently in `RATES`.
+
+      #### 2. Conversion delegates
+
+      **File**: `src/fx.py`
+      **Changes**: `convert` calls `rate_for` instead of reading `RATES`.
+
+      ### Success Criteria
+
+      #### Automated Verification
+
+      - [ ] Conversion test still passes: `PYTHONPATH=. python3 tests/test_fx.py`
+      - [ ] Rate lookup resolves: `PYTHONPATH=. python3 -c "from src.rates import rate_for; print(rate_for('USD', 'GBP'))"`
+
+      #### Manual Verification
+
+      - [ ] `src/fx.py` no longer holds rate data
+
+      **After automated verification passes, pause for manual confirmation before proceeding.**
+
+      ---
+
+      ## Phase 3: Dispatch route
+
+      ### Overview
+
+      Expose conversion to callers through the existing dispatch table.
+
+      ### Changes Required
+
+      #### 1. Route
+
+      **File**: `src/api.py`
+      **Changes**: Add a `"convert"` entry to `ROUTES` pointing at `src.fx.convert`.
+
+      ### Success Criteria
+
+      #### Automated Verification
+
+      - [ ] Route dispatches: `PYTHONPATH=. python3 -c "from src.api import dispatch; print(dispatch('convert', amount=10000, source='USD', target='GBP'))"`
+
+      #### Manual Verification
+
+      - [ ] Callers convert without importing `src.fx` directly
+
+      ## References
+
+      - Research document: `docs/research/2026-08-18-multi-currency-ledger.md`
+
+expect:
+  files_exist:
+    - "docs/plans/2026-08-19-multi-currency-ledger.md"
+    - "src/fx.py"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-first-phase-only.sh
+  timeout_seconds: 60

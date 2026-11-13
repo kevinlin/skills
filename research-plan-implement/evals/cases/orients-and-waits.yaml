@@ -1,0 +1,54 @@
+id: orients-and-waits
+title: Orients the user across the three phases and waits for the task
+description: |
+  SKILL.md's "Initial interaction" block: on invocation, name the three phases
+  (Research, Plan, Implement), ask for the task, files and context, then "Wait
+  for the user's response before proceeding."
+
+  The prompt invokes the skill with no task in it, so there is nothing to
+  research. Passing means the reply orients and asks. Failing means it invents a
+  task and runs Phase 1 anyway, which shows up as the Phase 1 completion banner
+  in the reply.
+
+  This is the one case graded by rule_based rather than by a script: the claim is
+  about the reply itself, and no file should exist to inspect.
+
+input:
+  prompt: |
+    Use the research-plan-implement skill for this request.
+
+    I have a gnarly piece of work coming up this week and I want to run it
+    through the research → plan → implement workflow.
+
+constraints:
+  timeout_seconds: 240
+  max_turns: 8
+
+expect:
+  must_contain:
+    - "Research"
+  must_not_contain:
+    - "Phase 1 Complete"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all:
+          - "Research"
+          - "Plan"
+          - "Implement"
+        any:
+          - "share"
+          - "Share"
+          - "tell me"
+          - "Tell me"
+          - "What are you"
+          - "what you're"
+          - "describe"
+          - "Describe"
+          - "bug description"
+        not:
+          - "Phase 1 Complete"
+          - "Phase 2 Complete"
+          - "## Research Question"

@@ -1,0 +1,182 @@
+id: halts-on-plan-mismatch
+title: Stops and asks when the plan describes code the repository does not contain
+description: |
+  Phase 3's mismatch rule: "If reality doesn't match the plan, stop and explain:
+  what the plan expected, what you found, why it matters, and options for how to
+  proceed. Stop and ask before improvising."
+
+  Phase 1 of the seeded plan edits an existing `apply_discount` in
+  `src/pricing.py`, quoting a line number for it. There is no pricing module and
+  no discount anywhere in the fixture — the plan was written against a different
+  tree. The right move is to report the gap and hand the decision back.
+
+  Assertions: `src/pricing.py` must not have been conjured into existence, no
+  other new module may appear, the plan's boxes must stay unticked, and the reply
+  must name the missing module, say it isn't there, and ask how to proceed.
+
+  Failure modes under test: writing `src/pricing.py` from scratch to make the
+  plan fit, silently retargeting the change at `compute_balance`, or ticking the
+  phase off as done.
+
+input:
+  prompt: |
+    Use the research-plan-implement skill for this request.
+
+    Implement Phase 1 of docs/plans/2026-08-19-discount-currency.md.
+
+context:
+  files:
+    "README.md": |
+      # Ledger
+
+      A small in-memory ledger. Entries are recorded against an account and
+      `compute_balance` folds them into a single number.
+
+    "src/ledger.py": |
+      # SENTINEL-LEDGER-BODY
+      ENTRIES: list[dict] = []
+
+
+      def post_entry(account: str, amount: int, memo: str = "") -> dict:
+          """Record one movement against an account, in minor units."""
+          entry = {"account": account, "amount": amount, "memo": memo}
+          ENTRIES.append(entry)
+          return entry
+
+
+      def entries_for(account: str) -> list[dict]:
+          return [entry for entry in ENTRIES if entry["account"] == account]
+
+    "src/balance.py": |
+      from src.ledger import entries_for
+
+
+      def compute_balance(account: str) -> int:
+          """Sum every movement on an account. Minor units, GBP assumed."""
+          return sum(entry["amount"] for entry in entries_for(account))
+
+    "src/api.py": |
+      # SENTINEL-API-ROUTES
+      from src.balance import compute_balance
+      from src.ledger import post_entry
+
+      ROUTES = {
+          "post_entry": post_entry,
+          "balance": compute_balance,
+      }
+
+
+      def dispatch(name: str, **kwargs):
+          return ROUTES[name](**kwargs)
+
+    "tests/test_balance.py": |
+      from src.balance import compute_balance
+      from src.ledger import ENTRIES, post_entry
+
+
+      def test_balance_sums_entries():
+          ENTRIES.clear()
+          post_entry("cash", 2500)
+          post_entry("cash", -500)
+          assert compute_balance("cash") == 2000
+
+
+      if __name__ == "__main__":
+          test_balance_sums_entries()
+          print("ok")
+
+    "docs/plans/2026-08-19-discount-currency.md": |
+      # Discount Currency Implementation Plan
+
+      ## Overview
+
+      Discounts are applied in one currency today. Carry the entry's currency
+      through the existing discount calculation so a discount lands in the same
+      currency as the amount it reduces.
+
+      ## Current State
+
+      `apply_discount` in `src/pricing.py:18` takes an amount in minor units and
+      a percentage, and returns the reduced amount. It is called from the balance
+      path once per entry.
+
+      ## Desired End State
+
+      `apply_discount` takes the entry's currency and returns the reduced amount
+      in that same currency.
+
+      ## What We're NOT Doing
+
+      - Changing the rounding rule on discounts
+      - Adding new discount types
+
+      ## Implementation Approach
+
+      Widen the existing signature first, then thread the currency through its
+      caller.
+
+      ---
+
+      ## Phase 1: Widen apply_discount
+
+      ### Overview
+
+      Add a `currency` parameter to the existing `apply_discount` and use it in
+      the returned value.
+
+      ### Changes Required
+
+      #### 1. Discount signature
+
+      **File**: `src/pricing.py`
+      **Changes**: Change `apply_discount(amount, percentage)` at line 18 to
+      `apply_discount(amount, percentage, currency)`, keeping the existing
+      rounding behaviour and returning a tuple of amount and currency.
+
+      ### Success Criteria
+
+      #### Automated Verification
+
+      - [ ] Pricing tests pass: `PYTHONPATH=. python3 tests/test_pricing.py`
+
+      #### Manual Verification
+
+      - [ ] A discounted amount reports the same currency as the entry
+
+      **After automated verification passes, pause for manual confirmation before proceeding.**
+
+      ---
+
+      ## Phase 2: Thread currency through the caller
+
+      ### Overview
+
+      Pass each entry's currency into `apply_discount` from the balance path.
+
+      ### Changes Required
+
+      #### 1. Caller
+
+      **File**: `src/balance.py`
+      **Changes**: Pass the entry's currency into `apply_discount`.
+
+      ### Success Criteria
+
+      #### Automated Verification
+
+      - [ ] Balance tests pass: `PYTHONPATH=. python3 tests/test_balance.py`
+
+      #### Manual Verification
+
+      - [ ] Balances with a discount read correctly per currency
+
+expect:
+  files_exist:
+    - "docs/plans/2026-08-19-discount-currency.md"
+  files_not_exist:
+    - "src/pricing.py"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-mismatch-halt.sh
+  timeout_seconds: 30

@@ -1,7 +1,8 @@
 ---
 name: research-plan-implement
-version: 1.0.0
 description: "Complete Research \u2192 Plan \u2192 Implement workflow for complex tasks. Use this skill whenever the user faces: complex features spanning multiple files, bug investigations requiring root cause analysis, refactoring with architectural implications, or any non-trivial work where understanding the codebase first will prevent wasted effort. Also use when the user says things like 'help me figure out how to...', 'I need to understand before building...', or 'let\u2019s research this before coding'. Skip for simple bug fixes, typos, or single-file changes."
+metadata:
+  version: 1.0.1
 ---
 
 # Research → Plan → Implement Workflow
@@ -101,7 +102,7 @@ Wait for the user's response before proceeding.
 
 4. **Synthesize findings** — Wait for all sub-agents to complete, then compile results. Prioritize what you found in the live codebase. Include specific `file:line` references for all significant findings.
 
-5. **Generate research document** — Run `./scripts/spec_metadata.sh` to collect git/date metadata, then write a structured document with: research question, summary, detailed findings, code references, and open questions.
+5. **Generate research document** — Run `./scripts/spec_metadata.sh` to collect git/date metadata, then write `docs/research/YYYY-MM-DD-description.md`. Start it with YAML frontmatter including `topic`, and use the headings `Research Question`, `Summary`, `Detailed Findings`, `Code References`, and `Open Questions` from the research guide.
 
 6. **Present findings** — Share a concise summary with the user, highlighting key discoveries.
 
@@ -134,7 +135,7 @@ Ready to create an implementation plan? Type "plan" to proceed, or ask for more 
 
 2. **Design interactively** — Present design options with pros/cons. Get feedback on approach before writing details. The planning phase is a conversation, not a monologue.
 
-3. **Write the plan** — Document phases with specific file changes. Separate success criteria into **automated** (commands that can be run) and **manual** (things requiring human judgment). Resolve all open questions — a plan with unknowns isn't ready.
+3. **Write the plan** — Write `docs/plans/YYYY-MM-DD-description.md` with the exact H2 headings `## Overview`, `## Current State`, `## Desired End State`, and `## Implementation Approach`, followed by phases with specific file changes. Do not rename `Implementation Approach` to `Design Decisions` or omit it. Each phase must separate `Automated Verification` from `Manual Verification` and express every criterion as an unchecked `- [ ]` item. Resolve all open questions — a plan with unknowns isn't ready.
 
 4. **Iterate until approved** — Present the draft, incorporate feedback, repeat until the user is satisfied.
 
@@ -166,9 +167,9 @@ Ready to implement? Type "implement" to proceed, or suggest plan adjustments.
 
 1. **Load complete context** — Read the plan and research document fully. Check for existing checkmarks to see what's already done.
 
-2. **Execute one phase at a time** — Make changes, run automated verification, fix failures. Update checkboxes in the plan as items pass.
+2. **Execute one phase at a time** — Make changes, run automated verification, fix failures. Before stopping, edit the plan file and change every passing automated criterion from `- [ ]` to `- [x]`; reporting the pass only in your reply is not enough.
 
-3. **Pause for manual verification** — After automated checks pass, stop and list the manual verification steps for the user. Wait for confirmation before proceeding (unless the user asked you to do multiple phases).
+3. **Pause for manual verification** — After automated checks pass, stop and list the manual verification steps for the user. Never check off a manual criterion yourself; leave it unchecked until the user confirms it passed. Wait for confirmation before proceeding (unless the user asked you to do multiple phases).
 
 4. **Handle mismatches** — If reality doesn't match the plan, stop and explain: what the plan expected, what you found, why it matters, and options for how to proceed. Don't improvise without approval.
 
