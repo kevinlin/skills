@@ -1,0 +1,2 @@
+A home directory with no agent session logs in it, for the zero-sessions path.
+Keeps the otherwise-empty dir in git; no adapter reads this file.

@@ -1,0 +1,5 @@
+Placeholder for the sandbox's read-only uploads mount.
+
+`agent_insights.py detect` treats an `mnt/uploads` directory as a bindfs signal just
+like `mnt/.skills`, so this file keeps the sandbox detection working even if the
+fixture copy drops dot-directories.

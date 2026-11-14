@@ -1,0 +1,63 @@
+version: 2
+rules:
+  - id: LP1
+    path: scripts/agent_insights.py
+    reason: 'False positive: the script opens no network connection — there is no
+      urllib/socket/httpx/requests import and nothing outbound. The heuristic
+      matches `sqlite3.connect("file:...?mode=ro")` (read-only local DB opens)
+      and the HTTP_PROXY / ALL_PROXY env reads in the sandbox detector, which
+      only inspect env vars to decide whether egress is being forced through a
+      sandbox proxy. Declaring a `network` permission would misstate the skill,
+      which processes session logs entirely locally.'
+  - id: RA2
+    path: SKILL.md
+    reason: 'False positive: the matched text is Step 2''s instruction for a
+      facet-extraction subagent to write its JSON result to the batch''s
+      `output_file` under the user-scoped `~/.agent-insights/` working directory
+      (overridable with --data-dir). That is the skill''s own intermediate
+      output for the run the user just invoked — no cron job, no startup script,
+      no cross-session persistence mechanism.'
+  - id: RA2
+    path: evals/cases/fixture-home-report.yaml
+    reason: 'False positive: the matched text is the eval case''s prose description
+      of the deliverable the skill produces (a self-contained HTML report
+      written to ~/.agent-insights, mode 0600). It is an assertion about
+      expected output, not a persistence mechanism.'
+  - id: RA2
+    path: evals/eval.yaml
+    reason: 'False positive: the matched text is a YAML comment explaining why every
+      eval case points --home/--data-dir at a fixture workspace, precisely so a
+      test run does NOT write fixture-derived sessions into the operator''s real
+      cache.'
+  - id: RA2
+    path: scripts/agent_insights.py
+    reason: 'False positive: the matched text is a code comment describing how the
+      GitHub Copilot JetBrains plugin stores its own sessions (Nitrite vs Xodus
+      `.xd`). `scan_copilot_jetbrains` only reads those stores; it writes
+      nothing.'
+  - id: RA2
+    path: tests/make_fixtures.py
+    reason: 'False positive: the CREATE TABLE statements build a throwaway SQLite
+      fixture of fake Copilot sessions inside a test fixture home, so the
+      scanners can be exercised without touching real logs. Test data
+      generation, not persistence.'
+  - id: P6
+    path: SKILL.md
+    reason: 'False positive: "Output instructions" at Step 2 tells the
+      facet-extraction subagent what to write to its own output file and that
+      its `transcript_files` carry `=== SESSION <key> ===` headers. The prompt
+      it passes through verbatim is the skill''s own facet prompt from
+      references/prompts.md, which ships in the repo. Nothing reveals, prints,
+      or exfiltrates a system prompt or hidden instruction.'
+  - id: P6
+    path: references/prompts.md
+    reason: "False positive: line 8 tells the skill to embed its own
+      facet-extraction prompt (the text block below it) verbatim into the
+      subagents it launches. Nothing asks a model to reveal its system prompt or
+      extract anyone else's instructions."
+  - id: RA2
+    path: references/data-sources.md
+    reason: "False positive: the matched text documents the on-disk format VS Code
+      Copilot already uses for chatSessions (snapshot plus update log), which
+      the skill parses read-only. The skill sets up no persistence of its own."
+fingerprints: []

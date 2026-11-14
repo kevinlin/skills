@@ -1,8 +1,13 @@
 ---
 name: agent-insights
 description: Generate a cross-tool usage insights report from locally stored AI coding agent sessions (Claude Code, Claude Cowork, GitHub Copilot for VS Code/CLI/JetBrains, Cursor, Codex, Kiro, Antigravity, OpenCode) over the last N days, default 30. Use when the user invokes /agent-insights, asks for insights, analytics, or a report on their agent sessions, asks how they're using their coding agents or what's working or causing friction, wants to compare their coding agent tools, or asks what their AI coding patterns look like, even when they don't say "report".
+permissions:
+  - env
+  - file_read
+  - file_write
+  - shell
 metadata:
-  version: 1.6.1
+  version: 1.6.3
 ---
 
 # agent-insights
@@ -14,10 +19,29 @@ no session data leaves the machine.
 `python3 <SKILL_DIR>/scripts/agent_insights.py`. All intermediate files live in
 `~/.agent-insights/` (override with `--data-dir` on every subcommand, e.g. for tests).
 
+## Ground rules
+
+Two rules hold at every step, including on runs that stop early:
+
+1. **Analyze only the sessions that are already there.** Never write session logs, and
+   never run a fixture or seed generator — including `<SKILL_DIR>/tests/make_fixtures.py`,
+   a development helper for this skill's own parsers — to get past an empty scan. Do not
+   offer it either. Every number and quote in a report has to come from logs the user
+   already had; a report over invented sessions is worse than no report, disclosure or
+   not. An empty home the user pointed you at is a finding to report, not a problem to
+   fix: stopping with a zero-session message is a complete, successful run of this skill,
+   so don't reach for a way to produce a report anyway.
+2. **State the window you actually analyzed** (in days, after clamping) in whatever you
+   tell the user — the Step 6 report or a one-line stop.
+
 ## Arguments
 
-One optional argument: number of days to analyze. Default 30, clamp to 1..365.
-Non-numeric input: tell the user, then proceed with 30.
+One optional argument: number of days to analyze. Default 30. Normalize it yourself
+before Step 1; the script clamps silently, so an unreported clamp misstates the window:
+
+- Outside 1..365: clamp to the nearest bound and tell the user the window actually
+  analyzed (`500` becomes 365 days).
+- Non-numeric: tell the user it isn't a day count, then proceed with 30.
 
 ## Pipeline
 
@@ -60,10 +84,13 @@ Output (stdout JSON): `runtime` (same shape as Step 0, repeated here as a safety
 `facet_extractions_deferred` (uncached sessions beyond the 50-per-run cap), and
 `batches` (each with `transcript_files` and an `output_file`).
 
-- Exit code 2 with an error message means zero sessions were found across every
-  source. Report that to the user and stop; nothing to analyze. If the error's
-  `runtime.sandboxed` is true, the cause is the sandboxed runtime (Step 0) — relay its
-  `recommendation` instead of a generic "no sessions" message.
+- Exit code 2 with an error message means zero sessions were found across every source.
+  Stop there and reply with three things: the scan's `error` string verbatim (it names
+  every source checked), the window in days, and that you are stopping with nothing to
+  analyze and no report produced. Nothing else — no pipeline steps, no seeding the home,
+  no offer to seed it. If the error's `runtime.sandboxed` is true, the cause is the
+  sandboxed runtime (Step 0) — relay its `recommendation` in place of the generic
+  no-sessions message.
 - Tell the user what was detected (tools + session counts) before continuing.
 
 ### Step 2 — Facet extraction (skip when `facet_extractions_needed` is 0)

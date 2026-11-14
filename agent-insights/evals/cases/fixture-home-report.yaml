@@ -1,0 +1,57 @@
+id: fixture-home-report
+title: Runs the whole pipeline over a seeded home and renders a grounded self-contained report
+description: |
+  The end-to-end claim: Steps 1-6. Scan the window, extract facets per session,
+  aggregate with `--analysis-model`, write every narrative section, render "a
+  self-contained HTML report at ~/.agent-insights/report-YYYY-MM-DD_<days>-days.html
+  ... (file mode 0600 ...). The report header shows the skill `version`", then give
+  the user the stats line, the At a Glance persona and its four sections, and the
+  report path.
+
+  `seed_home.py` lays down a home with exactly three sessions across three tools:
+  claude-code (model claude-opus-4-5, a `Skill` tool call naming spec-lint), codex
+  (gpt-5.5), and opencode (gpt-5.2, a user message opening `/spec-lint`). So the
+  deterministic numbers are fixed in advance: 3 sessions, 7 user messages, 2 skill
+  invocations, and — because names merge across tools — one skill, `spec-lint`, with
+  a count of 2.
+
+  The script judge reads the artefacts the run left behind rather than trusting the
+  reply: aggregate.json's totals and per-tool breakdown, `analysis_model` set to a
+  real base model id (not `unknown`, no `[1m]`-style runtime suffix), narrative.json's
+  at_a_glance parts and its version stamp, then the rendered HTML — one file, mode
+  0600, no external http(s) references, all three tools, all three session models,
+  the skill-invocation charts and the analysis-model line. Last it checks the final
+  message carries the Step 6 shape.
+
+  Failure modes under test: fabricated or rounded-off counts, a report that pulls a
+  CSS/JS dependency off the network, dropped narrative sections, `analysis_model`
+  left as `unknown`, and answering from the aggregate JSON without rendering.
+
+input:
+  prompt: |
+    Use the agent-insights skill for this request.
+
+    Don't touch my real logs for this one — I have a synthetic set to check against.
+    Run `python3 seed_home.py` first: it writes a fake home full of agent session
+    logs to ./home. Point the skill at that home (the script's subcommands take a
+    --home flag) and keep every intermediate file and the report itself under
+    ./insights-data (--data-dir), not in ~/.agent-insights.
+
+    Last 30 days please.
+
+context:
+  repo_fixture: evals/fixtures/repos/synthetic-home
+
+constraints:
+  timeout_seconds: 1200
+  max_turns: 40
+
+expect:
+  files_exist:
+    - "insights-data/aggregate.json"
+    - "insights-data/narrative.json"
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/assert-fixture-report.sh
+  timeout_seconds: 60

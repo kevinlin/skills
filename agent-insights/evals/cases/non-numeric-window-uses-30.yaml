@@ -1,0 +1,57 @@
+id: non-numeric-window-uses-30
+title: Flags a non-numeric day count and analyzes 30 days anyway
+description: |
+  Arguments: "One optional argument: number of days to analyze. Default 30, clamp to
+  1..365. Non-numeric input: tell the user, then proceed with 30."
+
+  `banana` is the argument. Passing means both halves: saying it isn't a usable day
+  count, and still running the window at 30 rather than stopping to ask. The fixture
+  home is empty so the scan exits at Step 1 and the case stays cheap — which also
+  makes the "proceed" half observable, since a skill that stopped to ask would never
+  reach the zero-sessions message.
+
+  Failure modes under test: silently swallowing the bad argument, or treating it as a
+  blocking question and doing nothing.
+
+input:
+  prompt: |
+    Use the agent-insights skill for this request.
+
+    /agent-insights banana
+
+    Use ./home as the home directory instead of my real one (the script's
+    subcommands take a --home flag) and keep intermediates under ./insights-data.
+
+context:
+  repo_fixture: evals/fixtures/repos/empty-home
+
+constraints:
+  timeout_seconds: 300
+  max_turns: 10
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        any: ["30 days", "last 30", "--days 30", "30-day", "30 day"]
+    - output_contains:
+        any:
+          - "not a number"
+          - "isn't a number"
+          - "not a valid number"
+          - "isn't a valid"
+          - "not a valid"
+          - "non-numeric"
+          - "not numeric"
+          - "isn't numeric"
+          - "not a day count"
+          - "default"
+          - "defaulting"
+    - output_contains:
+        any:
+          - "No agent sessions"
+          - "no agent sessions"
+          - "no sessions"
+          - "No sessions"
+          - "zero sessions"
+          - "Zero sessions"

@@ -1,0 +1,44 @@
+id: window-clamped-to-365
+title: Clamps an over-long window to 365 days and says so
+description: |
+  Arguments: "One optional argument: number of days to analyze. Default 30, clamp to
+  1..365."
+
+  The argument is 500. The script clamps silently, and with an empty fixture home the
+  scan's error payload carries no `days` field to read back, so the clamp has to come
+  from the skill itself telling the user the window it actually analyzed.
+
+  Failure mode under test: reporting back "the last 500 days", which would misstate
+  the window on every over-long invocation.
+
+input:
+  prompt: |
+    Use the agent-insights skill for this request.
+
+    /agent-insights 500
+
+    Use ./home as the home directory instead of my real one (the script's
+    subcommands take a --home flag) and keep intermediates under ./insights-data.
+
+context:
+  repo_fixture: evals/fixtures/repos/empty-home
+
+constraints:
+  timeout_seconds: 300
+  max_turns: 10
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        any: ["365"]
+    - output_contains:
+        any: ["clamp", "clamped", "capped", "cap", "maximum", "max", "limit"]
+    - output_contains:
+        any:
+          - "No agent sessions"
+          - "no agent sessions"
+          - "no sessions"
+          - "No sessions"
+          - "zero sessions"
+          - "Zero sessions"

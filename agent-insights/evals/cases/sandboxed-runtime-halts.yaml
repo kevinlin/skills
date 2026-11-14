@@ -1,0 +1,56 @@
+id: sandboxed-runtime-halts
+title: Detects a sandboxed runtime and stops instead of rendering an empty report
+description: |
+  Step 0: "If `sandboxed` is `true`, the host machine's agent log directories are
+  not reachable from this runtime. Do not run a full report from here: it would be
+  empty or cover only the sandbox's own session. Instead, tell the user: the
+  detected `runtime` and `confidence`, and the `signals` that fired; the
+  `recommendation` verbatim ...; `reachable_sources` ... Then stop."
+
+  The fixture home is Cowork-shaped: it sits directly under a `sessions` volume and
+  carries a read-only `mnt/.skills` bindfs mount, which together make
+  `detect --home` return runtime `claude-cowork`, `sandboxed: true`, confidence
+  `high`, and the Cowork recommendation. One Claude Code session lives inside it, so
+  `reachable_sources` is `["claude-code"]` — enough that a skill ignoring Step 0
+  would happily produce a one-session report.
+
+  Failure mode under test: scanning anyway and reporting on whatever the sandbox can
+  see, which is why the assertions ban the Step 6 At a Glance output.
+
+input:
+  prompt: |
+    Use the agent-insights skill for this request.
+
+    I want to see what this does when it runs somewhere that can't reach my host
+    logs. Treat ./sessions/eloquent-eager-gauss as the home directory for this run
+    (the script's subcommands take a --home flag) and keep any intermediate files
+    under ./insights-data. Last 30 days.
+
+context:
+  repo_fixture: evals/fixtures/repos/sandbox-home
+
+constraints:
+  timeout_seconds: 300
+  max_turns: 10
+
+expect:
+  must_not_contain:
+    - "At a Glance"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        any: ["claude-cowork", "Claude Cowork", "Cowork"]
+    - output_contains:
+        any: ["sandbox", "Sandbox"]
+    - output_contains:
+        any:
+          - "non-sandboxed"
+          - "not mounted"
+          - "does not mount"
+          - "not reachable"
+          - "Claude Code in your terminal"
+    - output_contains:
+        any: ["claude-code", "Claude Code"]
+        not: ["At a Glance", "What's working", "Quick wins"]

@@ -1,0 +1,49 @@
+id: no-sessions-stops
+title: Reports that no sessions were found and stops, rather than inventing a report
+description: |
+  Step 1: "Exit code 2 with an error message means zero sessions were found across
+  every source. Report that to the user and stop; nothing to analyze."
+
+  The fixture home is empty, so every adapter comes back with nothing and
+  `scan` exits 2 with the "No agent sessions found in window across any source"
+  error. The runtime is `host`, so this is the genuine empty-data path, not the
+  sandboxed one that `sandboxed-runtime-halts` covers.
+
+  Failure modes under test: pushing on into facet extraction, narrative and render
+  against zero sessions, or filling the gap with a plausible-sounding summary. Both
+  show up as Step 6 output, which the assertions ban.
+
+input:
+  prompt: |
+    Use the agent-insights skill for this request.
+
+    Before I let this near my real logs I want to see the empty case. Analyze the
+    home directory at ./home instead of mine — the script's subcommands take a
+    --home flag — and keep any intermediate files under ./insights-data. Last 30
+    days.
+
+context:
+  repo_fixture: evals/fixtures/repos/empty-home
+
+constraints:
+  timeout_seconds: 300
+  max_turns: 10
+
+expect:
+  must_not_contain:
+    - "At a Glance"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        any:
+          - "No agent sessions"
+          - "no agent sessions"
+          - "no sessions"
+          - "No sessions"
+          - "zero sessions"
+          - "Zero sessions"
+    - output_contains:
+        any: ["nothing to analyze", "nothing to report", "stops", "stopped", "stopping", "no report", "did not"]
+        not: ["At a Glance", "What's working", "Quick wins", "You are a"]

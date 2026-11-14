@@ -1,0 +1,48 @@
+schema_version: v1alpha1
+
+# agent-insights reads locally stored agent session logs and renders an HTML report,
+# so every case here points the skill at a fixture home in the case workspace instead
+# of the machine's real logs: the real home is different on every machine and every
+# day, and a real run would also write fixture-derived sessions into the operator's
+# ~/.agent-insights cache. Each prompt names the script's --home and --data-dir flags
+# for that reason, and nothing else about the pipeline is spelled out.
+#
+# One case runs the pipeline end to end against a seeded 3-session home; the other
+# four exercise the cheap decision points (sandboxed runtime, zero sessions, window
+# argument handling) where the scan exits before any facet extraction or narrative
+# work happens. Grading is deterministic throughout — a script judge over the
+# rendered artefacts for the end-to-end case, rule_based keyword matchers for the
+# rest — so the suite costs one agent run per case and no judge model calls.
+#
+# The synthetic home is generated at run time by evals/fixtures/repos/synthetic-home/
+# seed_home.py rather than committed as static log files: window membership is decided
+# from the timestamps inside the logs, so a static fixture tree would age out of the
+# 30-day window and start failing on its own.
+#
+# Deliberately not covered: the deferred facet-extraction loop (needs > 50 uncached
+# sessions), the missing-python3 stop, and the "nothing leaves the machine" claim,
+# which no in-suite assertion can establish. See the case files for the rest.
+
+environment:
+  type: none
+
+skills:
+  - source: local_path
+    path: .
+
+engine:
+  name: claude_code
+
+cases:
+  files:
+    - evals/cases/sandboxed-runtime-halts.yaml
+    - evals/cases/no-sessions-stops.yaml
+    - evals/cases/non-numeric-window-uses-30.yaml
+    - evals/cases/window-clamped-to-365.yaml
+    - evals/cases/fixture-home-report.yaml
+  defaults:
+    timeout_seconds: 300
+    max_turns: 10
+
+report:
+  formats: [json]
