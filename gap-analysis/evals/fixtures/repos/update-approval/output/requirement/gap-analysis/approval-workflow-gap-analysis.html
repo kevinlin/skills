@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contoso Rebates — Approval Workflow Gap Analysis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg-page:#0f1117; --bg-card:#0f172a; --border:#1e293b; --text-primary:#f8fafc; --text-body:#e2e8f0;
+    --text-muted:#94a3b8; --text-dim:#64748b; --text-faint:#475569; --bg-header:#1e293b; --bg-hover:#0f172a;
+    --toggle-bg:#1e293b; --toggle-active-bg:#334155; --toggle-text:#94a3b8; --toggle-active-text:#f1f5f9; }
+  [data-theme="light"] { --bg-page:#f8fafc; --bg-card:#ffffff; --border:#e2e8f0; --text-primary:#0f172a;
+    --text-body:#1e293b; --text-muted:#64748b; --text-dim:#94a3b8; --text-faint:#94a3b8; --bg-header:#f1f5f9;
+    --bg-hover:#f1f5f9; --toggle-bg:#f1f5f9; --toggle-active-bg:#e2e8f0; --toggle-text:#64748b;
+    --toggle-active-text:#0f172a; }
+  .theme-toggle { position: fixed; top: 16px; right: 16px; display: flex; background: var(--toggle-bg);
+    border-radius: 8px; padding: 3px; font-size: 12px; }
+  .theme-toggle button { padding: 5px 10px; border: none; border-radius: 6px; background: transparent;
+    color: var(--toggle-text); cursor: pointer; }
+  .theme-toggle button.active { background: var(--toggle-active-bg); color: var(--toggle-active-text); }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg-page); color: var(--text-body); padding: 32px 24px; }
+  h1 { font-size: 22px; color: var(--text-primary); margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 32px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 24px; }
+  th { text-align: left; padding: 8px 12px; background: var(--bg-header); color: var(--text-muted); font-size: 10px; }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr.resolved td { opacity: .55; }
+
+  .legend { display: flex; gap: 20px; margin-bottom: 28px; font-size: 12px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .dot-inscope { background: #0ea5e9; } .dot-implied { background: #f59e0b; } .dot-gap { background: #ef4444; }
+  .phase-row { display: grid; grid-template-columns: 160px 1fr; margin-bottom: 4px; }
+  .phase-label { text-align: right; padding-right: 16px; font-size: 11px; color: var(--text-faint); }
+  .phase-content { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 0 12px 20px; }
+  .card { border-radius: 8px; padding: 12px 14px; min-width: 200px; max-width: 280px; }
+  .card-inscope { background: #0c2340; border: 1px solid #0ea5e9; }
+  .card-implied { background: #1c1200; border: 1px dashed #f59e0b; }
+  .card-gap { background: #2d0a0a; border: 2px dashed #ef4444; }
+  .card-bpmn { font-size: 9px; color: var(--text-faint); } .card-fr { font-size: 10px; }
+  .card-title { font-size: 12px; font-weight: 700; } .card-desc { font-size: 11px; }
+  .flow-arrow { align-self: center; font-size: 18px; }
+  .gap-table-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 28px; }
+  .sev-critical { color: #f87171; font-weight: 700; } .sev-high { color: #fbbf24; font-weight: 600; }
+  .sev-medium { color: #34d399; font-weight: 600; } .sev-low { color: var(--text-muted); }
+  .sev-resolved { color: var(--text-dim); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; }
+  .pill-ws1 { color: #86efac; } .pill-ws4 { color: #fb923c; } .pill-ws5 { color: #38bdf8; }
+  .pill-ws6 { color: #a5b4fc; } .pill-reg { color: #d8b4fe; } .pill-comm { color: #5eead4; }
+  .arch-row { display: flex; gap: 12px; margin-top: 36px; }
+  .arch-box { flex: 1; border-radius: 8px; padding: 16px; border: 1px solid var(--border); background: var(--bg-card); }
+  .arch-box ul { list-style: none; font-size: 11px; line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<div class="theme-toggle">
+  <button onclick="setTheme('system')" id="theme-system">System</button>
+  <button onclick="setTheme('light')" id="theme-light">Light</button>
+  <button onclick="setTheme('dark')" id="theme-dark">Dark</button>
+</div>
+
+<h1>Contoso Rebates — Approval Workflow Gap Analysis</h1>
+<p class="subtitle">
+  WS4 Internal Approval Workflows · Source: <code style="color:var(--text-muted);">WS4-01_Approval_Routing.bpmn</code> vs
+  <code style="color:var(--text-muted);">Detailed_Requirements.md</code> · 2026-03-12
+</p>
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot dot-inscope"></span> In-scope activity (FR-mapped)</div>
+  <div class="legend-item"><span class="legend-dot dot-implied"></span> Implied / inconsistent with requirements</div>
+  <div class="legend-item"><span class="legend-dot dot-gap"></span> Gap: missing or under-specified</div>
+</div>
+
+<div class="flow-container">
+  <div class="phase-row">
+    <div class="phase-label">1. Request</div>
+    <div class="phase-content">
+      <div class="card card-inscope">
+        <div class="card-bpmn">Start_ApprovalRequested</div>
+        <div class="card-fr">FR_W01</div>
+        <div class="card-title">Approval request raised from a quote</div>
+        <div class="card-desc">A sales user submits a quote above the discount limit.</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="card card-inscope">
+        <div class="card-bpmn">Task_RouteToApprover</div>
+        <div class="card-fr">FR_W02</div>
+        <div class="card-title">Route to the approver role</div>
+        <div class="card-desc">The request is routed to the approver role for the quote owner's region.</div>
+      </div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-label">2. Decision</div>
+    <div class="phase-content">
+      <div class="card card-implied">
+        <div class="card-bpmn">Task_Approve</div>
+        <div class="card-fr">FR_W03</div>
+        <div class="card-title">Approver decides within the SLA</div>
+        <div class="card-desc">BPMN shows no timer. <strong>See CTR-01.</strong></div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="card card-gap">
+        <div class="card-bpmn">Task_ApprovalRejected</div>
+        <div class="card-fr">FR_W04</div>
+        <div class="card-title">Rejected approval</div>
+        <div class="card-desc">The rejection path ends without notifying the requester. <strong>See BPM-02.</strong></div>
+      </div>
+    </div>
+  </div>
+</div><!-- end flow-container -->
+
+<div class="gap-table-section">
+  <h2>Gap Register — BPMN vs. RFP / Detailed Requirements</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:60px;">#</th>
+        <th>Gap</th>
+        <th>Why It Matters</th>
+        <th style="width:90px;">Severity</th>
+        <th style="width:100px;">Workstream</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>CTR-01</td>
+        <td><strong>Approval SLA contradicts the RFP</strong><br>RFP §5 gives approvers 2 business days to decide; <code>FR_W03</code> gives them 5 business days, a 2.5× difference. Escalation timing cannot be designed until one figure is chosen.</td>
+        <td>Escalation timers and the customer SLA report are built against one figure, so the bid cannot price both.</td>
+        <td class="sev-critical">Critical</td>
+        <td><span class="pill pill-ws4">WS4</span></td>
+      </tr>
+      <tr>
+        <td>BPM-01</td>
+        <td><strong>No timeout path on the approval task</strong><br><code>Task_Approve</code> has no boundary timer, so a request nobody decides stays open forever (<code>FR_W03</code>).</td>
+        <td>Without a timeout the SLA in FR_W03 cannot be enforced and open requests pile up silently.</td>
+        <td class="sev-high">High</td>
+        <td><span class="pill pill-ws4">WS4</span></td>
+      </tr>
+      <tr>
+        <td>BPM-02</td>
+        <td><strong>Rejected approvals dead-end</strong><br><code>Task_ApprovalRejected</code> has no outgoing flow and no end event, and the requester is never told (<code>FR_W04</code>).</td>
+        <td>A rejected quote stalls with no owner, which breaks the process at runtime.</td>
+        <td class="sev-high">High</td>
+        <td><span class="pill pill-ws4">WS4</span></td>
+      </tr>
+      <tr>
+        <td>W-01</td>
+        <td><strong>One approver per role, no delegate</strong><br>Each approver role has a single named user and no fallback during absence (<code>FR_W02</code>).</td>
+        <td>The first holiday leaves requests unrouted at go-live.</td>
+        <td class="sev-high">High</td>
+        <td><span class="pill pill-ws4">WS4</span></td>
+      </tr>
+      <tr>
+        <td>AMB-01</td>
+        <td><strong>Approver vs Authoriser</strong><br><code>FR_W02</code> says "Approver"; <code>FR_W05</code> says "Authoriser". The glossary lists no synonym.</td>
+        <td>If these are two roles the routing table is incomplete; if one, the spec should say so.</td>
+        <td class="sev-medium">Medium</td>
+        <td><span class="pill pill-ws4">WS4</span></td>
+      </tr>
+      <tr>
+        <td>BPM-03</td>
+        <td><strong>Approval decision has no data object</strong><br>The decision and the approver's comment are not written to a data object in the BPMN (<code>FR_W04</code>).</td>
+        <td>The audit trail the requirements ask for has nothing to read from.</td>
+        <td class="sev-medium">Medium</td>
+        <td><span class="pill pill-ws4">WS4</span></td>
+      </tr>
+      <tr>
+        <td>G-01</td>
+        <td><strong>Notification wording not specified</strong><br>No requirement sets the wording of the approval notification email (<code>FR_W01</code>).</td>
+        <td>Wording can be settled during build.</td>
+        <td class="sev-low">Low</td>
+        <td><span class="pill pill-ws4">WS4</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="arch-row">
+  <div class="arch-box box-confirmed">
+    <h3>✓ BPMN ↔ Requirements Aligned</h3>
+    <ul>
+      <li>Approval request raised from a quote (FR_W01)</li>
+      <li>Role-based approver routing (FR_W02)</li>
+      <li>Approval decision recorded (FR_W04)</li>
+    </ul>
+  </div>
+  <div class="arch-box box-implied">
+    <h3>~ Implied / Inconsistent</h3>
+    <ul>
+      <li>Approval SLA mismatch (CTR-01)</li>
+      <li>Approver / Authoriser terminology (AMB-01)</li>
+    </ul>
+  </div>
+  <div class="arch-box box-gap">
+    <h3>✗ Missing — Must Be Raised</h3>
+    <ul>
+      <li>No timeout path on the approval task (BPM-01)</li>
+      <li>Rejected approvals dead-end (BPM-02)</li>
+      <li>One approver per role, no delegate (W-01)</li>
+      <li>Approval decision data object (BPM-03)</li>
+      <li>Notification wording (G-01)</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  function setTheme(mode) {
+    localStorage.setItem('gap-analysis-theme', mode);
+    applyTheme(mode);
+    document.querySelectorAll('.theme-toggle button').forEach(b => b.classList.remove('active'));
+    document.getElementById('theme-' + mode).classList.add('active');
+  }
+  function applyTheme(mode) {
+    if (mode === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', mode);
+    }
+  }
+  (function() {
+    const saved = localStorage.getItem('gap-analysis-theme') || 'system';
+    applyTheme(saved);
+    document.getElementById('theme-' + saved).classList.add('active');
+  })();
+</script>
+
+</body>
+</html>

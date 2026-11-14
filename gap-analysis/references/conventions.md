@@ -12,7 +12,7 @@ Shared rules for both individual reports and the master register. These are the 
 | **High**          | `sev-high`      | Material requirement mismatch, missing FR for a stated MVP capability, or BPMN structural error that will silently break a process at runtime. Must be resolved pre-build. |
 | **Medium**        | `sev-medium`    | Scope ambiguity that can be clarified pre-build without blocking design. Includes audit-trail / governance gaps that are not on the critical path. |
 | **Low**           | `sev-low`       | Boundary or cross-WS issue that the team can absorb during build, or a downgraded item once a decision is taken. |
-| **Open Decision** | `sev-open`      | Genuine business decision not yet made by BSC — not a gap in the requirements, but cannot be ignored. Used in the master register, rare in individual reports. |
+| **Open Decision** | `sev-open`      | Genuine business decision not yet made by the customer — not a gap in the requirements, but cannot be ignored. Used in the master register, rare in individual reports. |
 | **Resolved**      | `sev-resolved`  | Was previously raised, now answered or designed out. Keep the row but apply `class="resolved"` to fade it. |
 
 Severity should be defensible in one sentence in the *Why It Matters* column. If you can't write that sentence, the severity is wrong.
@@ -33,14 +33,14 @@ Are two source documents in direct contradiction?              → CTR-
 Is it a terminology or condition-type ambiguity?               → AMB-
 Is it a SAP API payload the vendor cannot construct yet?       → SAP-
 Is it Price Master / PCA / SAP-Integration commercial scope?   → COM-
-Is it a regulatory / compliance issue (APPI, J-SOX, NHI,
-   PMDA, FSA, retention)?                                      → REG-
+Is it a regulatory / compliance issue (data protection, financial
+   controls, sector regulators, retention)?                                      → REG-
 Is it a workflow / governance risk that will reappear at
    go-live (single-user-per-role, missing fallback)?           → W-
 Is it an integration scope undefined in Appendix A?            → INT-
 Is it a confirmed architectural assumption with dispute risk?  → A-
 Is it a system-to-system boundary issue?                       → B-
-Is it an open business decision awaiting BSC?                  → D-
+Is it an open business decision awaiting the customer?                  → D-
 Default — generic gap or contradiction in the requirements    → G-
 ```
 
@@ -53,8 +53,8 @@ The `GAP-` prefix is reserved for cross-cutting issues that genuinely fit nowher
 | `G-`   | Generic **gap or contradiction** in the requirements. The default for "this is missing or wrong". |
 | `W-`   | **Workflow / governance** risk that is not a platform gap but will reappear at go-live (single-user-per-role, missing fallback, etc.). |
 | `B-`   | **Boundary** issue between two systems or workstreams (e.g. WS5/WS7 boundary). |
-| `A-`   | Confirmed **architectural assumption** that carries dispute risk if BSC reads it differently. |
-| `D-`   | **Open decision** awaiting BSC. Lives almost exclusively in the master register. |
+| `A-`   | Confirmed **architectural assumption** that carries dispute risk if the customer reads it differently. |
+| `D-`   | **Open decision** awaiting the customer. Lives almost exclusively in the master register. |
 | `AMB-` | **Ambiguity** — terminology, conflicting condition types, or fields that point two ways. |
 | `BPM-` | **BPMN modelling defect** — dead-end task, missing data object, untyped task, etc. |
 | `COM-` | **Commercial / pricing** gap (Price Master / PCA workstream). |
@@ -62,8 +62,8 @@ The `GAP-` prefix is reserved for cross-cutting issues that genuinely fit nowher
 | `GAP-` | **Cross-cutting** gap that doesn't fit neatly elsewhere — use sparingly. |
 | `INT-` | **Integration scope** undefined — system named in Appendix A but no FR/interface spec. |
 | `MFR-` | **Missing FR** — FeatureSpec marks something P0/P1 but no FR exists. |
-| `REG-` | **Regulatory / compliance** gap (APPI, J-SOX, NHI, PMDA, FSA, retention). |
-| `SAP-` | SAP Integration **payload design blocker** — vendor cannot construct the API call until BSC answers. |
+| `REG-` | **Regulatory / compliance** gap (data protection, financial controls, sector regulators, retention). |
+| `SAP-` | SAP Integration **payload design blocker** — vendor cannot construct the API call until the customer answers. |
 
 Within each prefix, number sequentially (`G-01`, `G-02`, …). When you re-run the analysis, **never renumber existing IDs** — that breaks every reference in `open-questions.md` and the RFP master summary. Add to the end and mark resolved rows in place.
 
@@ -82,9 +82,9 @@ The CSS class form differs by deliverable — the two flows use different styles
 | WS5        | `<span class="pill pill-ws5">WS5</span>`      | `<span class="ws ws-ws5">WS5</span>`      | Contract management (quote, contract, e-sign) |
 | WS6        | `<span class="pill pill-ws6">WS6</span>`      | `<span class="ws ws-ws6">WS6</span>`      | Rebate accounting (accrual + settlement + SAP postings) |
 | WS7        | `<span class="pill pill-ws7">WS7</span>`      | `<span class="ws ws-ws7">WS7</span>`      | Rebate tracker / monitoring |
-| Architecture | `<span class="pill pill-arch">ARCH</span>`  | `<span class="ws ws-arch">ARCH</span>`    | Cross-cutting architecture findings (JARVIS, ADL, Snowflake, integration topology) |
+| Architecture | `<span class="pill pill-arch">ARCH</span>`  | `<span class="ws ws-arch">ARCH</span>`    | Cross-cutting architecture findings (the integration hub, data platform, data warehouse, integration topology) |
 | Cross      | `<span class="pill pill-cross">CROSS</span>`  | `<span class="ws ws-cross">CROSS</span>`  | Affects multiple workstreams roughly equally |
-| Regulatory | `<span class="pill pill-reg">REG</span>`      | `<span class="ws ws-reg">REG</span>`      | APPI / J-SOX / NHI / PMDA / FSA / Commercial Code |
+| Regulatory | `<span class="pill pill-reg">REG</span>`      | `<span class="ws ws-reg">REG</span>`      | Data protection / financial controls / sector regulators / record retention |
 | Commercial | `<span class="pill pill-comm">COMM</span>`    | `<span class="ws ws-comm">COMM</span>`    | Price Master / PCA / SAP Integration commercial workstream |
 
 Quick check — confirm class form before saving:
@@ -99,12 +99,12 @@ A row may carry two pills (e.g. WS5 + WS6 for a boundary issue): `<span class="p
 
 | Pill class        | Label                   | Who actually has to act |
 |-------------------|-------------------------|--------------------------|
-| `owner-bsc-sap`   | BSC SAP Team            | Field values, condition types, document types — anything inside SAP |
-| `owner-bsc-biz`   | BSC Finance / Business  | Policy decisions (accrual vs settlement, dispute handling, etc.) |
-| `owner-bsc-it`    | BSC IT / Digital        | JARVIS, Pitcher (BSC's sales-content app, not defined as an integration target in the RFP — use only when explicitly mentioned in source), Oracle Japan, RCE App, Snowflake — BSC-owned middleware and platforms |
+| `owner-cust-sap`   | Customer SAP Team            | Field values, condition types, document types — anything inside SAP |
+| `owner-cust-biz`   | Customer Finance / Business  | Policy decisions (accrual vs settlement, dispute handling, etc.) |
+| `owner-cust-it`   | Customer IT / Digital   | Customer-owned middleware and platforms (integration hub, sales-content app, ERP, data warehouse). Name a platform only when the source does |
 | `owner-vendor`    | Vendor                  | Zühlke (or the eventual build vendor) |
-| `owner-shared`    | BSC / Vendor            | Joint decision — neither party can act unilaterally |
-| `owner-legal`     | BSC Legal / Regulatory  | APPI, FSA, NHI, PMDA, electronic signature, retention |
+| `owner-shared`    | Customer / Vendor            | Joint decision — neither party can act unilaterally |
+| `owner-legal`     | Customer Legal / Regulatory  | data protection, sector regulators, electronic signature, retention |
 
 If you can't pick one cleanly, use `owner-shared` — but write the *Why* column so it's obvious what each side has to bring.
 
@@ -116,8 +116,8 @@ If you can't pick one cleanly, use `owner-shared` — but write the *Why* column
 |-------------------|--------------------|
 | `card-inscope`| In-scope activity, FR-mapped. Sky/blue. |
 | `card-sap`        | SAP-side activity (VK11, VA01, VF01, FB50). Indigo. |
-| `card-external`   | External system activity (SFDC, ADL, JARVIS, JDH, Snowflake). Green/indigo depending on system. |
-| `card-actor`      | Out-of-system human actor (Customer, Dealer, BSC user). Green. |
+| `card-external`   | External system activity (CRM, integration hub, data platform, data warehouse). Green/indigo depending on system. |
+| `card-actor`      | Out-of-system human actor (Customer, Dealer, customer user). Green. |
 | `card-implied`    | Activity that is implied by the BPMN or requirements but not explicitly specified, or is inconsistent with another source. Amber, dashed border. |
 | `card-gap`        | Activity that *should* exist but is missing. Red, dashed border. |
 | `card-deferred`   | Activity explicitly deferred (post-MVP, out-of-scope). Green-grey. |
@@ -147,7 +147,7 @@ If no glossary was supplied, default every terminology mismatch to `AMB-` and no
 Every row in the gap table should be traceable. The minimum is:
 
 - A **source citation** in the *Gap* column (`FR_M19`, `RFP §5`, `NFR-I03`, `WS5-01_Quote Creation.bpmn line 312`, `FeatureSpec §Accrual`).
-- A **why-it-matters** sentence framed for the bid team or BSC, not the dev team.
+- A **why-it-matters** sentence framed for the bid team or the customer, not the dev team.
 - An **owner pill** that points at the only party who can resolve it.
 
 If any of those three are missing, the row is not ready.

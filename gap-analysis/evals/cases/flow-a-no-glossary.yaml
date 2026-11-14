@@ -1,0 +1,34 @@
+id: flow-a-no-glossary
+title: With no glossary, every terminology mismatch becomes AMB- and the report intro says so
+description: |
+  Covers the "no glossary" branch of Required inputs and conventions section 6: the skill proceeds, defaults every
+  terminology mismatch to AMB- (quoting both variants verbatim, never normalising), and notes up front in the report
+  intro that no glossary was supplied.
+
+  The user says the project has no glossary, so the skill must not stop to ask. The fixture plants two mismatches that
+  a glossary would normally settle: "RMA number" (BPMN) vs "return authorisation code" (FR_R03), and "restocking fee"
+  (BPMN) vs "re-stock charge" (FR_R05). The script judge parses the saved HTML: the note sits before the first table,
+  both pairs are AMB- rows quoting both forms, and the shared house-style checks hold (kebab-case filename, theme JS,
+  bare-class severity, pill pills, <code> provenance, row to arch-box coupling).
+
+input:
+  prompt: |
+    Use the gap-analysis skill for this request.
+
+    Produce a gap analysis HTML report for the returns authorisation workflow: compare
+    docs/returns/returns-authorisation.bpmn against docs/returns/requirements.md.
+    Save it in docs/gap-analysis/.
+    We do not have a glossary or ubiquitous-language file for this project, so go ahead without one.
+    Tell me the path when you're done.
+
+context:
+  repo_fixture: evals/fixtures/repos/returns
+
+constraints:
+  timeout_seconds: 480
+  max_turns: 22
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/judge_no_glossary.py
+  timeout_seconds: 60

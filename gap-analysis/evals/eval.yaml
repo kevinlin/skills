@@ -1,0 +1,112 @@
+# Eval suite for the gap-analysis skill (SKILL.md 1.1.0).
+#
+# Behaviour claimed by SKILL.md and the references it loads  ->  case that covers it
+#
+#   Flow A, fresh individual report (SKILL.md Flow A; references/individual-report.md)
+#     - names a topic with no existing report, saves <topic>-gap-analysis.html (kebab-case) in the folder given,
+#       from the template with theme toggle, theme JS and light CSS intact, no placeholders left
+#     - phase-flow cards (in-scope plus gap / implied), BPMN element IDs, subtitle with sources and date
+#     - gap table anatomy: bare-class severity cell, pill-ws pills, no Owner column, rows ordered by severity
+#     - mirrors every row to box-gap / box-implied (conventions.md section 8)
+#                                                                       .. flow-a-fresh-settlement
+#   Flow A2, update an existing report (SKILL.md Flow A2; individual-report.md "Updating")
+#     - adds one row: next free number for the right prefix (BPM-04, not G-03), High block, individual-report forms,
+#       matching box-gap bullet, subtitle date, surgical (everything else byte-identical), offers Flow B
+#                                                                       .. flow-a-update-approval
+#     - topic with an existing report defaults to A2, not a fresh report; "mark resolved" keeps the row with
+#       sev-resolved + class="resolved", bullet leaves box-implied; does not run Flow B
+#                                                                       .. flow-a2-mark-resolved
+#   Flow B, master register (SKILL.md Flow B; references/register.md)
+#     - reads every report except the register, one row per distinct gap (dedupe, higher severity kept, both sources
+#       noted), scorecard counts and ID lists match the rows, quick links, data-sev / data-ws on every row,
+#       register forms (badge severity, ws pills, owner pills), canonical categories, sort order, header and footer
+#       dates, inputs left untouched                                    .. flow-b-regenerate-register
+#   Required inputs (SKILL.md "Required inputs")
+#     - asks once for the output folder and the glossary, confirms the path rather than inferring it, writes nothing
+#       first                                                           .. asks-for-required-inputs
+#     - no glossary: proceeds, every terminology mismatch is AMB- with both variants verbatim, intro notes the gap
+#                                                                       .. flow-a-no-glossary
+#   Shared conventions (references/conventions.md)
+#     - section 2 prefix decision tree: BPM-, MFR-, CTR-, AMB- chosen correctly .. flow-a-fresh-settlement;
+#       next free BPM- number, never reused or renumbered .. flow-a-update-approval; AMB- as the no-glossary default
+#       .. flow-a-no-glossary
+#     - section 3 pill forms: individual (pill pill-*) .. flow-a-fresh-settlement, flow-a-update-approval,
+#       flow-a2-mark-resolved, flow-a-no-glossary; register (ws ws-*) .. flow-b-regenerate-register
+#     - section 4 owner pills: SAP blocker -> SAP team, retention -> legal (or shared) .. flow-b-regenerate-register
+#     - section 6 glossary discipline: declared synonym is not AMB-, undeclared variant is .. flow-a-fresh-settlement
+#     - section 7 provenance: <code> citation in every Gap cell, no Markdown blockquotes in HTML
+#       .. flow-a-fresh-settlement, flow-a-no-glossary
+#     - section 8 row <-> arch-box coupling: new row -> box-gap .. flow-a-update-approval; resolved row -> bullet
+#       leaves box-implied .. flow-a2-mark-resolved; every row mirrored .. flow-a-fresh-settlement, flow-a-no-glossary
+#   "What good looks like"
+#     - names the contradiction with both values (CTR-); missing FRs separate (MFR-); open-questions loop mentioned
+#       in the final reply, with the offer to refresh the register       .. flow-a-fresh-settlement
+#
+# Migrated from evals/evals.json (kept in place, not run): workflow 0 -> flow-a-fresh-settlement,
+# workflow 1 -> flow-a-update-approval, workflow 2 -> flow-b-regenerate-register. Inputs are synthetic: the legacy
+# prompts pointed at engagement files that are not in the repo.
+#
+# Deliberately uncovered
+#   - Severity choice (Critical vs High vs Medium): defensible-in-one-sentence needs a semantic judge, which this
+#     suite avoids to stay deterministic and cheap. Judges check the severity form and ordering only.
+#   - Why-It-Matters framing (blocker vs concern, written for the bid team) and glossary-preferred wording in
+#     narrative prose: semantic, same reason.
+#   - Prefix selection for W-, B-, A-, D-, INT-, GAP-, COM-, REG-, SAP- in a fresh analysis, and legacy R- IDs never
+#     renumbered: one fixture cannot plant every branch; the register case carries COM-, REG- and SAP- rows as inputs
+#     only. The decision tree is covered through four of its branches.
+#   - Card types other than in-scope / gap / implied (sap, external, actor, deferred, gateway), the legend, and the
+#     optional Reading Notes and footer sections: presentational; the judge checks cards exist and carry BPMN IDs.
+#   - Visual rendering (theme colours, category number colours, filter button behaviour in a browser): the judges read
+#     markup, not pixels. They check the toggle, the theme JS, filterRows() and the data attributes are present.
+#   - Converting .docx / .xlsx inputs before reading: needs binary fixtures and the project's converters.
+#   - "Do not re-read the RFP / BPMN on an update": a transcript-level claim with no stable signal in the output.
+#   - Asking which topic when the user only says "do gap analysis": same mechanism as asks-for-required-inputs,
+#     which covers the folder and glossary prompts.
+#   - The skill's own shipped gap-register.html is not a fixture; no case reads or edits it.
+#
+# Judges are single-file Python scripts (stdlib only) under fixtures/scripts/. Each embeds its COMMON region
+# from fixtures/judge_common.py and, where it needs a baseline, hashes of the shipped fixtures; both are written by
+# fixtures/build_fixtures.py. After editing a judge helper or a fixture, run:
+#   python3 evals/fixtures/build_fixtures.py --write
+#   python3 evals/fixtures/scripts/selftest.py        # runs each judge on hand-made good and bad samples
+# Judges read the final reply from EVAL_FINAL_MESSAGE; reply checks other than asks-for-required-inputs are skipped
+# (printed as SKIP) if skill-up does not export it.
+
+# Evaluation config schema version used by skill-up. Do not change this value.
+schema_version: v1alpha1
+
+environment:
+  # Runtime for each case; none runs on the host, which is enough for file-in, file-out cases.
+  type: none
+
+skills:
+  # The Skill under test, installed into the engine before each case.
+  - source: local_path
+    path: .
+
+engine:
+  # Agent Engine that runs the prompts. Credentials come from the CLI, never from this file.
+  name: claude_code
+
+cases:
+  # Case files in this suite, relative to the Skill root.
+  files:
+    - evals/cases/asks-for-required-inputs.yaml
+    - evals/cases/flow-a-fresh-settlement.yaml
+    - evals/cases/flow-a-update-approval.yaml
+    - evals/cases/flow-a2-mark-resolved.yaml
+    - evals/cases/flow-a-no-glossary.yaml
+    - evals/cases/flow-b-regenerate-register.yaml
+  # Defaults for every case; each case sets its own limits sized to its job.
+  parallelism: 3
+  defaults:
+    timeout_seconds: 420
+    max_turns: 20
+
+benchmark:
+  # Also run every case without the Skill so the report shows the with/without delta.
+  enabled: true
+
+report:
+  # The evaluate gate parses the JSON report.
+  formats: [json]

@@ -1,0 +1,35 @@
+id: flow-a2-mark-resolved
+title: A named topic with an existing report goes to Flow A2, and a resolved gap keeps its row
+description: |
+  Covers the SKILL.md claims that a topic with an existing report defaults to Flow A2 (never a fresh report that
+  renumbers history) and that "mark resolved" keeps the row, flips it to sev-resolved with class="resolved" on the
+  <tr>, and moves the arch-box bullet (conventions section 8).
+
+  The prompt names the topic and the folder but not the flow or the file, and says the customer has answered the
+  contradiction CTR-01. The script judge checks against embedded hashes of the shipped report: the row is still there
+  with the resolved cell and row class, its bullet has left box-implied (to box-confirmed with a citation, or dropped),
+  every other row and box is unchanged, the date moved, and everything else, including gap-register.html, is
+  byte-identical.
+
+input:
+  prompt: |
+    Use the gap-analysis skill for this request.
+
+    The approval workflow gap analysis needs a refresh. The customer has now confirmed that approvers have 5 business
+    days to decide, so the approval SLA contradiction (CTR-01) is settled.
+    The gap-analysis folder is output/requirement/gap-analysis/ and the glossary is at
+    output/requirement/ubiquitous-language.md.
+    Today's date is 2026-04-30.
+    Save the updated report and tell me the path when you're done.
+
+context:
+  repo_fixture: evals/fixtures/repos/update-approval
+
+constraints:
+  timeout_seconds: 420
+  max_turns: 20
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/judge_mark_resolved.py
+  timeout_seconds: 60

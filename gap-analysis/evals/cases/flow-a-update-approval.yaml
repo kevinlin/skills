@@ -1,0 +1,41 @@
+id: flow-a-update-approval
+title: Flow A2 adds one BPM- row and its box-gap bullet, and touches nothing else
+description: |
+  Migrated from the legacy evals.json workflow "flow-a-update-approval", with a synthetic starting report.
+
+  The user points at an existing individual report and asks for one new High, vendor-owned BPMN modelling finding.
+  The skill must take Flow A2, the narrow update: next free number for the right prefix, the row in the High block in the
+  individual-report form, the mirrored bullet in box-gap, the subtitle date, and nothing more.
+
+  The fixture report already holds BPM-01 to BPM-03 and G-01/G-02, so the new row must be BPM-04: G-03 is the wrong
+  prefix, BPM-01 would be a reuse. The script judge compares the saved file with embedded hashes of the shipped one:
+  every original row is byte-identical, the other two boxes are unchanged, and everything outside the subtitle, table
+  body and arch lists (theme CSS and JS, legend, phase flow) is identical. The sibling gap-register.html must be
+  byte-identical too: Flow A2 offers the register refresh, it does not run it, and the final reply must make the offer.
+
+input:
+  prompt: |
+    Use the gap-analysis skill for this request.
+
+    Update the existing approval workflow gap analysis report at
+    output/requirement/gap-analysis/approval-workflow-gap-analysis.html.
+    Add one new finding: the WS4-01 / WS4-02 / WS4-03 BPMN files have no explicit error-handling sub-processes for
+    SAP integration calls routed via the integration hub (referenced in FR_W08). Treat this as a High severity,
+    vendor-owned BPMN modelling gap.
+    The glossary is at output/requirement/ubiquitous-language.md and the gap-analysis folder is
+    output/requirement/gap-analysis/.
+    Preserve all existing gap IDs and the architecture summary boxes; only add the new row in the gap-register table,
+    refresh the date in the subtitle to 2026-04-30, and add a corresponding bullet under "Missing — Must Be Raised".
+    Save the updated file and tell me the path when you're done.
+
+context:
+  repo_fixture: evals/fixtures/repos/update-approval
+
+constraints:
+  timeout_seconds: 420
+  max_turns: 20
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/judge_update_row.py
+  timeout_seconds: 60

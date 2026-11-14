@@ -1,0 +1,39 @@
+version: 2
+rules:
+  - id: P2
+    path: assets/individual-report.template.html
+    reason: "False positive: HTML comments are template authoring notes (e.g.
+      'TEMPLATE: replace <Topic> with the report topic') and section dividers
+      for whoever fills the template in; they carry no instruction aimed at a
+      model reading the rendered report."
+  - id: P2
+    path: assets/register.template.html
+    reason: "False positive: HTML section-divider comments in the register template,
+      documenting its layout for the agent filling it in; no hidden
+      instruction."
+  - id: LP1
+    path: evals/fixtures/build_fixtures.py
+    reason: "False positive: eval-suite tooling, not skill runtime; it imports no
+      network module and only writes synthetic fixture HTML under evals/."
+  - id: LP1
+    path: evals/fixtures/judge_common.py
+    reason: "False positive: eval-suite judge helper reading EVAL_* env vars that
+      skill-up sets for script judges; not skill runtime."
+  - id: LP1
+    path: evals/fixtures/scripts/selftest.py
+    reason: "False positive: eval-suite selftest that runs the judges via subprocess
+      on synthetic workspaces; not skill runtime."
+  - id: E2
+    path: evals/fixtures/scripts/selftest.py
+    reason: "False positive: copies os.environ only to pass EVAL_FINAL_MESSAGE and
+      PYTHONDONTWRITEBYTECODE to the judge subprocess it runs on hand-made
+      samples."
+  - id: AST4
+    path: evals/fixtures/scripts/selftest.py
+    reason: "False positive: subprocess.run with argv lists (no shell) running the
+      suite's own judges and build_fixtures.py --check."
+  - id: OH3
+    path: evals/fixtures/scripts/judge_update_row.py
+    reason: "False positive: a check message that includes the fixture report's
+      subtitle text, bounded by the synthetic fixture."
+fingerprints: []

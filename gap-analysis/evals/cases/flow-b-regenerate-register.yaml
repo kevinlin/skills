@@ -1,0 +1,38 @@
+id: flow-b-regenerate-register
+title: Flow B rebuilds the master register in register form with a correct scorecard, dedupe and categories
+description: |
+  Migrated from the legacy evals.json workflow "flow-b-regenerate-register", with synthetic inputs: three small
+  individual reports, a stale register that omits one of them, and a glossary.
+
+  The user asks for the register to be refreshed. The skill must take Flow B: read every individual report except the
+  register, regroup the rows into the canonical categories, keep one row per distinct gap, recompute the scorecard,
+  rebuild the quick links, and write the register-form markup (badge severity, ws pills, owner column, data-sev and
+  data-ws on every row).
+
+  The fixture holds eleven source rows behind eight distinct gaps. CTR-01 appears in two reports, High in one and
+  Critical in the other, so it must be listed once, as Critical, citing both reports. The script judge checks the
+  saved HTML: the eight IDs exactly once, tile counts and ID lists against the rows, the register forms, data-ws
+  following each source row's workstream, the rows whose category the skill fixes (SAP-, BPM-, COM-, REG-), sort order,
+  the three quick links and none to the register, both dates, the resolved row, and untouched inputs.
+
+input:
+  prompt: |
+    Use the gap-analysis skill for this request.
+
+    Refresh the master gap register for output/requirement/gap-analysis/. The individual reports in that folder have
+    changed since gap-register.html was last built.
+    The glossary is at output/requirement/ubiquitous-language.md.
+    Use 2026-04-30 as the last-updated date.
+    Save the regenerated register and tell me the path when you're done.
+
+context:
+  repo_fixture: evals/fixtures/repos/regenerate-register
+
+constraints:
+  timeout_seconds: 600
+  max_turns: 25
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/judge_register.py
+  timeout_seconds: 60

@@ -1,8 +1,11 @@
 ---
 name: gap-analysis
 description: Use when producing or updating a gap-analysis HTML report. Triggers on "gap analysis", "gap register", "gap index", "analyse the requirement docs", "find gaps between BPMN and requirements", or when the user references requirement / BPMN / FeatureSpec / RFP docs and asks for a structured comparison. Also triggers when the user points at a folder of existing gap-analysis reports and asks to refresh, re-roll up, or rebuild the master register/index. Produces a self-contained, theme-switching HTML report in the gap-analysis house style. Use this skill instead of free-form Markdown when the user wants a sharable HTML deliverable; do not use for prose summaries or open-question lists.
+permissions:
+  - file_read
+  - file_write
 metadata:
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # Gap Analysis
@@ -48,7 +51,7 @@ If the user asks to "do gap analysis" without specifying which, ask once before 
 
 ## Required inputs
 
-Two things are project-specific and cannot be embedded — they must come from the user at invocation time. **Ask once at the start of any flow for whichever is missing; confirm the path explicitly rather than guessing or inferring it from a filename in the prompt.**
+Two things are project-specific and cannot be embedded — they must come from the user at invocation time. **Ask once at the start of any flow for whichever is missing, then stop and wait for the answer: read no sources and write no file until the user replies. Confirm the path explicitly rather than guessing or inferring it from a filename in the prompt; a source path like `docs/…/requirements.md` is not the output folder.**
 
 1. **`<gap-analysis-folder>`** — where reports live. This document uses the token `<gap-analysis-folder>` throughout; substitute the path the user gives. Engagements lay out `output/` differently (`output/requirement/gap-analysis/`, `output/gap-analysis/`, `docs/gap-analysis/`, …), so a wrong path silently writes into the wrong place or fails to find existing reports on a register refresh. Ask: "What's the project's gap-analysis output folder — the one that holds (or will hold) the `*-gap-analysis.html` files and `gap-register.html`?"
 
@@ -101,7 +104,7 @@ If a report on this topic *already* exists in `<gap-analysis-folder>` (e.g. the 
 
 Use when the user names a specific existing report and asks to add a finding, change severity, mark a gap resolved, or refresh the date. Examples:
 
-- "Update the approval-workflow gap analysis with one new High-severity row about JARVIS error-handling."
+- "Update the approval-workflow gap analysis with one new High-severity row about integration-hub error-handling."
 - "Mark G-04 in the quote-creation gap analysis as resolved — the FX-rate question was answered."
 - "Refresh the rebate-accounting report date to today."
 
@@ -145,10 +148,10 @@ Use when the user points at the gap-analysis folder, says "regenerate the index"
 
 ## What "good" looks like
 
-Both deliverables are bid-support artefacts — clarity for BSC and the bid team is more important than completeness. A good report:
+Both deliverables are bid-support artefacts — clarity for the customer and the bid team is more important than completeness. A good report:
 
 - **Names the contradiction explicitly** ("RFP §5 says 1,200 concurrent users; NFR-P02 says 200 — 6× discrepancy") rather than picking a value.
 - **Ties every gap to a source citation** (FR ID, NFR ID, RFP section, BPMN task ID). A gap with no source pointer is a gap the reader cannot verify.
-- **Distinguishes blocker from concern** in the *Why It Matters* column. "Vendor cannot start build until BSC answers this" is different from "audit trail is weaker than ideal".
+- **Distinguishes blocker from concern** in the *Why It Matters* column. "Vendor cannot start build until the customer answers this" is different from "audit trail is weaker than ideal".
 - **Surfaces missing FRs separately** from contradicted FRs (e.g. `MFR-` prefix for "FeatureSpec P0, no FR exists"). The bid team needs both lists for different reasons.
 - **Keeps the open-question loop closed.** Every Critical / High gap should have a counterpart in the project's open-questions file (typically a sibling of `<gap-analysis-folder>`, e.g. `<requirement-folder>/open-questions.md`, grouped A–G). Mention this to the user when finishing — and ask for the open-questions file path if you don't already have it.

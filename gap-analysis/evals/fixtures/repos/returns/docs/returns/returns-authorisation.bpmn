@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic BPMN for the gap-analysis eval fixtures. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Defs_Returns">
+  <bpmn:process id="Returns_Authorisation" name="Returns authorisation" isExecutable="false">
+    <bpmn:startEvent id="Start_ReturnRequested" name="Customer requests a return">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_CheckPolicy" name="Check request against returns policy">
+      <bpmn:documentation>FR_R02</bpmn:documentation>
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_IssueRma" name="Issue RMA number">
+      <bpmn:documentation>FR_R03</bpmn:documentation>
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_InspectGoods" name="Inspect returned goods">
+      <bpmn:documentation>FR_R04</bpmn:documentation>
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_ApplyRestockingFee" name="Apply restocking fee">
+      <bpmn:documentation>FR_R05</bpmn:documentation>
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_PayRefund" name="Pay refund">
+      <bpmn:documentation>FR_R06</bpmn:documentation>
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_Refunded" name="Return closed">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start_ReturnRequested" targetRef="Task_CheckPolicy"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_CheckPolicy" targetRef="Task_IssueRma"/>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_IssueRma" targetRef="Task_InspectGoods"/>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_InspectGoods" targetRef="Task_ApplyRestockingFee"/>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_ApplyRestockingFee" targetRef="Task_PayRefund"/>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_PayRefund" targetRef="End_Refunded"/>
+  </bpmn:process>
+</bpmn:definitions>

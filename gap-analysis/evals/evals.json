@@ -26,7 +26,7 @@
     {
       "id": 1,
       "name": "flow-a-update-approval",
-      "prompt": "Update the existing approval workflow gap analysis report at output/requirement/gap-analysis/approval-workflow-gap-analysis.html. Add one new finding: the WS4-01 / WS4-02 / WS4-03 BPMN files have no explicit error-handling sub-processes for SAP integration calls routed via JARVIS (referenced in FR_W08). Treat this as a High severity Vendor-owned BPMN modelling gap. The glossary is at output/requirement/ubiquitous-language.md. Preserve all existing gap IDs and the architecture summary boxes; only add the new row in the gap-register table, refresh the date in the subtitle to 2026-04-30, and add a corresponding bullet under \"Missing — Must Be Raised\". Save the updated file and tell me the path when you're done.",
+      "prompt": "Update the existing approval workflow gap analysis report at output/requirement/gap-analysis/approval-workflow-gap-analysis.html. Add one new finding: the WS4-01 / WS4-02 / WS4-03 BPMN files have no explicit error-handling sub-processes for SAP integration calls routed via the integration hub (referenced in FR_W08). Treat this as a High severity Vendor-owned BPMN modelling gap. The glossary is at output/requirement/ubiquitous-language.md. Preserve all existing gap IDs and the architecture summary boxes; only add the new row in the gap-register table, refresh the date in the subtitle to 2026-04-30, and add a corresponding bullet under \"Missing — Must Be Raised\". Save the updated file and tell me the path when you're done.",
       "expected_output": "An updated HTML file that preserves all existing gap IDs, adds one new High-severity row with the next available gap ID, updates the date in the subtitle, and adds a matching bullet to the box-gap arch box.",
       "files": [],
       "assertions": [
@@ -34,7 +34,7 @@
         {"text": "Subtitle date updated to 2026-04-30"},
         {"text": "All original gap IDs preserved (count and identity match the source file)"},
         {"text": "Exactly one new gap row added with severity class sev-high"},
-        {"text": "New row references FR_W08 and JARVIS/SAP error-handling theme"},
+        {"text": "New row references FR_W08 and integration-hub/SAP error-handling theme"},
         {"text": "New gap ID uses an existing prefix (BPM- or G-) and the next available number"},
         {"text": "box-gap arch box has one new <li> bullet referencing the new gap ID"},
         {"text": "box-confirmed and box-implied bullet lists are unchanged from the source"},
@@ -61,7 +61,7 @@
         {"text": "data-sev values are all in {critical, high, medium, low, open, resolved}"},
         {"text": "data-ws values are all in {ws1, ws2, ws3, ws4, ws5, ws6, ws7, arch, cross, reg, comm}"},
         {"text": "Sum of scorecard counts equals total tbody <tr> count (within ±3)"},
-        {"text": "Owner pills used: at least one owner-bsc-sap, owner-bsc-biz or owner-vendor"},
+        {"text": "Owner pills used: at least one owner-cust-sap, owner-cust-biz or owner-vendor"},
         {"text": "Severity badges used: <span class=\"sev sev-critical\"> badge form (not bare class on td)"}
       ]
     }

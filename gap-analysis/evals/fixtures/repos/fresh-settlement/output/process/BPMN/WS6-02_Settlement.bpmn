@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic BPMN for the gap-analysis eval fixtures. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Defs_WS6_02">
+  <bpmn:process id="WS6_02_Settlement" name="WS6-02 Settlement" isExecutable="false">
+    <bpmn:startEvent id="Start_PeriodClose" name="Settlement period closes">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_CalcSettlement" name="Calculate rebate settlement">
+      <bpmn:documentation>FR_M20</bpmn:documentation>
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_FinanceReview" name="Finance review of settlement">
+      <bpmn:documentation>FR_M22</bpmn:documentation>
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_Approved" name="Approved?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Approved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Disputed</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_PostCreditNote" name="Post credit note to ERP">
+      <bpmn:documentation>FR_M24</bpmn:documentation>
+      <bpmn:incoming>Flow_Approved</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="Task_SendStatement" name="Send settlement statement">
+      <bpmn:documentation>FR_M21 FR_M27</bpmn:documentation>
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="End_Settled" name="Settlement complete">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_HoldDispute" name="Hold settlement for dispute">
+      <bpmn:documentation>FR_M26</bpmn:documentation>
+      <bpmn:incoming>Flow_Disputed</bpmn:incoming>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start_PeriodClose" targetRef="Task_CalcSettlement"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_CalcSettlement" targetRef="Task_FinanceReview"/>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_FinanceReview" targetRef="Gateway_Approved"/>
+    <bpmn:sequenceFlow id="Flow_Approved" name="approved" sourceRef="Gateway_Approved" targetRef="Task_PostCreditNote"/>
+    <bpmn:sequenceFlow id="Flow_Disputed" name="disputed" sourceRef="Gateway_Approved" targetRef="Task_HoldDispute"/>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_PostCreditNote" targetRef="Task_SendStatement"/>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_SendStatement" targetRef="End_Settled"/>
+  </bpmn:process>
+</bpmn:definitions>

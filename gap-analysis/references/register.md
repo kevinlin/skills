@@ -8,7 +8,7 @@ Read after `conventions.md`. The master register is `<gap-analysis-folder>/gap-r
 
 ```html
 <h1><Project> — Master Gap &amp; Risk Register</h1>
-<p class="subtitle"><Project> · BSC APAC Japan Wave 1 · All workstreams · Last updated <Date> · Integrated with full cross-file gap analysis</p>
+<p class="subtitle"><Project> · <Programme> · All workstreams · Last updated <Date> · Integrated with full cross-file gap analysis</p>
 ```
 
 `<Project>` is the engagement / product name — take it from the individual reports or the user, and drop the `<Project> — ` / `<Project> · ` prefix if there is no obvious project name. Keep the title and the "All workstreams" framing. The subtitle is the only line that changes per refresh — bump the date and (if applicable) update the closing clause.
@@ -88,10 +88,10 @@ The register groups gaps into seven canonical categories. Don't invent new ones 
 | 1 | SAP Integration — Payload Design Blockers                          | indigo (`#6366f1`)  | `SAP-` prefixes (and legacy `R-` IDs preserved from earlier reports), plus any `AMB-`/`GAP-` rows that block VK11 / VA01 development. |
 | 2 | WS6 Rebate Accounting — Unresolved Integration Boundaries          | violet (`#a855f7`)  | `G-` and `CTR-` rows about accrual postings, credit notes, settlement. |
 | 3 | Workflow — Configuration Risk & BPMN Modelling Defects             | green (`#22c55e`)   | `W-` (governance) + `BPM-` (modelling defects) rows. |
-| 4 | Architecture — Confirmed Assumptions, Contradictions & Integration Gaps | pink (`#ec4899`) | `A-`, `CTR-`, `MFR-`, `INT-` rows about JARVIS / ADL / Snowflake / integration topology. |
+| 4 | Architecture — Confirmed Assumptions, Contradictions & Integration Gaps | pink (`#ec4899`) | `A-`, `CTR-`, `MFR-`, `INT-` rows about the integration hub / data platform / data warehouse / integration topology. |
 | 5 | Requirements Coverage — Contradictions, Missing FRs & Ambiguities  | sky (`#0ea5e9`)     | `CTR-`, `AMB-`, `MFR-` rows that are not specifically WS6 or architecture. |
 | 6 | Commercial — Price Master / PCA / SAP                              | amber (`#f59e0b`)   | `COM-` rows. |
-| 7 | Regulatory & Compliance                                            | purple (`#a855f7`)  | `REG-` rows (APPI, J-SOX, NHI, PMDA, FSA, retention). |
+| 7 | Regulatory & Compliance                                            | purple (`#a855f7`)  | `REG-` rows (data protection, financial controls, sector regulators, retention). |
 
 Category header markup:
 
@@ -100,7 +100,7 @@ Category header markup:
   <div class="category-number" style="background:#6366f120;color:#a5b4fc;">1</div>
   <div>
     <div class="category-title">SAP Integration — Payload Design Blockers</div>
-    <div class="category-desc">Vendor cannot build the API calls without BSC SAP team answering these first</div>
+    <div class="category-desc">Vendor cannot build the API calls without the customer's SAP team answering these first</div>
   </div>
 </div>
 ```
@@ -143,7 +143,7 @@ Each category gets its own table with this header:
       <td>Why-it-matters sentence.</td>
       <td><span class="sev sev-critical">Critical</span></td>
       <td><span class="ws ws-ws6">WS6</span></td>
-      <td><span class="owner owner-bsc-sap">BSC SAP Team</span></td>
+      <td><span class="owner owner-cust-sap">Customer SAP Team</span></td>
     </tr>
     ...
   </tbody>
@@ -152,6 +152,7 @@ Each category gets its own table with this header:
 
 Critical rules:
 
+- **One workstream span per row** in the register form `<span class="ws ws-X">`, with X equal to the row's `data-ws` (never the report's `pill pill-*` form). A gap that affects several workstreams is `cross` (`ws-cross`), not several spans.
 - **`data-sev` and `data-ws` on every `<tr>`** — required for the filter JS. Allowed `data-sev` values: `critical`, `high`, `medium`, `low`, `open`, `resolved`. Allowed `data-ws` values match the filter buttons.
 - **Severity column uses badge form** (`<span class="sev sev-critical">Critical</span>`), not the bare `class="sev-critical"` cell used in individual reports. This is a deliberate visual distinction.
 - **Owner column is mandatory** in the register and absent from individual reports.

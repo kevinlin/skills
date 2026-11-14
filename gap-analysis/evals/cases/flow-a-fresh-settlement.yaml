@@ -1,0 +1,44 @@
+id: flow-a-fresh-settlement
+title: Flow A writes a fresh, house-style individual report with the right prefixes and mirrored arch boxes
+description: |
+  Migrated from the legacy evals.json workflow "flow-a-fresh-settlement", with synthetic inputs (a made-up
+  settlement BPMN, RFP excerpt, requirements, FeatureSpec and glossary under input/ and output/).
+
+  The user names a workflow, the source documents, the glossary and the output folder, and no report exists for the
+  topic. The skill must take Flow A: save <topic>-gap-analysis.html in the named folder from the template, keep the
+  theme system, fill the phase flow, the gap table and the three architecture boxes, and keep the two views in sync.
+
+  The fixture plants four findings whose prefix the decision tree fixes: a BPMN task with no outgoing flow (BPM-),
+  a P0 FeatureSpec item with no FR (MFR-), an RFP figure the NFR contradicts, 1,200 vs 200 accounts (CTR-), and a term
+  the glossary does not declare, "credit memo" vs "credit note" (AMB-). It also plants "rebate settlement" vs "claim
+  settlement", which the glossary declares as synonyms, so raising it as AMB- is a glossary-discipline failure.
+
+  The script judge parses the saved HTML and checks the contents: structure, class forms, row anatomy, prefixes,
+  provenance in <code>, row to arch-box coupling, and the final reply (path, offer to refresh the register, the
+  open-questions loop).
+
+input:
+  prompt: |
+    Use the gap-analysis skill for this request.
+
+    I need a gap analysis HTML report for the WS6 Settlement workflow. Compare the BPMN file at
+    output/process/BPMN/WS6-02_Settlement.bpmn against the settlement requirements in
+    input/Detailed_Requirements.md (focus on FR_M20 to FR_M28 and the settlement NFRs), and cross-reference the
+    settlement scope in RFP section 3.1 at input/RFP.md and the priorities in input/FeatureSpec.md.
+    The glossary is at output/requirement/ubiquitous-language.md.
+    Our gap-analysis output folder is output/requirement/gap-analysis/.
+    Use the gap-analysis house style: self-contained HTML with theme switching (system / light / dark), a
+    severity-tagged gap table, and the standard architecture summary at the bottom.
+    Save the report and tell me the path when you're done.
+
+context:
+  repo_fixture: evals/fixtures/repos/fresh-settlement
+
+constraints:
+  timeout_seconds: 600
+  max_turns: 25
+
+judge:
+  type: script
+  script_path: evals/fixtures/scripts/judge_fresh_report.py
+  timeout_seconds: 60

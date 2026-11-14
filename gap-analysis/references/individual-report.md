@@ -36,7 +36,7 @@ Five-item legend mapping card colours to meanings. Keep it identical across repo
 ```html
 <div class="legend">
   <div class="legend-item"><div class="legend-dot dot-inscope"></div> In-scope activity (FR-mapped)</div>
-  <div class="legend-item"><div class="legend-dot dot-external"></div> External system (SFDC / SAP / ADL / JDH)</div>
+  <div class="legend-item"><div class="legend-dot dot-external"></div> External system (CRM / ERP / data platform)</div>
   <div class="legend-item"><div class="legend-dot dot-actor"></div> Out-of-system actor (Customer / Dealer)</div>
   <div class="legend-item"><div class="legend-dot dot-implied"></div> Implied / inconsistent with requirements</div>
   <div class="legend-item"><div class="legend-dot dot-gap"></div> Gap — missing or under-specified</div>
@@ -101,7 +101,7 @@ The single most-read section. Format:
   <h2>Gap Register — BPMN vs. RFP / Detailed Requirements</h2>
   <p class="section-intro">
     Severity classification: <strong>Critical</strong> = blocks bid scoping or implementation; ...
-    Every gap should be added to <code>open-questions.md</code> for BSC clarification, grouped by the workstream pill shown on the right.
+    Every gap should be added to <code>open-questions.md</code> for customer clarification, grouped by the workstream pill shown on the right.
   </p>
   <table>
     <thead>
@@ -117,7 +117,7 @@ The single most-read section. Format:
       <tr>
         <td>G-01</td>
         <td><strong>Short title</strong><br>One-paragraph description with FR/RFP citations in <code>...</code>.</td>
-        <td>Why-it-matters sentence framed for bid team or BSC.</td>
+        <td>Why-it-matters sentence framed for bid team or the customer.</td>
         <td class="sev-critical">Critical</td>
         <td><span class="pill pill-ws5">WS5</span><span class="pill pill-arch">ARCH</span></td>
       </tr>
@@ -156,14 +156,14 @@ Three side-by-side `arch-box` cards summarising the gap landscape:
   <div class="arch-box box-implied">
     <h3>~ Implied / Inconsistent</h3>
     <ul>
-      <li>JDH-mediated SFDC pull (G-02)</li>
+      <li>Data-platform-mediated CRM pull (G-02)</li>
       ...
     </ul>
   </div>
   <div class="arch-box box-gap">
     <h3>✗ Missing — Must Be Raised</h3>
     <ul>
-      <li>BSC360 mandatory Pricing Council injection (G-04)</li>
+      <li>the customer360 mandatory Pricing Council injection (G-04)</li>
       ...
     </ul>
   </div>
@@ -221,11 +221,11 @@ The common failure mode is updating only one of the two views — the table OR t
 4. **Mirror the row in the arch box** in the same edit. New gap → bullet in `box-gap`. New inconsistency → bullet in `box-implied`. Newly verified item → bullet in `box-confirmed`. Bullet format: `<li>Short title (BPM-04)</li>`.
 5. **Mark superseded rows resolved** — change the severity to `<td class="sev-resolved">Resolved</td>` and apply `class="resolved"` to the `<tr>` to fade it. Leave the row in place; deletions break references in `open-questions.md` and the master register.
 6. **Update the date** in the subtitle.
-7. **Don't refactor adjacent prose, don't re-derive the full bullet lists from scratch, don't touch the legend or theme JS.** Surgical changes only — every extra change is something the reviewer has to verify is intentional.
+7. **Don't refactor adjacent prose, don't re-derive the full bullet lists from scratch, don't touch the legend, the phase-flow cards or the theme JS** unless the user asks for it. Surgical changes only — every extra change is something the reviewer has to verify is intentional.
 
 ### Worked example — adding one row
 
-User: *"Add a High-severity BPMN modelling gap to the approval-workflow report: WS4 BPMN files have no error-handling sub-processes for SAP integration calls via JARVIS, referenced in FR_W08."*
+User: *"Add a High-severity BPMN modelling gap to the approval-workflow report: WS4 BPMN files have no error-handling sub-processes for SAP integration calls via the integration hub, referenced in FR_W08."*
 
 Steps:
 
@@ -236,14 +236,14 @@ Steps:
    ```html
    <tr>
      <td>BPM-04</td>
-     <td><strong>No error-handling sub-processes for JARVIS-mediated SAP calls</strong><br>WS4-01 / WS4-02 / WS4-03 BPMN files do not model boundary error events, compensation handlers, or retry/timeout flows for SAP integration calls routed via JARVIS (<code>FR_W08</code>). Failure paths (JARVIS unavailable, SAP timeout, partial response) are unspecified.</td>
-     <td>Without explicit error-handling, an SAP-side failure during approval routing leaves the approval task in an undefined state. The integration contract with JARVIS must specify retries, dead-letter queues, and compensating actions before WS4 build can start.</td>
+     <td><strong>No error-handling sub-processes for hub-mediated SAP calls</strong><br>WS4-01 / WS4-02 / WS4-03 BPMN files do not model boundary error events, compensation handlers, or retry/timeout flows for SAP integration calls routed via the integration hub (<code>FR_W08</code>). Failure paths (the integration hub unavailable, SAP timeout, partial response) are unspecified.</td>
+     <td>Without explicit error-handling, an SAP-side failure during approval routing leaves the approval task in an undefined state. The integration contract with the integration hub must specify retries, dead-letter queues, and compensating actions before WS4 build can start.</td>
      <td class="sev-high">High</td>
      <td><span class="pill pill-ws4">WS4</span></td>
    </tr>
    ```
 
-4. Find the `arch-box box-gap` `<ul>` and add: `<li>JARVIS error-handling sub-processes for SAP calls (BPM-04)</li>`.
+4. Find the `arch-box box-gap` `<ul>` and add: `<li>integration-hub error-handling sub-processes for SAP calls (BPM-04)</li>`.
 5. Bump the subtitle date.
 6. Save. Done.
 

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Contoso Rebates — Master Gap &amp; Risk Register</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg-page:#0f1117; --bg-card:#0f172a; --border:#1e293b; --text-primary:#f8fafc; --text-body:#e2e8f0;
+    --text-muted:#94a3b8; --text-dim:#64748b; --text-faint:#475569; --bg-header:#1e293b; --bg-hover:#0f172a;
+    --toggle-bg:#1e293b; --toggle-active-bg:#334155; --toggle-text:#94a3b8; --toggle-active-text:#f1f5f9; }
+  [data-theme="light"] { --bg-page:#f8fafc; --bg-card:#ffffff; --border:#e2e8f0; --text-primary:#0f172a;
+    --text-body:#1e293b; --text-muted:#64748b; --text-dim:#94a3b8; --text-faint:#94a3b8; --bg-header:#f1f5f9;
+    --bg-hover:#f1f5f9; --toggle-bg:#f1f5f9; --toggle-active-bg:#e2e8f0; --toggle-text:#64748b;
+    --toggle-active-text:#0f172a; }
+  .theme-toggle { position: fixed; top: 16px; right: 16px; display: flex; background: var(--toggle-bg);
+    border-radius: 8px; padding: 3px; font-size: 12px; }
+  .theme-toggle button { padding: 5px 10px; border: none; border-radius: 6px; background: transparent;
+    color: var(--toggle-text); cursor: pointer; }
+  .theme-toggle button.active { background: var(--toggle-active-bg); color: var(--toggle-active-text); }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg-page); color: var(--text-body); padding: 32px 24px; }
+  h1 { font-size: 22px; color: var(--text-primary); margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 32px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 24px; }
+  th { text-align: left; padding: 8px 12px; background: var(--bg-header); color: var(--text-muted); font-size: 10px; }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr.resolved td { opacity: .55; }
+
+  .scorecard { display: flex; gap: 12px; margin-bottom: 24px; }
+  .score-tile { flex: 1; border-radius: 8px; padding: 14px; border: 1px solid var(--border); }
+  .score-count { font-size: 28px; font-weight: 800; } .score-ids { font-size: 10px; color: var(--text-dim); }
+  .report-links { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .report-links a { padding: 4px 12px; border-radius: 99px; border: 1px solid var(--border); font-size: 12px; }
+  .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+  .filter-btn { padding: 4px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent;
+    color: var(--text-muted); cursor: pointer; font-size: 11px; }
+  .filter-btn.active { background: var(--toggle-active-bg); }
+  .category-header { display: flex; gap: 14px; align-items: center; margin: 28px 0 10px; }
+  .category-number { width: 28px; height: 28px; border-radius: 8px; text-align: center; font-weight: 700; }
+  .category-title { font-size: 14px; font-weight: 700; } .category-desc { font-size: 11px; color: var(--text-dim); }
+  .sev { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+  .sev-critical { color: #f87171; } .sev-high { color: #fbbf24; } .sev-medium { color: #34d399; }
+  .sev-low { color: var(--text-muted); } .sev-open { color: #a5b4fc; } .sev-resolved { color: var(--text-dim); }
+  .owner, .ws { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; }
+  .gap-id { font-weight: 700; white-space: nowrap; } .gap-title { font-weight: 600; }
+  .gap-detail { font-size: 11px; color: var(--text-dim); margin-top: 3px; } .row-hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="theme-toggle">
+  <button onclick="setTheme('system')" id="theme-system">System</button>
+  <button onclick="setTheme('light')" id="theme-light">Light</button>
+  <button onclick="setTheme('dark')" id="theme-dark">Dark</button>
+</div>
+
+<h1>Contoso Rebates — Master Gap &amp; Risk Register</h1>
+<p class="subtitle">Contoso Rebates · All workstreams · Last updated 2026-03-12 · Integrated with full cross-file gap analysis</p>
+
+<div class="scorecard">
+  <div class="score-tile tile-critical">
+    <div class="score-label">Critical</div>
+    <div class="score-count">1</div>
+    <div class="score-ids">SAP-01</div>
+  </div>
+  <div class="score-tile tile-high">
+    <div class="score-label">High</div>
+    <div class="score-count">0</div>
+    <div class="score-ids"></div>
+  </div>
+  <div class="score-tile tile-medium">
+    <div class="score-label">Medium</div>
+    <div class="score-count">2</div>
+    <div class="score-ids">G-01 · BPM-01</div>
+  </div>
+  <div class="score-tile tile-open">
+    <div class="score-label">Open Decision</div>
+    <div class="score-count">0</div>
+    <div class="score-ids"></div>
+  </div>
+  <div class="score-tile tile-resolved">
+    <div class="score-label">Resolved / Low</div>
+    <div class="score-count">0</div>
+    <div class="score-ids"></div>
+  </div>
+</div>
+
+<div class="report-links">
+  <a href="quote-creation-gap-analysis.html">Quote Creation</a>
+  <a href="rebate-settlement-gap-analysis.html">Rebate Settlement</a>
+</div>
+
+<div class="filter-bar">
+  <span class="filter-label">Filter by:</span>
+  <button class="filter-btn active" onclick="filterRows('all')">All</button>
+  <button class="filter-btn" onclick="filterRows('critical')">Critical</button>
+  <button class="filter-btn" onclick="filterRows('high')">High</button>
+  <button class="filter-btn" onclick="filterRows('medium')">Medium</button>
+  <button class="filter-btn" onclick="filterRows('open')">Open Decision</button>
+  <button class="filter-btn" onclick="filterRows('resolved')">Resolved / Low</button>
+  <button class="filter-btn" onclick="filterRows('ws6')">WS6 Accounting</button>
+  <button class="filter-btn" onclick="filterRows('ws5')">WS5 Pricing</button>
+  <button class="filter-btn" onclick="filterRows('ws1')">WS1/WS2 Workflow</button>
+  <button class="filter-btn" onclick="filterRows('arch')">Architecture</button>
+  <button class="filter-btn" onclick="filterRows('cross')">Contradictions</button>
+  <button class="filter-btn" onclick="filterRows('reg')">Regulatory</button>
+  <button class="filter-btn" onclick="filterRows('comm')">Commercial</button>
+</div>
+
+<div class="category-header" data-category="cat1">
+  <div class="category-number">1</div>
+  <div>
+    <div class="category-title">SAP Integration — Payload Design Blockers</div>
+    <div class="category-desc">Vendor cannot build the API calls until the SAP team answers</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <tr data-sev="critical" data-ws="ws5">
+      <td class="gap-id">SAP-01</td>
+      <td><span class="gap-title">SAP condition type for the rebate credit is undefined</span><div class="gap-detail"><code>FR_Q12</code> names no SAP condition type.</div></td>
+      <td>The pricing payload cannot be built.</td>
+      <td><span class="sev sev-critical">Critical</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-cust-sap">SAP Team</span></td>
+    </tr>
+  </tbody>
+</table>
+<div class="category-header" data-category="cat2">
+  <div class="category-number">2</div>
+  <div>
+    <div class="category-title">WS6 Rebate Accounting — Unresolved Integration Boundaries</div>
+    <div class="category-desc">Handoff points and payload design</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <tr data-sev="medium" data-ws="ws6">
+      <td class="gap-id">G-01</td>
+      <td><span class="gap-title">Owner of the accrual reversal is unclear</span><div class="gap-detail"><code>FR_M20</code> and <code>FR_M25</code> are silent.</div></td>
+      <td>Both sides could book the reversal.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws6">WS6</span></td>
+      <td><span class="owner owner-shared">Customer / Vendor</span></td>
+    </tr>
+  </tbody>
+</table>
+<div class="category-header" data-category="cat3">
+  <div class="category-number">3</div>
+  <div>
+    <div class="category-title">Workflow — Configuration Risk &amp; BPMN Modelling Defects</div>
+    <div class="category-desc">Go-live configuration risk and BPMN defects</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+    <tr data-sev="medium" data-ws="ws5">
+      <td class="gap-id">BPM-01</td>
+      <td><span class="gap-title">Quote validation has no failure path</span><div class="gap-detail"><code>Task_ValidateQuote</code> has one outgoing flow.</div></td>
+      <td>A rejected quote stalls.</td>
+      <td><span class="sev sev-medium">Medium</span></td>
+      <td><span class="ws ws-ws5">WS5</span></td>
+      <td><span class="owner owner-vendor">Vendor</span></td>
+    </tr>
+  </tbody>
+</table>
+<div class="category-header" data-category="cat4">
+  <div class="category-number">4</div>
+  <div>
+    <div class="category-title">Architecture — Confirmed Assumptions, Contradictions &amp; Integration Gaps</div>
+    <div class="category-desc">Architecture and integration</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+
+  </tbody>
+</table>
+<div class="category-header" data-category="cat5">
+  <div class="category-number">5</div>
+  <div>
+    <div class="category-title">Requirements Coverage — Contradictions, Missing FRs &amp; Ambiguities</div>
+    <div class="category-desc">Contradicted, absent or vague FRs</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+
+  </tbody>
+</table>
+<div class="category-header" data-category="cat6">
+  <div class="category-number">6</div>
+  <div>
+    <div class="category-title">Commercial — Price Master / PCA / SAP</div>
+    <div class="category-desc">Pricing workstream commercial gaps</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+
+  </tbody>
+</table>
+<div class="category-header" data-category="cat7">
+  <div class="category-number">7</div>
+  <div>
+    <div class="category-title">Regulatory &amp; Compliance</div>
+    <div class="category-desc">Retention, signature and audit duties</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Gap / Risk</th><th>Why It Matters</th><th>Severity</th><th>Workstream</th><th>Owner</th></tr>
+  </thead>
+  <tbody>
+
+  </tbody>
+</table>
+
+<div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border);font-size:11px;text-align:center;">
+  Contoso Rebates Master Gap &amp; Risk Register · All workstreams · 2026-03-12 · Integrated with full cross-file gap analysis
+</div>
+
+<script>
+  function setTheme(mode) {
+    localStorage.setItem('gap-analysis-theme', mode);
+    applyTheme(mode);
+    document.querySelectorAll('.theme-toggle button').forEach(b => b.classList.remove('active'));
+    document.getElementById('theme-' + mode).classList.add('active');
+  }
+  function applyTheme(mode) {
+    if (mode === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', mode);
+    }
+  }
+  (function() {
+    const saved = localStorage.getItem('gap-analysis-theme') || 'system';
+    applyTheme(saved);
+    document.getElementById('theme-' + saved).classList.add('active');
+  })();
+
+  function filterRows(filter) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('tbody tr').forEach(row => {
+      const sev = row.dataset.sev || '', ws = row.dataset.ws || '';
+      const show = filter === 'all' || sev === filter || ws === filter ||
+        (filter === 'resolved' && sev === 'low') || (filter === 'ws1' && ws === 'ws2');
+      row.classList.toggle('row-hidden', !show);
+    });
+  }
+</script>
+
+</body>
+</html>
