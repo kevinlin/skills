@@ -5,7 +5,7 @@ permissions:
   - file_read
   - file_write
 metadata:
-  version: 1.2.0
+  version: 1.2.1
 ---
 
 # Gap Analysis
@@ -57,7 +57,7 @@ Two things are project-specific and cannot be embedded — they must come from t
 
 2. **Glossary / ubiquitous-language file** — the terminology source of truth. Every engagement uses different terms, acronyms, and cross-document synonyms, so a hardcoded path produces wrong analysis on a new project. It may live anywhere (`output/requirement/ubiquitous-language.md`, `docs/glossary.md`, embedded in a README, …). Ask: "Where's the glossary / ubiquitous-language file — the one listing canonical terms and known synonyms?" Read it in full before drafting any row whose verdict turns on a term (including every `AMB-` decision). `conventions.md` §6 is the source of truth for glossary discipline.
 
-If the user genuinely has no glossary: proceed, default every terminology mismatch to `AMB-`, and note up-front in the report intro — "No glossary supplied — terminology variants flagged conservatively; reconcile against a glossary before circulating widely."
+If the user genuinely has no glossary: proceed, default every terminology mismatch to `AMB-` (variants that look like obvious synonyms count too: give each pair its own row quoting both forms verbatim), and note up-front in the report intro — "No glossary supplied — terminology variants flagged conservatively; reconcile against a glossary before circulating widely."
 
 ---
 
@@ -122,7 +122,7 @@ This flow is deliberately narrow. Do *not* re-read the full RFP / BPMN source un
    - Severity uses the bare-class cell form here: `<td class="sev-high">High</td>` — not the badge form (which is reserved for the master register).
 4. **Mirror the row to the matching arch box** (per `conventions.md` §8). Open gaps → `box-gap`. Inconsistencies → `box-implied`. Newly verified items → `box-confirmed`. Bullet format: `<li>Short title (BPM-04)</li>`. Skipping this step is the single most common reason updates fail review.
 5. **For severity changes** on an existing row: update both the row's severity class *and* move the matching arch-box bullet if the box-mapping changed (e.g. resolving an open gap → bullet moves from `box-gap` to `box-confirmed`).
-6. **For "mark resolved":** change the row to `<td class="sev-resolved">Resolved</td>` and add `class="resolved"` to the `<tr>`. Do not delete the row — the historical record matters. Update the arch box per step 4.
+6. **For "mark resolved":** change the row to `<td class="sev-resolved">Resolved</td>` and add `class="resolved"` to the `<tr>`. Do not delete the row — the historical record matters. Update the arch box per step 4. Leave the phase-flow cards alone, even a `card-implied` that only existed because of this gap; if a card now looks stale, say so in your reply and let the user decide.
 7. **Update the subtitle date** to today (the user usually says so, but do it even when they don't — the date is the audit trail).
 8. **Save and stop.** Do not re-write unrelated sections, do not "improve" surrounding prose, do not refactor the legend. Surgical changes only.
 
