@@ -2,6 +2,10 @@ schema_version: v1alpha1
 
 environment:
   type: none
+  env:
+    # Keep the operator's global CLAUDE.md, settings and installed skills out of the eval agent;
+    # relative, so it resolves to an empty dir inside each case workspace.
+    CLAUDE_CONFIG_DIR: .eval-claude-config
 
 skills:
   - source: local_path
@@ -18,9 +22,13 @@ cases:
     - evals/cases/orthogonal-connectors.yaml
     - evals/cases/pipeline-stages.yaml
     - evals/cases/continuous-html-block.yaml
+  parallelism: 3
   defaults:
     timeout_seconds: 300
     max_turns: 8
+
+benchmark:
+  enabled: true
 
 report:
   formats: [json]
